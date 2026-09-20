@@ -1,0 +1,21 @@
+{
+  "pass": true,
+  "scope": "full quantized kernel plus outer rule driven by actual full-network counts; controlled stimulation, not live market or Python closed-loop parity",
+  "spikes": [
+    3369,
+    12949,
+    7646,
+    9173,
+    6885,
+    9734,
+    4839,
+    6724,
+    5373,
+    9800,
+    5220,
+    6299
+  ],
+  "restoreExact": true,
+  "changedPlastic": 7835,
+  "heapBytes": 201326592
+}

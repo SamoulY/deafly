@@ -1,0 +1,295 @@
+{
+  "status": "PASS",
+  "all_state_and_plastic_vs_fp32_wasm_bit_exact": true,
+  "native_tolerance": {
+    "atol": 0.0002,
+    "rtol": 2e-05
+  },
+  "frames": [
+    {
+      "frame": 0,
+      "fields": {
+        "v": {
+          "fp32_wasm_exact": true,
+          "native_exact": true,
+          "native_max_abs_error": 0.0
+        },
+        "g": {
+          "fp32_wasm_exact": true,
+          "native_exact": true,
+          "native_max_abs_error": 0.0
+        },
+        "refractory": {
+          "fp32_wasm_exact": true,
+          "native_exact": true,
+          "native_max_abs_error": 0.0
+        },
+        "previous_drive": {
+          "fp32_wasm_exact": true,
+          "native_exact": true,
+          "native_max_abs_error": 0.0
+        },
+        "queue": {
+          "fp32_wasm_exact": true,
+          "native_exact": true,
+          "native_max_abs_error": 0.0
+        },
+        "queue_count": {
+          "fp32_wasm_exact": true,
+          "native_exact": true,
+          "native_max_abs_error": 0.0
+        },
+        "clock": {
+          "fp32_wasm_exact": true,
+          "native_exact": true,
+          "native_max_abs_error": 0.0
+        },
+        "counts": {
+          "fp32_wasm_exact": true,
+          "native_exact": true,
+          "native_max_abs_error": 0.0
+        },
+        "active": {
+          "fp32_wasm_exact": true,
+          "native_exact": true,
+          "native_max_abs_error": 0.0
+        },
+        "flags": {
+          "fp32_wasm_exact": true,
+          "native_exact": true,
+          "native_max_abs_error": 0.0
+        },
+        "nactive": {
+          "fp32_wasm_exact": true,
+          "native_exact": true,
+          "native_max_abs_error": 0.0
+        },
+        "last": {
+          "fp32_wasm_exact": true,
+          "native_exact": true,
+          "native_max_abs_error": 0.0
+        },
+        "eligibility": {
+          "fp32_wasm_exact": true,
+          "native_exact": true,
+          "native_max_abs_error": 0.0
+        },
+        "eligibility_last": {
+          "fp32_wasm_exact": true,
+          "native_exact": true,
+          "native_max_abs_error": 0.0
+        },
+        "modulation": {
+          "fp32_wasm_exact": true,
+          "native_exact": true,
+          "native_max_abs_error": 0.0
+        },
+        "modulation_last": {
+          "fp32_wasm_exact": true,
+          "native_exact": true,
+          "native_max_abs_error": 0.0
+        },
+        "adaptation": {
+          "fp32_wasm_exact": true,
+          "native_exact": true,
+          "native_max_abs_error": 0.0
+        },
+        "plastic_weight": {
+          "fp32_wasm_exact": true,
+          "native_exact": true,
+          "native_max_abs_error": 0.0
+        }
+      }
+    },
+    {
+      "frame": 1,
+      "fields": {
+        "v": {
+          "fp32_wasm_exact": true,
+          "native_exact": true,
+          "native_max_abs_error": 0.0
+        },
+        "g": {
+          "fp32_wasm_exact": true,
+          "native_exact": true,
+          "native_max_abs_error": 0.0
+        },
+        "refractory": {
+          "fp32_wasm_exact": true,
+          "native_exact": true,
+          "native_max_abs_error": 0.0
+        },
+        "previous_drive": {
+          "fp32_wasm_exact": true,
+          "native_exact": true,
+          "native_max_abs_error": 0.0
+        },
+        "queue": {
+          "fp32_wasm_exact": true,
+          "native_exact": true,
+          "native_max_abs_error": 0.0
+        },
+        "queue_count": {
+          "fp32_wasm_exact": true,
+          "native_exact": true,
+          "native_max_abs_error": 0.0
+        },
+        "clock": {
+          "fp32_wasm_exact": true,
+          "native_exact": true,
+          "native_max_abs_error": 0.0
+        },
+        "counts": {
+          "fp32_wasm_exact": true,
+          "native_exact": true,
+          "native_max_abs_error": 0.0
+        },
+        "active": {
+          "fp32_wasm_exact": true,
+          "native_exact": true,
+          "native_max_abs_error": 0.0
+        },
+        "flags": {
+          "fp32_wasm_exact": true,
+          "native_exact": true,
+          "native_max_abs_error": 0.0
+        },
+        "nactive": {
+          "fp32_wasm_exact": true,
+          "native_exact": true,
+          "native_max_abs_error": 0.0
+        },
+        "last": {
+          "fp32_wasm_exact": true,
+          "native_exact": true,
+          "native_max_abs_error": 0.0
+        },
+        "eligibility": {
+          "fp32_wasm_exact": true,
+          "native_exact": true,
+          "native_max_abs_error": 0.0
+        },
+        "eligibility_last": {
+          "fp32_wasm_exact": true,
+          "native_exact": true,
+          "native_max_abs_error": 0.0
+        },
+        "modulation": {
+          "fp32_wasm_exact": true,
+          "native_exact": true,
+          "native_max_abs_error": 0.0
+        },
+        "modulation_last": {
+          "fp32_wasm_exact": true,
+          "native_exact": true,
+          "native_max_abs_error": 0.0
+        },
+        "adaptation": {
+          "fp32_wasm_exact": true,
+          "native_exact": true,
+          "native_max_abs_error": 0.0
+        },
+        "plastic_weight": {
+          "fp32_wasm_exact": true,
+          "native_exact": true,
+          "native_max_abs_error": 0.0
+        }
+      }
+    },
+    {
+      "frame": 2,
+      "fields": {
+        "v": {
+          "fp32_wasm_exact": true,
+          "native_exact": true,
+          "native_max_abs_error": 0.0
+        },
+        "g": {
+          "fp32_wasm_exact": true,
+          "native_exact": true,
+          "native_max_abs_error": 0.0
+        },
+        "refractory": {
+          "fp32_wasm_exact": true,
+          "native_exact": true,
+          "native_max_abs_error": 0.0
+        },
+        "previous_drive": {
+          "fp32_wasm_exact": true,
+          "native_exact": true,
+          "native_max_abs_error": 0.0
+        },
+        "queue": {
+          "fp32_wasm_exact": true,
+          "native_exact": true,
+          "native_max_abs_error": 0.0
+        },
+        "queue_count": {
+          "fp32_wasm_exact": true,
+          "native_exact": true,
+          "native_max_abs_error": 0.0
+        },
+        "clock": {
+          "fp32_wasm_exact": true,
+          "native_exact": true,
+          "native_max_abs_error": 0.0
+        },
+        "counts": {
+          "fp32_wasm_exact": true,
+          "native_exact": true,
+          "native_max_abs_error": 0.0
+        },
+        "active": {
+          "fp32_wasm_exact": true,
+          "native_exact": true,
+          "native_max_abs_error": 0.0
+        },
+        "flags": {
+          "fp32_wasm_exact": true,
+          "native_exact": true,
+          "native_max_abs_error": 0.0
+        },
+        "nactive": {
+          "fp32_wasm_exact": true,
+          "native_exact": true,
+          "native_max_abs_error": 0.0
+        },
+        "last": {
+          "fp32_wasm_exact": true,
+          "native_exact": true,
+          "native_max_abs_error": 0.0
+        },
+        "eligibility": {
+          "fp32_wasm_exact": true,
+          "native_exact": true,
+          "native_max_abs_error": 0.0
+        },
+        "eligibility_last": {
+          "fp32_wasm_exact": true,
+          "native_exact": true,
+          "native_max_abs_error": 0.0
+        },
+        "modulation": {
+          "fp32_wasm_exact": true,
+          "native_exact": true,
+          "native_max_abs_error": 0.0
+        },
+        "modulation_last": {
+          "fp32_wasm_exact": true,
+          "native_exact": true,
+          "native_max_abs_error": 0.0
+        },
+        "adaptation": {
+          "fp32_wasm_exact": true,
+          "native_exact": true,
+          "native_max_abs_error": 0.0
+        },
+        "plastic_weight": {
+          "fp32_wasm_exact": true,
+          "native_exact": true,
+          "native_max_abs_error": 0.0
+        }
+      }
+    }
+  ]
+}

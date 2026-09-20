@@ -1,0 +1,6 @@
+import test from 'node:test';import assert from'node:assert/strict';import{chooseAction,reinforce,correctPolicy,features,policyHash}from'../worker/src/learning.mjs';
+test('policy chooses highest valid logit deterministically',async()=>{const p={weights:[[1,0,0],[0,1,0],[0,0,1]],bias:[0,0,0],version:0};assert.equal(chooseAction(p,[2,1,0]).action,'BUY')});
+test('positive reward strengthens chosen action and changes hash',async()=>{const p={weights:[[0,0,0],[0,0,0],[0,0,0]],bias:[0,0,0],version:0};const before=await policyHash(p),n=reinforce(p,[1,.5,1],'BUY',1);assert.ok(n.weights[0][0]>0);assert.equal(n.version,1);assert.notEqual(await policyHash(n),before)});
+test('negative reward weakens the chosen action',()=>{const p={weights:[[1,0,0],[0,0,0],[0,0,0]],bias:[0,0,0],version:0};assert.ok(reinforce(p,[1,0,0],'BUY',-1).weights[0][0]<1)});
+test('human correction trains corrected action over proposal',()=>{const p={weights:[[0,0,0],[0,0,0],[0,0,0]],bias:[0,0,0],version:0};const n=correctPolicy(p,[1,.2,1],'BUY','SELL');assert.ok(n.bias[1]>n.bias[0]);assert.equal(n.version,1)});
+test('market features are finite and bounded',()=>{const f=features([100,101,99,104,103]);assert.equal(f.length,3);assert.ok(f.every(Number.isFinite));assert.ok(f.every(x=>Math.abs(x)<=1))});

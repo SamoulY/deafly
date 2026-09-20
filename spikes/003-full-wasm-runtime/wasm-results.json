@@ -1,0 +1,23 @@
+{
+  "frames": [
+    {
+      "frame": 0,
+      "seconds": 0.06109945100000005,
+      "spikes": 3335,
+      "heap_bytes": 268435456
+    },
+    {
+      "frame": 1,
+      "seconds": 0.11037659199999995,
+      "spikes": 12951,
+      "heap_bytes": 268435456
+    },
+    {
+      "frame": 2,
+      "seconds": 0.24697014200000011,
+      "spikes": 7561,
+      "heap_bytes": 268435456
+    }
+  ],
+  "allocated_array_bytes": 231660340
+}

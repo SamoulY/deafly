@@ -1,0 +1,11 @@
+<!doctype html><meta charset="utf-8"><title>Full Stonkfly WASM kernel spike</title>
+<h1>Full Stonkfly kernel · FP32 baseline</h1><p>166,700 neurons · 25,582,938 edges. Loads the complete local fixture. Kernel parity probe; outer Python learning rule is not yet ported.</p><button id="start">Run complete fixture</button><pre id="output"></pre>
+<script type="module">
+import {run} from './run.mjs';
+start.onclick=async()=>{start.disabled=true;output.textContent='Loading full fixture…\n';try {
+const meta=await fetch('./fixture.json').then(r=>r.json());
+const load=async p=>{const r=await fetch(p);if(!r.ok)throw Error(p+': '+r.status);return new Uint8Array(await r.arrayBuffer());};
+const result=await run(load,meta,async(i,m,p,r)=>{output.textContent+=JSON.stringify(r)+'\n';await new Promise(requestAnimationFrame);});
+output.textContent+=JSON.stringify(result,null,2);
+}catch(e){output.textContent+=e.stack;}finally{start.disabled=false;}};
+</script>

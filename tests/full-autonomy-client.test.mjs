@@ -1,0 +1,9 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {createBrowserBrainClient} from '../pages/browser-brain-client.js';
+const frame={snapshot_hash:'a'.repeat(64),frame_hash:'b'.repeat(64),rgb:new Uint8Array(3),width:1,height:1,observed_at:123};
+function setup(timeoutMs=100){const sent=[];const worker={postMessage:m=>sent.push(m),terminate(){}};let hidden=false;const client=createBrowserBrainClient({workerFactory:()=>worker,isHidden:()=>hidden,timeoutMs});client.start([],'autonomy');return {client,worker,sent,hide:()=>hidden=true,ready:()=>worker.onmessage({data:{type:'READY'}})};}
+test('awaits matching request and snapshot; serializes and cancels',async()=>{const x=setup();x.ready();const p=x.client.infer(frame);await assert.rejects(x.client.infer(frame),/busy/);x.worker.onmessage({data:{type:'ACTIVITY',request_id:999,payload:frame}});x.worker.onmessage({data:{type:'ACTIVITY',request_id:x.sent.at(-1).request_id,payload:frame}});assert.equal(await p,frame);const q=x.client.infer(frame);x.client.cancel();await assert.rejects(q,/cancel/);});
+test('stale identity fails closed',async()=>{const x=setup();x.ready();const p=x.client.infer(frame);x.worker.onmessage({data:{type:'ACTIVITY',request_id:x.sent.at(-1).request_id,payload:{...frame,snapshot_hash:'wrong'}}});await assert.rejects(p,/Stale/);x.client.cancel();});
+test('hidden and unready fail closed, worker error rejects readiness',async()=>{const x=setup();await assert.rejects(x.client.infer(frame),/unavailable/);const p=x.client.waitReady();x.worker.onmessage({data:{type:'ERROR',message:'failed'}});await assert.rejects(p,/cancel/);const y=setup();y.ready();y.hide();await assert.rejects(y.client.infer(frame),/paused/);y.client.cancel();});
+test('readiness and inference timeouts reject',async()=>{const x=setup(5);await assert.rejects(x.client.waitReady(),/timeout/);x.ready();await assert.rejects(x.client.infer(frame),/cancel|timeout/);});

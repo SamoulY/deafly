@@ -1,0 +1,2 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {verifyManifest} from '../worker/src/federation.mjs';
+test('federation protocol is explicit and rejects malformed manifests',async()=>{assert.equal(await verifyManifest(null),'INVALID_MANIFEST');assert.equal(await verifyManifest({protocol:'defly-federation-v1',fly_id:'x',owner_public_key:{},genesis_model_hash:'a',checkpoint_hash:'b',sequence:0,signature:'x'}),'FLY_ID_MISMATCH');});

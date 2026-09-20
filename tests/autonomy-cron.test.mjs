@@ -1,0 +1,4 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {readFileSync} from 'node:fs';
+const worker=readFileSync(new URL('../worker/src/index.mjs',import.meta.url),'utf8');
+test('scheduled work retires legacy runs and never substitutes a server policy',()=>{const body=worker.split('async function runScheduledAutonomy(e) {')[1].split('export default')[0];assert.match(body,/SET status='STOPPED'/);assert.match(body,/NOT EXISTS.*browser_autonomy_runs/);assert.doesNotMatch(body,/autonomyStep\(/);});
+test('new autonomous runs always register the full browser backend',()=>{const body=worker.split('async function startAutonomy')[1].split('async function autonomyStep')[0];assert.match(body,/body.backend !== BROWSER_BACKEND/);assert.match(body,/INSERT INTO browser_autonomy_runs/);assert.doesNotMatch(body,/if \(body.backend === BROWSER_BACKEND\)/);});

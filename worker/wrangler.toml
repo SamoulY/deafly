@@ -1,0 +1,20 @@
+name = "flydesk-v2-trial-worker"
+main = "src/index.mjs"
+compatibility_date = "2026-08-18"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "flydesk-v2-trial-db"
+database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+
+[[services]]
+binding = "ARENA"
+service = "YOUR_ARENA_WORKER"
+
+[triggers]
+crons = ["*/1 * * * *"]
+
+[vars]
+APP_ENV = "trial"
+PAPER_ONLY = "true"
+ALLOWED_ORIGIN = "*"

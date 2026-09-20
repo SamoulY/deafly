@@ -1,0 +1,21 @@
+import test from'node:test';import assert from'node:assert/strict';import{readFileSync}from'node:fs';const root=new URL('../',import.meta.url),scene=readFileSync(new URL('pages/scene.js',root),'utf8'),app=readFileSync(new URL('pages/app.js',root),'utf8');test('screen aspect matches wide market chart and keyboard is wide across fly',()=>{assert.match(scene,/PlaneGeometry\(4\.18,\s*2\.5\)/);const keyboard=scene.match(/box\(\s*root\s*,\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*["']#25313b["']/);assert.ok(keyboard,'keyboard base exists');const [,width,height,depth]=keyboard.map(Number);assert.ok(depth>width,'keyboard spans across the fly');assert.ok(height<width/4,'keyboard is a low slab')});test('autonomous failures stay visible and controls recover without silent fallback',async()=>{
+  const {runInNewContext}=await import('node:vm');
+  const source=app.slice(app.indexOf('async function runAutonomy'),app.indexOf('$("#autoToggle").onclick'));
+  const elements=new Map();
+  const $=id=>{if(!elements.has(id))elements.set(id,{disabled:false,textContent:''});return elements.get(id)};
+  const context={modeBusy:false,mode:'lab',$};
+  const run=runInNewContext(`(${source})`,context);
+  let calls=0;
+  await run(async()=>{calls++;assert.equal($('#autoToggle').disabled,true);throw new Error('brain unavailable')});
+  assert.equal(calls,1,'failed task is not blindly replayed');
+  assert.match($('#notice').textContent,/AUTONOMY FAILED.*brain unavailable/);
+  assert.equal(context.modeBusy,false);
+  for(const id of ['historicalMode','autonomousMode','autoToggle','autoStep'])assert.equal($('#'+id).disabled,false);
+  const start=app.slice(app.indexOf('async function startAuto'),app.indexOf('async function stopAuto'));
+  assert.match(start,/autoStep\(\)\.catch/);
+  assert.match(start,/#learningEvidence[^]*AUTONOMOUS STEP FAILED:[^]*e\.message/);
+  const stop=app.slice(app.indexOf('async function stopAuto'),app.indexOf('async function runAutonomy'));
+  assert.match(stop,/clearInterval\(autoTimer\)/);
+  assert.match(stop,/autoRunning\s*=\s*false/);
+  assert.match(stop,/browserBrain\.cancel\(\)/);
+});

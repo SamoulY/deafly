@@ -1,0 +1,295 @@
+{
+  "status": "PASS",
+  "float_tolerance": {
+    "atol": 0.0002,
+    "rtol": 2e-05
+  },
+  "integer_states_exact": true,
+  "frames": [
+    {
+      "frame": 0,
+      "fields": {
+        "weight": {
+          "exact": true,
+          "different": 0,
+          "max_absolute_error": 0.0
+        },
+        "v": {
+          "exact": true,
+          "different": 0,
+          "max_absolute_error": 0.0
+        },
+        "g": {
+          "exact": true,
+          "different": 0,
+          "max_absolute_error": 0.0
+        },
+        "refractory": {
+          "exact": true,
+          "different": 0,
+          "max_absolute_error": 0.0
+        },
+        "previous_drive": {
+          "exact": true,
+          "different": 0,
+          "max_absolute_error": 0.0
+        },
+        "queue": {
+          "exact": true,
+          "different": 0,
+          "max_absolute_error": 0.0
+        },
+        "queue_count": {
+          "exact": true,
+          "different": 0,
+          "max_absolute_error": 0.0
+        },
+        "clock": {
+          "exact": true,
+          "different": 0,
+          "max_absolute_error": 0.0
+        },
+        "counts": {
+          "exact": true,
+          "different": 0,
+          "max_absolute_error": 0.0
+        },
+        "active": {
+          "exact": true,
+          "different": 0,
+          "max_absolute_error": 0.0
+        },
+        "flags": {
+          "exact": true,
+          "different": 0,
+          "max_absolute_error": 0.0
+        },
+        "nactive": {
+          "exact": true,
+          "different": 0,
+          "max_absolute_error": 0.0
+        },
+        "last": {
+          "exact": true,
+          "different": 0,
+          "max_absolute_error": 0.0
+        },
+        "eligibility": {
+          "exact": true,
+          "different": 0,
+          "max_absolute_error": 0.0
+        },
+        "eligibility_last": {
+          "exact": true,
+          "different": 0,
+          "max_absolute_error": 0.0
+        },
+        "modulation": {
+          "exact": true,
+          "different": 0,
+          "max_absolute_error": 0.0
+        },
+        "modulation_last": {
+          "exact": true,
+          "different": 0,
+          "max_absolute_error": 0.0
+        },
+        "adaptation": {
+          "exact": true,
+          "different": 0,
+          "max_absolute_error": 0.0
+        }
+      }
+    },
+    {
+      "frame": 1,
+      "fields": {
+        "weight": {
+          "exact": true,
+          "different": 0,
+          "max_absolute_error": 0.0
+        },
+        "v": {
+          "exact": true,
+          "different": 0,
+          "max_absolute_error": 0.0
+        },
+        "g": {
+          "exact": true,
+          "different": 0,
+          "max_absolute_error": 0.0
+        },
+        "refractory": {
+          "exact": true,
+          "different": 0,
+          "max_absolute_error": 0.0
+        },
+        "previous_drive": {
+          "exact": true,
+          "different": 0,
+          "max_absolute_error": 0.0
+        },
+        "queue": {
+          "exact": true,
+          "different": 0,
+          "max_absolute_error": 0.0
+        },
+        "queue_count": {
+          "exact": true,
+          "different": 0,
+          "max_absolute_error": 0.0
+        },
+        "clock": {
+          "exact": true,
+          "different": 0,
+          "max_absolute_error": 0.0
+        },
+        "counts": {
+          "exact": true,
+          "different": 0,
+          "max_absolute_error": 0.0
+        },
+        "active": {
+          "exact": true,
+          "different": 0,
+          "max_absolute_error": 0.0
+        },
+        "flags": {
+          "exact": true,
+          "different": 0,
+          "max_absolute_error": 0.0
+        },
+        "nactive": {
+          "exact": true,
+          "different": 0,
+          "max_absolute_error": 0.0
+        },
+        "last": {
+          "exact": true,
+          "different": 0,
+          "max_absolute_error": 0.0
+        },
+        "eligibility": {
+          "exact": true,
+          "different": 0,
+          "max_absolute_error": 0.0
+        },
+        "eligibility_last": {
+          "exact": true,
+          "different": 0,
+          "max_absolute_error": 0.0
+        },
+        "modulation": {
+          "exact": true,
+          "different": 0,
+          "max_absolute_error": 0.0
+        },
+        "modulation_last": {
+          "exact": true,
+          "different": 0,
+          "max_absolute_error": 0.0
+        },
+        "adaptation": {
+          "exact": true,
+          "different": 0,
+          "max_absolute_error": 0.0
+        }
+      }
+    },
+    {
+      "frame": 2,
+      "fields": {
+        "weight": {
+          "exact": true,
+          "different": 0,
+          "max_absolute_error": 0.0
+        },
+        "v": {
+          "exact": true,
+          "different": 0,
+          "max_absolute_error": 0.0
+        },
+        "g": {
+          "exact": true,
+          "different": 0,
+          "max_absolute_error": 0.0
+        },
+        "refractory": {
+          "exact": true,
+          "different": 0,
+          "max_absolute_error": 0.0
+        },
+        "previous_drive": {
+          "exact": true,
+          "different": 0,
+          "max_absolute_error": 0.0
+        },
+        "queue": {
+          "exact": true,
+          "different": 0,
+          "max_absolute_error": 0.0
+        },
+        "queue_count": {
+          "exact": true,
+          "different": 0,
+          "max_absolute_error": 0.0
+        },
+        "clock": {
+          "exact": true,
+          "different": 0,
+          "max_absolute_error": 0.0
+        },
+        "counts": {
+          "exact": true,
+          "different": 0,
+          "max_absolute_error": 0.0
+        },
+        "active": {
+          "exact": true,
+          "different": 0,
+          "max_absolute_error": 0.0
+        },
+        "flags": {
+          "exact": true,
+          "different": 0,
+          "max_absolute_error": 0.0
+        },
+        "nactive": {
+          "exact": true,
+          "different": 0,
+          "max_absolute_error": 0.0
+        },
+        "last": {
+          "exact": true,
+          "different": 0,
+          "max_absolute_error": 0.0
+        },
+        "eligibility": {
+          "exact": true,
+          "different": 0,
+          "max_absolute_error": 0.0
+        },
+        "eligibility_last": {
+          "exact": true,
+          "different": 0,
+          "max_absolute_error": 0.0
+        },
+        "modulation": {
+          "exact": true,
+          "different": 0,
+          "max_absolute_error": 0.0
+        },
+        "modulation_last": {
+          "exact": true,
+          "different": 0,
+          "max_absolute_error": 0.0
+        },
+        "adaptation": {
+          "exact": true,
+          "different": 0,
+          "max_absolute_error": 0.0
+        }
+      }
+    }
+  ]
+}

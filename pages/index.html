@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#060709" />
+    <meta name="defly-api-origin" content="" />
+    <title>DEFLY // RAISING DESK</title>
+    <link rel="stylesheet" href="style.css?v=5" />
+  </head>
+  <body>
+    <header class="top">
+      <div class="wordmark">
+        <span class="pixel-fly">▛▜</span><strong>DE<span>FLY</span></strong>
+      </div>
+      <div class="top-status">
+        <i></i>99x.meme Labs · PAPER ONLY · NO REAL ORDERS
+      </div>
+    </header>
+    <main>
+      <section class="router-panel" aria-label="Federated routers">
+        <details><summary>FEDERATED ROUTERS <small id="routerStatus">LOCAL ROUTER</small></summary>
+          <div class="router-controls"><input id="routerUrl" type="url" placeholder="https://router.example" aria-label="Router URL"><button id="routerConnect">CONNECT</button></div>
+          <div id="routerPeers" class="router-peers">NO PEER ROUTERS</div>
+        </details>
+      </section>
+      <section class="fly-identity-panel" aria-label="Local fly identity"><span>LOCAL FLY</span><strong id="flyIdentity">CREATING...</strong><small id="flyIdentityStatus">LOCAL OWNER KEY · NOT ON-CHAIN</small></section>
+      <section class="theater">
+        <div class="view-tabs" role="tablist">
+          <button class="active" data-view="fly">THIRD-PERSON VIEW</button
+          ><button data-view="vision">FLY VISION</button
+          ><button data-view="brain">3D BRAIN ACTIVITY</button>
+        </div>
+        <div class="stage-top">
+          <span id="sceneTitle">■ FLY.EXE</span
+          ><button id="motion">PAUSE MOTION</button>
+        </div>
+        <div class="scene-wrap">
+          <canvas
+            id="flyScene"
+            aria-label="A 3D fly facing the market terminal"
+          ></canvas
+          ><canvas
+            id="visionScene"
+            hidden
+            aria-label="Market display through the fly vision adapter"
+          ></canvas
+          ><canvas
+            id="brainScene"
+            hidden
+            aria-label="3D fly-brain neural activity model"
+          ></canvas>
+          <div id="sceneFallback" hidden>3D PREVIEW UNAVAILABLE</div>
+          <div class="scene-caption">DRAG / DRAG TO ROTATE <b>＋</b></div>
+        </div>
+        <div class="brain-bar" aria-label="Neural telemetry">
+          <div class="brain-runtime" aria-label="Browser brain runtime">
+            <p id="brainRuntimeStatus" role="status">PREPARING FULL BROWSER BRAIN</p>
+            <div class="brain-runtime-actions"><button id="brainCancel">CANCEL BRAIN</button><button id="brainRetry" hidden>RETRY BRAIN</button></div>
+          </div>
+          <div class="model-count"><span>MODEL NEURONS</span><strong id="neurons">166,700</strong><small>DISPLAY SAMPLE <b id="displaySample">4,000</b></small></div>
+          <div><span>FULL NETWORK SPIKES</span><strong id="spikes">—</strong></div>
+          <div><span>BRAIN TIME</span><strong id="brainTime">—</strong></div>
+          <div>
+            <span>BACKEND</span
+            ><strong id="activeBackend" class="small"
+              >BROWSER RUNTIME PREPARING</strong
+            >
+          </div>
+          <p id="anatomyStatus" hidden role="status">ANATOMY UNAVAILABLE</p>
+        </div>
+        <div class="decision">
+          <span>NEURAL ORDER</span>
+          <div>
+            <b id="neuralOrder">AWAITING FIRST SIGNAL</b
+            ><small id="neuralReason"
+              >Waiting for a historical round. Start a round to load closed market bars.</small
+            >
+          </div>
+          <p id="neuralTruth" role="status">
+            NEURAL ACTIVITY UNAVAILABLE · waiting for browser inference
+          </p>
+        </div>
+        <details class="brain-detail" open>
+          <summary>NEURAL TELEMETRY / VIEW ACTIVITY DETAILS <b>＋</b></summary>
+          <div class="brain-inside">
+            <p>MODEL INPUT · deterministic market image · sensory adapter, not subjective vision</p>
+            <canvas id="brainInput" width="320" height="180" style="max-width:100%" aria-label="Exact RGB image sent to browser brain"></canvas>
+            <p id="brainInputIdentity" style="overflow-wrap:anywhere">AWAITING OBSERVATION</p>
+            <canvas id="brainActivity" width="760" height="260"></canvas>
+            <div class="decoder">
+              <label>LEFT DNp20<strong id="leftHz">—</strong></label
+              ><label>RIGHT DNp20<strong id="rightHz">—</strong></label
+              ><label>DIFFERENCE<strong id="diffHz">—</strong></label>
+            </div>
+          </div>
+        </details>
+      </section>
+      <aside class="account">
+        <div id="sessionRecovery" hidden role="alert"><p>Saved session could not be restored. Retry, or explicitly start a new fly. Your saved token is unchanged until reset.</p><button id="retrySession">RETRY</button><button id="resetSession">START NEW FLY</button></div>
+        <nav class="workspace-modes" aria-label="Trading mode">
+          <button id="historicalMode" aria-pressed="true">HISTORICAL TEACHING</button>
+          <button id="autonomousMode" aria-pressed="false">AUTONOMOUS SIMULATION</button>
+          <span id="modeStatus" role="status">PREPARING HISTORY</span>
+          <b id="autoStatus" role="status">STOPPED</b>
+        </nav>
+        <section id="raisingRoot" aria-label="Fly raising"></section>
+        <div class="account-title">
+          <h1>THE DESK</h1>
+          <span>SIM USD</span>
+        </div>
+        <div class="balance">
+          <span>TOTAL VALUE</span><strong id="equity">—</strong>
+          <p>PAPER ACCOUNT · server-authoritative</p>
+        </div>
+        <div class="stats">
+          <label>CASH<strong id="cash">—</strong></label
+          ><label>POSITION<strong id="qty">—</strong></label
+          ><label>SIDE<strong id="side">FLAT</strong></label
+          ><label>AVG COST<strong id="avg">—</strong></label
+          ><label>MARK<strong id="price">—</strong></label>
+        </div>
+        <section class="terminal">
+          <div class="terminal-head">
+            <span id="chartSymbol">MARKET</span><em id="chartSource">AWAITING HISTORICAL ROUND</em>
+          </div>
+          <canvas id="chart" width="700" height="260"></canvas>
+        </section>
+        <p id="notice">CONNECTING…</p>
+        <section id="experimentalLab" hidden aria-label="Autonomous simulation">
+        <section class="autonomy" id="labControls" hidden>
+          <div class="auto-head">
+            <span>LIVE PAPER SIMULATION</span>
+          </div>
+          <div class="auto-controls">
+            <button id="autoToggle">START AUTONOMOUS FLY</button
+            ><button id="autoStep">RUN ONE STEP NOW</button>
+          </div>
+          <details class="autonomy-details"><summary>MODEL TECHNICAL DETAILS</summary><div class="learning-grid">
+            <label>MODEL VERSION<strong id="modelVersion">v0</strong></label
+            ><label
+              >LAST FEEDBACK<strong id="lastReward"
+                >AWAITING FEEDBACK</strong
+              ></label
+            ><label
+              >SYNAPSES CHANGED<strong id="synapsesChanged">0</strong></label
+            ><label
+              >PLASTICITY HASH<strong id="plasticityHash">—</strong></label
+            >
+          </div>
+          </details>
+          <div class="correction">
+            <span>CORRECT LAST ACTION</span>
+            <div>
+              <button data-correct="BUY">SHOULD OPEN LONG</button
+              ><button data-correct="SELL">SHOULD OPEN SHORT</button
+              ><button data-correct="HOLD">SHOULD HOLD</button
+              ><button data-correct="CLOSE">SHOULD CLOSE</button>
+            </div>
+          </div>
+          <p id="learningEvidence">
+            The fly has not updated its policy through reinforcement or
+            correction yet.
+          </p>
+          <small
+            >PROFIT REWARD reinforces the previous action · LOSS PENALTY weakens
+            it</small
+          >
+        </section>
+        </section>
+        <section class="prediction-mini ninex-entry">
+          <div>
+            <span>99x.meme TRADING AREA</span
+            ><button id="open99x">JOIN +</button>
+          </div>
+          <p>7 PAPER MARKETS · ONE OPTIONAL PUBLIC LEADERBOARD PROFILE</p>
+        </section>
+        <section class="prediction-mini">
+          <div>
+            <span>Polymarket LAB</span><button id="openPoly">OPEN ＋</button>
+          </div>
+          <p>
+            PUBLIC ODDS · SIMULATED YES / NO · NO ON-CHAIN SHARES · PREDICT YES
+            / PREDICT NO
+          </p>
+          <small id="predictionTraining"
+            >PREDICTION TRAINING: settlement feedback is required before the fly
+            learns.</small
+          >
+        </section>
+      </aside>
+      <section id="arena99x" class="poly-view" hidden>
+        <div class="poly-top">
+          <div>
+            <span>99x.meme Labs</span>
+            <h2>99x.meme TRADING AREA</h2>
+          </div>
+          <button id="close99x">CLOSE</button>
+        </div>
+        <div class="arena-join">
+          <p>
+            Create a 99x.meme paper-trading profile only when you choose to
+            join. Your nickname and ranking may be public.
+          </p>
+          <input
+            id="ninexUsername"
+            maxlength="24"
+            placeholder="TRADER NAME"
+            autocomplete="username"
+          /><label
+            ><input id="ninexConsent" type="checkbox" /> I agree to create my
+            99x.meme paper-trading profile and join the public
+            leaderboard.</label
+          ><button id="ninexJoin">JOIN 99x.meme ARENA</button>
+          <p id="ninexStatus"></p>
+          <nav id="ninexMarkets" class="token-strip"></nav>
+          <div id="ninexLeaderboard" class="arena-board"></div>
+        </div>
+      </section>
+      <section id="poly" class="poly-view" hidden>
+        <div class="poly-top">
+          <div>
+            <span>EVENT PROBABILITY LAB</span>
+            <h2>POLYMARKET PREDICTIONS</h2>
+          </div>
+          <button id="closePoly">BACK TO THE FLY</button>
+        </div>
+        <div id="markets" class="market-grid"></div>
+      </section>
+    </main>
+    <footer>
+      <span>DEFLY V2 TRIAL</span
+      ><span>3D AVATAR DECORATIVE · ANATOMY IS NOT LIVE ACTIVITY</span>
+    </footer>
+    <script type="module" src="app.js?v=5"></script>
+  </body>
+</html>

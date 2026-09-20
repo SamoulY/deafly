@@ -1,0 +1,10 @@
+{
+  "pass": true,
+  "plasticEdges": 7835,
+  "DANs": 17,
+  "frames": 12,
+  "maxAbsoluteError": 4.013903467416091e-14,
+  "checkpointContinuationExact": true,
+  "frozenWeightsPreserved": true,
+  "scope": "outer learning rule against Python; controlled rate inputs, not complete closed-loop inference"
+}

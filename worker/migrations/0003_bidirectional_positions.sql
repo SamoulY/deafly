@@ -1,0 +1,5 @@
+ALTER TABLE portfolios ADD COLUMN position_side TEXT NOT NULL DEFAULT 'FLAT' CHECK(position_side IN ('FLAT','LONG','SHORT'));
+ALTER TABLE portfolios ADD COLUMN position_qty REAL NOT NULL DEFAULT 0 CHECK(position_qty >= 0);
+ALTER TABLE portfolios ADD COLUMN entry_price REAL NOT NULL DEFAULT 0;
+ALTER TABLE portfolios ADD COLUMN take_profit REAL NOT NULL DEFAULT 0;
+ALTER TABLE portfolios ADD COLUMN stop_loss REAL NOT NULL DEFAULT 0;
