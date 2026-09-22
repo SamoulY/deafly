@@ -144,13 +144,24 @@ function applyRaisingObservation(s) {
     $("#avg").textContent = "$" + Number(a.entry_price).toFixed(2);
   }
 }
-async function refreshObservation() {
+let observationRefreshInFlight = null;
+let observationRefreshAt = 0;
+const OBSERVATION_REFRESH_MS = 30000;
+async function refreshObservation(force = false) {
   if (mode !== "lab" || autoRunning || autoInFlight) return;
-  try {
-    await applyObservation(await api("/api/observation"));
-  } catch (e) {
-    console.warn("OBSERVATION_REFRESH", e.message);
-  }
+  if (!force && Date.now() - observationRefreshAt < OBSERVATION_REFRESH_MS) return;
+  if (observationRefreshInFlight) return observationRefreshInFlight;
+  observationRefreshInFlight = (async () => {
+    try {
+      await applyObservation(await api("/api/observation"));
+      observationRefreshAt = Date.now();
+    } catch (e) {
+      console.warn("OBSERVATION_REFRESH", e.message);
+    } finally {
+      observationRefreshInFlight = null;
+    }
+  })();
+  return observationRefreshInFlight;
 }
 async function applyObservation(o) {
   if (mode !== "lab") return;
@@ -335,7 +346,7 @@ async function startAuto(single = false) {
   await api("/api/autonomy/start", { method: "POST", body: {backend:'stonkfly-full-browser-wasm-v1'} });
   if (mode !== "lab") { await stopAuto(); return; }
   autoRunning = true;
-  $("#autoStatus").textContent = "RUNNING · NEXT STEP IN 10S";
+  $("#autoStatus").textContent = "RUNNING · NEXT STEP IN 30S";
   $("#autoStatus").classList.add("running");
   $("#autoToggle").textContent = "STOP AUTONOMOUS FLY";
   $("#autoToggle").disabled = false;
@@ -348,7 +359,7 @@ async function startAuto(single = false) {
         $("#learningEvidence").textContent =
           "AUTONOMOUS STEP FAILED: " + e.message;
       }),
-    10000,
+    30000,
   );
   } catch (e) {
     autoRunning = false;

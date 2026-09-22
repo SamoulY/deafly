@@ -15,18 +15,26 @@ export function validateBars(rows,{now=Date.now(),minBars=32,limit=720}={}){
  if(now/1000-(bars.at(-1).time+60)>90)throw Error('MARKET_STALE');
  return bars;
 }
+const marketCache=new Map();
+const DEFAULT_CACHE_TTL_MS=15000;
 export async function fetchMarket(symbol='BTCUSD',env={},options={}){
  const wanted=canonicalSymbol(symbol),pair=instrument[wanted];
+ const ttl=Math.max(0,Number(options.cacheTtlMs ?? env.MARKET_CACHE_TTL_MS ?? 0));
+ const preferred=String(env.MARKET_PROVIDER||'kraken').toLowerCase();
+ const cacheKey=`${preferred}:${wanted}`;
+ const cached=marketCache.get(cacheKey);
+ if(ttl>0&&cached&&Date.now()-cached.at<ttl)return {...cached.value,bars:cached.value.bars.map(x=>({...x})),cache_hit:true};
  const urls={kraken:`https://api.kraken.com/0/public/OHLC?pair=${pair.kraken}&interval=1`};
  if(pair.okx){urls.okx=`https://www.okx.com/api/v5/market/candles?instId=${pair.okx}&bar=1m&limit=300`;urls.binance=`https://api.binance.com/api/v3/klines?symbol=${wanted}&interval=1m&limit=720`;}
- const preferred=String(env.MARKET_PROVIDER||'kraken').toLowerCase();
  const order=[...new Set([preferred,...Object.keys(urls)])].filter(p=>urls[p]);
  const failures=[];
  for(const provider of order){try{
   const r=await (options.fetchImpl||fetch)(urls[provider],{signal:AbortSignal.timeout(6000),headers:{accept:'application/json'}});
   if(!r.ok)throw Error(`HTTP_${r.status}`);
   const bars=validateBars(parsers[provider](await r.json()),options);
-  return {bars,provider,source:provider==='kraken'?'kraken-public':`${provider}-public`,symbol:wanted,synthetic:false,data_complete:true,attempted:failures};
+  const value={bars,provider,source:provider==='kraken'?'kraken-public':`${provider}-public`,symbol:wanted,synthetic:false,data_complete:true,attempted:failures};
+  if(ttl>0)marketCache.set(cacheKey,{at:Date.now(),value});
+  return value;
  }catch(e){failures.push(`${provider}:${e.message}`);}}
  const e=Error('MARKET_UNAVAILABLE');e.causes=failures;throw e;
 }
