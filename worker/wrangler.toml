@@ -5,11 +5,7 @@ compatibility_date = "2026-08-18"
 [[d1_databases]]
 binding = "DB"
 database_name = "flydesk-v2-trial-db"
-database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
-
-[[services]]
-binding = "ARENA"
-service = "YOUR_ARENA_WORKER"
+database_id = "fb0490a9-6615-47d6-b3c0-2ab66b79b08b"
 
 [triggers]
 crons = ["*/1 * * * *"]
