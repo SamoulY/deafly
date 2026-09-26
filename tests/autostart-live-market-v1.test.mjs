@@ -22,9 +22,23 @@ test('boot defaults to raising; legacy autonomy requires explicit lab opt-in', (
   assert.ok(start.indexOf('await browserBrain.waitReady()') < start.indexOf('/api/autonomy/start'));
   assert.match(app, /#autoToggle[^\n]*onclick[^\n]*runAutonomy\(\(\) => startAuto\(\)\)/);
 });
-test('live observation refreshes chart monitor and retina every ten seconds only in lab mode', () => {
-  assert.match(app, /async\s+function\s+refreshObservation\s*\(\s*\)\s*\{\s*if\s*\(mode\s*!==\s*["']lab["']\s*\|\| autoRunning \|\| autoInFlight\)\s*return/);
-  assert.match(app, /applyObservation\(\s*await\s+api\(\s*["']\/api\/observation["']\s*\)\s*\)/);
+test('ten-second observation scheduler enforces thirty-second request throttle and single-flight', async () => {
+  const {runInNewContext}=await import('node:vm');
+  const source=app.slice(app.indexOf('let observationRefreshInFlight'),app.indexOf('async function applyObservation'));
+  let now=100000,calls=0,resolve,applied=0;
+  const context={mode:'lab',autoRunning:false,autoInFlight:false,Date:{now:()=>now},console,
+    api:()=>{calls++;return new Promise(r=>resolve=r);},applyObservation:async()=>{applied++;}};
+  const refresh=runInNewContext(source+';refreshObservation',context);
+  const first=refresh();const concurrent=refresh(true);assert.equal(calls,1);
+  resolve({candles:[]});await Promise.all([first,concurrent]);assert.equal(applied,1);
+  now+=10000;await refresh();assert.equal(calls,1);
+  now+=19999;await refresh();assert.equal(calls,1);
+  now+=1;const next=refresh();assert.equal(calls,2);resolve({});await next;
+  const forced=refresh(true);assert.equal(calls,3);resolve({});await forced;
+  for(const guard of ['mode','autoRunning','autoInFlight']){
+    const old=context[guard];context[guard]=guard==='mode'?'raising':true;
+    await refresh(true);assert.equal(calls,3);context[guard]=old;
+  }
   assert.match(app, /setInterval\(\s*refreshObservation\s*,\s*10000\s*,?\s*\)/);
 });
 test('autonomy awaits browser inference and fails closed without a server-policy fallback', async () => {

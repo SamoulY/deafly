@@ -20,11 +20,14 @@ export async function createBrain(progress=()=>{}){
  const initial=[...new Set([...arrays.retina,...arrays.lamina,...arrays.sugar])].sort((a,b)=>a-b);arrays.active.set(initial);for(const i of initial)arrays.flags[i]=1;arrays.nactive[0]=initial.length;arrays.plastic_weight.set(arrays.plastic_baseline);
  for(const e of arrays.r8_corrected_edges)arrays.contact[e]=Math.abs(arrays.contact[e]);
  const sensory={luminance:new Float32Array(arrays.retina.length),r8Light:new Float32Array(arrays.r8.length)},learning=createState(m.plasticEdges,arrays.plastic_dan.length);let simulated=0;
+ // Scratch is not checkpoint state; preserve the existing enumerable sensory schema.
+ Object.defineProperties(sensory,{drive:{value:arrays.drive},light:{value:new Float32Array(arrays.uv.length/2)},r8Sample:{value:new Float32Array(arrays.r8_uv.length/2)}});
+ const plasticKcRate=new Float64Array(arrays.plastic_pre.length),plasticDanRate=new Float64Array(arrays.plastic_dan.length);
  const args=abi.args.map(x=>typeof x==='object'?ptrs[x.array]:x);args[31]=0;args[12]=100;
  return {m,arrays,mod,learning,sensory,get brainMs(){return simulated;},restoreBrainMs(ms){simulated=ms;},get heapBytes(){return mod.HEAPU8.byteLength;},observe(rgb,width,height,duration=10,reinforcement="none"){
   if(!Number.isInteger(duration)||duration<=0||duration>1000)throw Error('Invalid duration');const total=new Int32Array(n);let wall=0;
   for(let remaining=duration;remaining>0;remaining-=10){const ms=Math.min(10,remaining);args[12]=Math.round(ms/.1);const drive=buildDrive({...arrays,nodes:n},sensory,rgb,width,height,ms);arrays.drive.set(drive);if(reinforcement!=="none" && duration-remaining<200){for(const i of m.reinforcement[reinforcement])arrays.drive[i]+=20;}arrays.counts.fill(0);const start=performance.now();mod._memory_advance(...args);wall+=performance.now()-start;
-   advance(learning,Float64Array.from(arrays.plastic_pre,i=>arrays.counts[i]/(ms/1000)),Float64Array.from(arrays.plastic_dan,i=>arrays.counts[i]/(ms/1000)),arrays.plastic_gain,ms/1000,.001);effectiveWeights(learning,arrays.plastic_baseline,arrays.plastic_weight);for(let i=0;i<n;i++)total[i]+=arrays.counts[i];simulated+=ms;}
+   for(let i=0;i<plasticKcRate.length;i++)plasticKcRate[i]=arrays.counts[arrays.plastic_pre[i]]/(ms/1000);for(let i=0;i<plasticDanRate.length;i++)plasticDanRate[i]=arrays.counts[arrays.plastic_dan[i]]/(ms/1000);advance(learning,plasticKcRate,plasticDanRate,arrays.plastic_gain,ms/1000,.001);effectiveWeights(learning,arrays.plastic_baseline,arrays.plastic_weight);for(let i=0;i<n;i++)total[i]+=arrays.counts[i];simulated+=ms;}
   const mean=ix=>ix.reduce((a,i)=>a+total[i],0)/ix.length/(duration/1000),left=mean(m.decoder.left),right=mean(m.decoder.right),gate=m.decoder.gate.reduce((a,i)=>a+total[i],0);
   return {counts:total,simulated_ms:duration,brain_ms:simulated,compute_ms:wall,decoder:{left_hz:left,right_hz:right,difference_hz:right-left,gate_spikes:gate,threshold_hz:5,proposed_action:!gate||Math.abs(right-left)<5?'HOLD':right>left?'BUY':'SELL'}};
  }};

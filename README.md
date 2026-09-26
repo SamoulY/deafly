@@ -35,8 +35,8 @@ Implemented locally:
 - Original cosmetic 3D fly, synchronized monitor/retina, mobile chart and action controls. Legacy autonomous lab is explicit opt-in and separate from teaching.
 
 Limits:
-- `market_only_readout_v1` is not the full Stonkfly neural kernel. Native G1 requires a persistent compute service and remains unfulfilled.
-- Browser neural anatomy uses a verified sample of real MaleCNS soma coordinates and graph IDs. Live activity stays unavailable until a fresh matching native publication passes validation; no fabricated spike or Hz readings are shown. Parameter changes do not establish predictive improvement.
+- `market_only_readout_v1` is a separate simplified training backend, not the full neural kernel. The project also contains a local browser WASM full-network runtime under `pages/full-brain/`; a persistent server is not the target architecture. Physical-phone performance and reference-model trajectory parity require separate evidence.
+- Browser anatomy displays a sample of MaleCNS soma coordinates; rendering coverage is not computational network coverage. Browser activity must match the input frame and market snapshot hashes. Parameter changes do not establish predictive improvement.
 - Evaluation uses a next-minute reference engine, distinct from five-minute teaching decisions; one evaluation reports NO VERIFIED IMPROVEMENT regardless of positive deltas.
 - Training requires adequate chronological, nonoverlapping history and varied labels; capacity is 2000 canonical rows with explicit refusal rather than truncation.
 - Session recovery currently uses this browser's local storage, not a cross-device login system.
