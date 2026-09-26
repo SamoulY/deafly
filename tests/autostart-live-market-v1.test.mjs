@@ -22,11 +22,19 @@ test('boot defaults to raising; legacy autonomy requires explicit lab opt-in', (
   assert.ok(start.indexOf('await browserBrain.waitReady()') < start.indexOf('/api/autonomy/start'));
   assert.match(app, /#autoToggle[^\n]*onclick[^\n]*runAutonomy\(\(\) => startAuto\(\)\)/);
 });
-test('live observation refreshes chart monitor and retina every ten seconds only in lab mode', () => {
-  assert.match(app, /async\s+function\s+refreshObservation\s*\(\s*\)\s*\{\s*if\s*\(mode\s*!==\s*["']lab["']\s*\|\| autoRunning \|\| autoInFlight\)\s*return/);
-  assert.match(app, /applyObservation\(\s*await\s+api\(\s*["']\/api\/observation["']\s*\)\s*\)/);
-  assert.match(app, /setInterval\(\s*refreshObservation\s*,\s*10000\s*,?\s*\)/);
+test('lab observations throttle to 30 seconds, allow explicit refresh and never refresh teaching', async () => {
+  const {runInNewContext}=await import('node:vm');
+  const source=app.slice(app.indexOf('async function refreshObservation('),app.indexOf('async function applyObservation('));
+  let now=100000,calls=0;
+  const context={mode:'raising',autoRunning:false,autoInFlight:false,observationRefreshInFlight:null,observationRefreshAt:0,OBSERVATION_REFRESH_MS:30000,Date:{now:()=>now},console,api:async()=>{calls++;return {};},applyObservation:async()=>{}};
+  const refresh=runInNewContext('('+source+')',context);
+  await refresh();assert.equal(calls,0);
+  context.mode='lab';await refresh();await refresh();assert.equal(calls,1);
+  now+=30001;await refresh();assert.equal(calls,2);
+  await refresh(true);assert.equal(calls,3);
+  context.autoRunning=true;await refresh(true);assert.equal(calls,3);
 });
+
 test('autonomy awaits browser inference and fails closed without a server-policy fallback', async () => {
   const { runInNewContext } = await import('node:vm');
   const source = app.slice(app.indexOf('async function autoStep()'), app.indexOf('async function startAuto'));

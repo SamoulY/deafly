@@ -863,6 +863,12 @@ button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-v
   }
 }
  .router-panel{margin:12px auto;max-width:1180px;border:1px solid rgba(189,255,50,.22);background:#0b0e0d;padding:10px;font-family:var(--pixel-font,monospace)}
+ .desk-chart-toolbar{display:flex;flex-wrap:wrap;gap:6px;padding:10px 0;font:12px sans-serif}.desk-chart-toolbar button,.desk-chart-toolbar select{font:12px sans-serif;padding:6px}.desk-chart-toolbar span{flex-basis:100%;color:#abc0bd}.desk-rules,#deskTime{font:13px sans-serif;line-height:1.7;color:#abc0bd}.round-toolbar{flex-wrap:wrap}.round-toolbar input,.round-toolbar select{max-width:190px}.teach-actions .secondary{opacity:.65}.terminal canvas{max-width:100%;height:auto}
+ .account-login,.live-desk{border:1px solid #334b47;padding:12px;margin:12px 0;font:13px sans-serif;line-height:1.6}.account-login form{display:flex;flex-wrap:wrap;gap:8px}.account-login input{max-width:180px;padding:8px;background:#101719;color:#e1efea;border:1px solid #526760}.live-desk button{font:12px sans-serif;padding:8px;margin:4px}.account-login{grid-column:1 / -1}
  .router-panel summary{cursor:pointer;color:#bdff32;letter-spacing:.08em}.router-panel summary small{float:right;color:#9ca79d}
  .router-controls{display:flex;gap:8px;margin-top:10px}.router-controls input{min-width:0;flex:1;background:#050706;color:#bdff32;border:1px solid #39472d;padding:8px}.router-controls button{background:#bdff32;color:#071006;border:0;padding:8px 12px;font:inherit}.router-peers{margin-top:8px;color:#9ca79d;font-size:11px;line-height:1.8}
  @media(max-width:520px){.router-controls{flex-wrap:wrap}.router-controls button{width:100%}.router-panel{margin:8px}}
+
+main{grid-template-areas:"login login" "theater account" "poly poly"}.account-login{grid-area:login;margin:0}.live-desk summary{cursor:pointer;color:#bdff32}.live-desk:not([open]){margin:8px 0}.account-login p{margin:0}
+@media(max-width:900px){main{grid-template-areas:none}.account-login{grid-area:auto;order:-2}}
+.desk-admin{grid-column:1 / -1;max-width:100%;padding:12px;border:1px solid #334b47;font:13px sans-serif}.desk-admin pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:300px;overflow:auto}.desk-admin input{max-width:100%}
