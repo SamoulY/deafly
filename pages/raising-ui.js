@@ -3,14 +3,15 @@ const money = value => Number.isFinite(Number(value)) ? '$' + Number(value).toFi
 const percent = value => value != null && Number.isFinite(Number(value)) ? (Number(value)*100).toFixed(1)+'%' : '--';
 export function renderEvaluation(e) {
   const result=e.result;
-  const rows=[['cash','CASH BASELINE'],['buy_hold','BUY & HOLD'],['pre','PRE-TRAINING'],['post','POST-TRAINING']];
-  return `<article class="training-card"><strong>${escapeHtml(result?.status || e.status)}</strong><p>${escapeHtml(e.error || 'Frozen held-out evaluation · no updates or intervention')}</p>${result ? `<p>REFERENCE ENGINE · NEXT MINUTE · NOT CORE FIVE-MINUTE</p><div class="review-scroll"><table><thead><tr><th>MODEL</th><th>NET PNL</th><th>MAX DRAWDOWN</th><th>DIRECTION ACCURACY</th><th>FORCED RATE</th><th>VOLUNTARY RATE</th></tr></thead><tbody>${rows.map(([key,label])=>{ const m=result.results?.[key]; return m ? `<tr><th>${escapeHtml(label)}</th><td>${money(m.net_pnl)}</td><td>${percent(m.max_drawdown)}</td><td>${percent(m.direction_accuracy)}</td><td>${percent(m.forced_trade_rate)}</td><td>${percent(m.voluntary_trade_rate)}</td></tr>` : ''; }).join('')}</tbody></table></div><p>${escapeHtml(result.reason || '')}</p>` : ''}</article>`;
+  const rows=[['cash','CASH BASELINE'],['buy_hold','BUY & HOLD'],['buy_hold_full','FULL BUDGET BUY & HOLD'],['pre','PRE-TRAINING'],['post','POST-TRAINING']];
+  return `<article class="training-card"><strong>${escapeHtml(result?.status || e.status)}</strong><p>${escapeHtml(e.error || 'Frozen held-out evaluation · no updates or intervention')}</p>${result ? `<p>${result.evaluator_scope==='FLYDESK_SPOT_FIVE_MINUTE'?'统一现货撮合 · 五分钟决策 · 现金 / 一档持有 / 全额持有 / 训练前后':'REFERENCE ENGINE · NEXT MINUTE · NOT CORE FIVE-MINUTE'}</p><div class="review-scroll"><table><thead><tr><th>MODEL</th><th>NET PNL</th><th>MAX DRAWDOWN</th><th>DIRECTION ACCURACY</th><th>FORCED RATE</th><th>VOLUNTARY RATE</th></tr></thead><tbody>${rows.map(([key,label])=>{ const m=result.results?.[key]; return m ? `<tr><th>${escapeHtml(label)}</th><td>${money(m.net_pnl)}</td><td>${percent(m.max_drawdown)}</td><td>${percent(m.direction_accuracy)}</td><td>${percent(m.forced_trade_rate)}</td><td>${percent(m.voluntary_trade_rate)}</td></tr>` : ''; }).join('')}</tbody></table></div><p>${escapeHtml(result.reason || '')}</p>` : ''}</article>`;
 }
 export async function init(options) {
   const root = options.root || document.querySelector('#raisingRoot');
   const ui = createRaisingController(options);
+  const modern=!!options.flydesk;
   const api = options.api;
-  let busy = false, trainingData = null;
+  let busy = false, trainingData = null, reviewData=null;
   const terminal = document.querySelector('.terminal');
   root.innerHTML = `
     <header class="fly-profile"><div class="profile-eye" aria-hidden="true">◉</div><form id="flyNameForm"><label for="flyName">YOUR FLY</label><div><input id="flyName" maxlength="40" required aria-label="Fly name"><button title="Save name" aria-label="Save name">✓</button></div></form><div class="points"><span>POINTS</span><strong id="flyPoints">--</strong></div><button id="wardrobeToggle" title="Wardrobe" aria-label="Wardrobe" aria-expanded="false">♧</button></header>
@@ -20,6 +21,11 @@ export async function init(options) {
     <section id="raisingHistory" hidden><div class="round-toolbar"><strong>TEACHING HISTORY</strong><button id="refreshHistory" title="Refresh history" aria-label="Refresh history">↻</button></div><div id="historyResults"></div></section>
     <p id="raisingStatus" role="status" aria-live="polite">RESTORING FLY...</p>
     <section id="wardrobe" hidden aria-label="Wardrobe"><header><h2>WARDROBE</h2><button id="wardrobeClose" title="Close wardrobe" aria-label="Close wardrobe">×</button></header><p class="muted">COSMETIC ONLY</p><p id="previewStatus" hidden></p><button id="cancelPreview" hidden>Cancel preview</button><div id="wardrobeItems"></div></section>`;
+  if(modern){
+    const controls=root.querySelector('.teach-actions');controls.innerHTML='<button data-teach="BUY">买一档</button><button data-teach="SELL">卖一档</button><button data-teach="HOLD">不动</button><button data-teach="SKIP" class="secondary">跳过</button>';
+    const bar=root.querySelector('.round-toolbar');bar.insertAdjacentHTML('beforeend','<label>历史数据集 <select id="deskDataset"><option value="">最近行情</option></select></label><label>UTC 时点 <input id="deskAsOf" type="datetime-local" aria-label="历史时点 UTC"></label><button id="deskAbort">结束练习</button>');
+    root.querySelector('#raisingTeach').insertAdjacentHTML('beforeend','<p class="desk-rules">纯模拟 · 不做空 · 买入最多扣款 1,000 SIM USD（含费用） · 卖出已有持仓 · 跳过不计示范</p><p id="deskTime"></p><button id="deskExport" hidden>导出本轮 JSONL</button>');
+  }
   const $ = selector => root.querySelector(selector);
   // Keep the actual market canvas next to the actions at every viewport size.
   if (terminal) $('#raisingTeach').insertBefore(terminal, $('.teach-actions'));
@@ -42,7 +48,7 @@ export async function init(options) {
     const reason = busy ? 'SAVING / PREPARING ROUND' : !s ? 'ROUND UNAVAILABLE · RETRY NEW ROUND' : s.status !== 'ACTIVE' ? 'ROUND COMPLETE · START A NEW ROUND' : ui.state.pending ? 'REQUEST UNCONFIRMED · RETRY THE SAME ACTION' : '';
     const unavailable = [];
     root.querySelectorAll('[data-teach]').forEach(button => {
-      const blocked = !s?.observation?.action_mask?.includes(button.dataset.teach);
+      const blocked = button.dataset.teach==='SKIP'?false:!s?.observation?.action_mask?.includes(button.dataset.teach);
       const pendingOther = ui.state.pending && ui.state.pending.action !== button.dataset.teach;
       button.disabled = busy || s?.status !== 'ACTIVE' || blocked || Boolean(pendingOther);
       button.title = button.disabled ? reason || (button.dataset.teach === 'CLOSE' ? 'No open position to close' : 'Close the current position before opening another') : '';
@@ -59,6 +65,12 @@ export async function init(options) {
       $('#roundFacts').textContent = `${s.provenance?.provider || 'HISTORICAL'} · ${s.provenance?.synthetic ? 'SYNTHETIC TEST' : 'CLOSED BARS'} · ${s.account?.side || 'FLAT'} · ${money(s.account?.equity)}`;
       $('#roundOutcome').textContent = s.status === 'COMPLETED' ? `ROUND COMPLETE · ${s.reward_points || 0} POINTS EARNED` : 'HUMAN DECISIONS · HOLD HAS NO INACTIVITY PENALTY';
       $('#reviewRound').hidden = s.status !== 'COMPLETED';
+    }
+    if(modern&&s){
+      $('#teachAvailability').textContent=reason||(unavailable.includes('SELL')?'没有足够可卖持仓':unavailable.includes('BUY')?'模拟余额不足':'每次提交后推进五分钟行情');
+      $('#deskTime').textContent=new Date(s.as_of*1000).toISOString()+' · 本地 '+new Date(s.as_of*1000).toLocaleString();
+      $('#deskExport').hidden=s.status==='ACTIVE';
+      $('#deskAbort').disabled=busy||s.status!=='ACTIVE';
     }
     if (p) $('#wardrobeItems').innerHTML = ['head','face','body','background'].map(slot => `<section class="wardrobe-slot"><h3>${slot.toUpperCase()}</h3>${ui.state.catalog.filter(item=>item.slot===slot).map(item=>{
       const owned=p.owned.includes(item.id), equipped=p.profile.loadout[slot]===item.id;
@@ -78,9 +90,10 @@ export async function init(options) {
   $('#cancelPreview').onclick = () => { ui.cancelPreview(); render(); };
   root.addEventListener('keydown', e => { if(e.key==='Escape' && !$('#wardrobe').hidden) drawer(false); });
   $('#flyNameForm').onsubmit = e => { e.preventDefault(); const name=$('#flyName').value.trim(); if(name) run(()=>ui.rename(name)); };
-  $('#startRound').onclick = () => run(async()=>{ await ui.start($('#teachingSymbol').value); $('#roundReview').hidden=true; }, 'ROUND READY');
+  $('#startRound').onclick = () => run(async()=>{ await ui.start($('#teachingSymbol').value,modern?{dataset_id:$('#deskDataset').value||undefined,as_of:$('#deskAsOf').value?Date.parse($('#deskAsOf').value+'Z')/1000:undefined}:{}); $('#roundReview').hidden=true; }, 'ROUND READY');
   root.addEventListener('click', e => {
     const button=e.target.closest('button'); if(!button || button.disabled) return;
+    if(modern&&button.dataset.reviewStep!==undefined&&reviewData){const d=reviewData.demonstrations[Number(button.dataset.reviewStep)];options.onObservation?.({...reviewData.session,id:reviewData.session.id+':review:'+d.step,status:'REVIEW',bars:d.visible_bars,views:d.views,analysis:d.analysis,as_of:d.observation.as_of,observation_hash:d.observation_hash,step:d.step,account:{...d.observation,side:d.observation.position.side,quantity:d.observation.position.quantity,entry_price:d.observation.position.entry_price}});}
     if(button.dataset.evaluate) run(async()=>{ await api('/api/raising/evaluations',{method:'POST',body:{training_id:button.dataset.evaluate}}); await training(); },'EVALUATION SAVED');
     if(button.dataset.activate) run(async()=>{ await api('/api/raising/versions/'+encodeURIComponent(button.dataset.activate)+'/activate',{method:'POST',body:{}}); await training(); },'CHECKPOINT ACTIVATED');
     if(button.dataset.preview) { ui.preview(button.dataset.preview); render(); }
@@ -109,14 +122,20 @@ export async function init(options) {
   $('#trainFly').onclick=()=>run(async()=>{ await ui.train(); await training(); },'TRAINING REQUEST ACCEPTED');
   $('#reviewRound').onclick=()=>run(async()=>{
     const data=await api(`/api/raising/sessions/${encodeURIComponent(ui.state.session.id)}/review`);
+    reviewData=data;
     $('#roundReview').hidden=false;
-    $('#roundReview').innerHTML=`<h3>DECISION REVIEW</h3><div class="review-scroll"><table><thead><tr><th>STEP</th><th>HUMAN</th><th>EQUITY</th><th>FEES</th></tr></thead><tbody>${(data.demonstrations || []).map(d=>`<tr><td>${d.step+1}</td><td>${escapeHtml(d.human_action)}</td><td>${money(d.equity_after)}</td><td>${money(d.fees)}</td></tr>`).join('')}</tbody></table></div><p class="muted">${(data.system_actions || []).length} SYSTEM SETTLEMENT ACTIONS</p>`;
+    $('#roundReview').innerHTML=`<h3>DECISION REVIEW</h3><div class="review-scroll"><table><thead><tr><th>STEP</th><th>HUMAN</th><th>EQUITY</th><th>FEES</th></tr></thead><tbody>${(data.demonstrations || []).map(d=>`<tr><td>${modern?`<button data-review-step="${d.step}">查看第 ${d.step+1} 步</button>`:d.step+1}</td><td>${escapeHtml(d.human_action||d.source)}</td><td>${money(d.equity_after)}</td><td>${money(d.fees)}</td></tr>`).join('')}</tbody></table></div><p class="muted">${(data.system_actions || []).length} SYSTEM SETTLEMENT ACTIONS</p>`;
   },'REVIEW LOADED');
+  if(modern){
+    $('#deskAbort').onclick=()=>run(async()=>{await api('/api/raising/sessions/'+ui.state.session.id+'/abort',{method:'POST',body:{}});await ui.open(ui.state.session.id);},'练习已结束');
+    $('#deskExport').onclick=()=>run(async()=>{const data=await api('/api/raising/sessions/'+ui.state.session.id+'/review');const text=[{type:'manifest',session:data.session},...(data.demonstrations||[]).map(d=>({type:'decision',...d})),...(data.system_actions||[]).map(d=>({type:'system',...d}))].map(x=>JSON.stringify(x)).join('\n');const a=document.createElement('a'),url=URL.createObjectURL(new Blob([text],{type:'application/x-ndjson'}));a.href=url;a.download='flydesk-'+ui.state.session.id+'.jsonl';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);},'导出完成');
+    api('/api/raising/datasets').then(data=>{for(const d of data.datasets||[]){const o=document.createElement('option');o.value=d.id;o.textContent=d.symbol+' · '+d.id.slice(0,8);$('#deskDataset').append(o);}}).catch(()=>{});
+  }
   await run(()=>ui.load(),'FLY RESTORED');
   return ui;
 }
 
-export function createRaisingController({ api, onObservation = () => {}, onOutfit = () => {}, onMode = () => {}, onAction = () => {} }) {
+export function createRaisingController({ api, onObservation = () => {}, onOutfit = () => {}, onMode = () => {}, onAction = () => {}, beforeAction = async () => {} }) {
   const state = { profile: null, catalog: [], session: null };
   const prefix = '/api/raising';
   function profile(data) { state.preview = null; state.profile = data; onOutfit(data.profile.loadout); return data; }
@@ -137,7 +156,7 @@ export function createRaisingController({ api, onObservation = () => {}, onOutfi
       else await session(await api(prefix + '/sessions', {method:'POST',body:{symbol:'BTCUSD'}}));
       state.catalog = (await api(prefix + '/catalog')).items;
     },
-    async start(symbol) { return session(await api(prefix + '/sessions', {method:'POST',body:{symbol}})); },
+    async start(symbol,extra={}) { return session(await api(prefix + '/sessions', {method:'POST',body:{symbol,...extra}})); },
     async rename(name) { return profile(await api(prefix + '/profile', {method:'POST',body:{name}})); },
     async purchase(item_id) { return profile(await api(prefix + '/purchase', {method:'POST',body:{item_id}})); },
     async equip(item_id) { return profile(await api(prefix + '/equip', {method:'POST',body:{item_id}})); },

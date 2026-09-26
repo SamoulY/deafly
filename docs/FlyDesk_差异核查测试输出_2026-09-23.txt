@@ -1,0 +1,761 @@
+
+> test
+> node --test tests/*.test.mjs
+
+✔ 99x trading area is a separate closable view (0.6032ms)
+✖ 99x integration uses official API through a service binding (0.5303ms)
+✔ branding and explicit opt-in 99x join flow exist (1.4848ms)
+✔ DeFly exposes the seven 99x market symbols (0.1994ms)
+✔ long equity includes marked position value (0.5035ms)
+✔ short equity includes reserved collateral and unrealized pnl (0.0859ms)
+✔ external action strip is removed (1.1317ms)
+✔ human correction offers all four directional actions (0.1749ms)
+✔ autonomy API and correction API exist (0.5039ms)
+✔ schema persists model versions, autonomous steps and reinforcement (0.1003ms)
+✔ UI truthfully exposes autonomous status, reward, punishment and learned version (0.0908ms)
+✔ scheduled work retires legacy runs and never substitutes a server policy (0.544ms)
+✔ new autonomous runs always register the full browser backend (0.7138ms)
+✔ HOLD is penalized only when flat and escalates into a directional entry (0.6079ms)
+✔ autonomy exposes proposed and executed actions (0.6479ms)
+✔ boot defaults to raising; legacy autonomy requires explicit lab opt-in (0.9793ms)
+✖ live observation refreshes chart monitor and retina every ten seconds only in lab mode (0.9639ms)
+✔ autonomy awaits browser inference and fails closed without a server-policy fallback (924.939ms)
+✔ bidirectional paper contract is deployed in code (0.4851ms)
+✔ HOLD penalty only applies to flat accounts (0.3022ms)
+✔ UI names long short hold and close actions (0.3849ms)
+✔ policy has BUY SELL HOLD CLOSE actions (1.3312ms)
+✔ BUY opens long and SELL opens short (0.1508ms)
+✔ CLOSE removes either directional position (0.0919ms)
+✔ fly-selected risk exit only fires on explicit model decision (0.089ms)
+✔ browser decoder rejects spoofed source, stale identity and direction mismatch (1.2222ms)
+✔ true neural HOLD stays HOLD with no imposed direction (0.1699ms)
+✔ opposite neural signal closes existing position; same direction holds (0.1091ms)
+✔ paper fills open and close both sides with fees and unchanged model (0.1268ms)
+✔ browser envelopes from server cannot acquire trusted origin (1.2748ms)
+✔ worker serializes inference, retains latest, skips hidden and rejects stale identities (1.1349ms)
+✔ RGB encoder preserves teaching identity with deterministic actual pixel hash (12.6074ms)
+node:internal/modules/package_json_reader:268
+  throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+        ^
+
+Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'playwright' imported from D:\deafly\tests\browser-brain-runtime.test.mjs
+    at Object.getPackageJSONURL (node:internal/modules/package_json_reader:268:9)
+    at packageResolve (node:internal/modules/esm/resolve:768:81)
+    at moduleResolve (node:internal/modules/esm/resolve:858:18)
+    at defaultResolve (node:internal/modules/esm/resolve:990:11)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:735:20)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:712:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:310:38)
+    at #link (node:internal/modules/esm/module_job:208:49) {
+  code: 'ERR_MODULE_NOT_FOUND'
+}
+
+Node.js v24.6.0
+✖ tests\browser-brain-runtime.test.mjs (386.6661ms)
+✔ chart contains only market plotting; actions are real DOM buttons (0.6798ms)
+✔ chart renders visible BUY and SELL markers (0.6873ms)
+✔ executed actions are added to chart markers (0.1924ms)
+✔ colony vote is deterministic and HOLD quorum wins (0.5298ms)
+✔ colony vote never accepts unknown actions (0.2752ms)
+✔ leg events follow accepted teaching results only, not load or failed orders (3.0577ms)
+✔ worker contract exposes health, paper trading and prediction routes (0.4933ms)
+✔ client never sends authoritative price, pnl, cash or points (0.1832ms)
+✔ page identifies paper-only and disconnected neural runtime truthfully (0.0834ms)
+✔ mobile viewport and accessible decision controls exist (0.0747ms)
+✔ BUY uses server mark, adverse slippage and fee without overspending (0.6358ms)
+✔ SELL never creates a short position (0.2103ms)
+✔ prediction quote maps YES by label rather than array position (1.316ms)
+✔ Polymarket parser rejects closed, expired or non-binary markets (0.1644ms)
+✔ hidden canvases are actually hidden and only selected view is visible (0.6404ms)
+✔ fly pose explicitly faces the terminal monitor (0.1313ms)
+✔ actual bundled pixel font files are used rather than local Menlo alias (0.8209ms)
+✔ fills accept D1 snake_case avg_cost (0.5737ms)
+✔ scene exports deterministic non-black canvas probe markers (0.9999ms)
+✔ brand is DeFly everywhere in public HTML (0.1107ms)
+✔ public UI is English-only (0.5804ms)
+✔ rendering uses a low-power budget (0.2696ms)
+✔ only visible 3D view animates (0.1426ms)
+✔ brain uses instancing instead of hundreds of Mesh objects (0.1554ms)
+✔ telemetry canvas is throttled (0.1685ms)
+✔ federation protocol is explicit and rejects malformed manifests (3.7687ms)
+✔ flat HOLD penalty escalates to an executable directional trade (0.5123ms)
+✔ fly and monitor face each other on the X axis (0.4523ms)
+✔ monitor housing is perpendicular to desk viewer rather than side-on to fly (0.1489ms)
+✔ fly identity signs a manifest accepted by router verifier (8.6693ms)
+✔ identity is stable in local store (0.8047ms)
+✔ all four actions contact key surface and duplicate events do not replay (18.9443ms)
+✔ awaits matching request and snapshot; serializes and cancels (2.1163ms)
+✔ stale identity fails closed (0.2447ms)
+✔ hidden and unready fail closed, worker error rejects readiness (0.4144ms)
+✔ readiness and inference timeouts reject (29.9481ms)
+✔ checkpoint restores kernel, learning, sensory and time without copying base graph (8.65ms)
+✔ corruption and scope mismatch reject before mutating brain (2.4862ms)
+✔ every autonomous 10-second slot is claimed once (0.6121ms)
+✔ flat HOLD is penalized every processed slot (0.1751ms)
+✖ browser cadence is ten seconds (0.8659ms)
+✔ empty account does not claim HOLD BTC as an executed signal (0.7368ms)
+✔ policy chooses highest valid logit deterministically (0.6793ms)
+✔ positive reward strengthens chosen action and changes hash (6.5679ms)
+✔ negative reward weakens the chosen action (0.1275ms)
+✔ human correction trains corrected action over proposal (0.1215ms)
+✔ market features are finite and bounded (0.1364ms)
+✔ USD and USDT are distinct, unknown instruments fail closed (0.5277ms)
+✔ closed bars reject gaps duplicates stale and malformed data (0.9987ms)
+✔ USD provider failure never falls back to a USDT instrument (0.4245ms)
+✔ USDT failover preserves exact instrument and actual provenance (14.1138ms)
+✔ optional market cache coalesces repeated reads within its TTL (0.5473ms)
+✔ valid public activity publishes and round trips without private extra fields (22.1646ms)
+✔ runner key remains required (0.5157ms)
+✔ reject missing activity (0.5493ms)
+✔ reject null payload (0.4732ms)
+✔ reject missing scope (0.5112ms)
+✔ reject private scope (0.3626ms)
+✔ reject short hash (0.2888ms)
+✔ reject nonhex hash (0.323ms)
+✔ reject wrong snapshot (2.4443ms)
+✔ reject wrong frame (1.7379ms)
+✔ reject mutated candles (0.542ms)
+✔ reject missing candles (0.2044ms)
+✔ reject seconds timestamp (0.1681ms)
+✔ reject stale timestamp (0.1841ms)
+✔ reject future timestamp (0.1696ms)
+✔ reject string timestamp (0.1484ms)
+✔ reject empty nodes (0.2783ms)
+✔ reject duplicate nodes (0.2057ms)
+✔ reject numeric node (0.1619ms)
+✔ reject empty node (0.1452ms)
+✔ reject mismatched arrays (0.1411ms)
+✔ reject negative count (0.1519ms)
+✔ reject fractional count (0.1555ms)
+✔ reject string count (0.1399ms)
+✔ reject nonfinite count (0.1321ms)
+✔ reject inconsistent total (0.1448ms)
+✔ reject nonfinite duration (0.1664ms)
+✔ reject zero duration (0.1456ms)
+✔ missing, corrupt, stale and unbound records are not published as trusted full-kernel activity (6.7651ms)
+✔ invalid JSON is a validation error (0.2789ms)
+node:internal/modules/package_json_reader:268
+  throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+        ^
+
+Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'playwright' imported from D:\deafly\tests\neural-browser.test.mjs
+    at Object.getPackageJSONURL (node:internal/modules/package_json_reader:268:9)
+    at packageResolve (node:internal/modules/esm/resolve:768:81)
+    at moduleResolve (node:internal/modules/esm/resolve:858:18)
+    at defaultResolve (node:internal/modules/esm/resolve:990:11)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:735:20)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:712:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:310:38)
+    at #link (node:internal/modules/esm/module_job:208:49) {
+  code: 'ERR_MODULE_NOT_FOUND'
+}
+
+Node.js v24.6.0
+✖ tests\neural-browser.test.mjs (444.589ms)
+✔ anatomy verifies content hash and rejects malformed coordinates and duplicate IDs (5.6582ms)
+✔ only current matching native activities are accepted (0.3323ms)
+✔ activity arrays reject bad shapes IDs counts totals and time windows (0.1719ms)
+✔ brain activity telemetry is deterministic and finite (1.476ms)
+✔ UI shows truthful brain telemetry beneath the 3D scene (0.1747ms)
+✔ one authoritative observation feeds chart, monitor and retina (0.9376ms)
+✔ full-kernel bridge is explicit and cannot be forged by browser (0.1084ms)
+✔ public UI distinguishes full kernel verified locally from active backend (0.1748ms)
+✔ original scene exposes synchronized market texture updates (0.0691ms)
+✔ chart starts empty and authoritative observation replaces the active series (1.1053ms)
+✔ positive equity feedback stimulates PAM11 and changes bounded synapses (5.883ms)
+✔ negative equity feedback stimulates PPL101 and weakens eligible synapses (0.1778ms)
+✔ no equity change emits no plasticity pulse (0.4237ms)
+✔ positioned HOLD never displays awaiting first signal (1.3253ms)
+✔ prediction positions are included in autonomous training contract (0.4631ms)
+✔ UI exposes prediction training opt-in and evidence (0.0973ms)
+node:internal/modules/package_json_reader:268
+  throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+        ^
+
+Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'miniflare' imported from D:\deafly\tests\raising-backend.test.mjs
+    at Object.getPackageJSONURL (node:internal/modules/package_json_reader:268:9)
+    at packageResolve (node:internal/modules/esm/resolve:768:81)
+    at moduleResolve (node:internal/modules/esm/resolve:858:18)
+    at defaultResolve (node:internal/modules/esm/resolve:990:11)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:735:20)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:712:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:310:38)
+    at #link (node:internal/modules/esm/module_job:208:49) {
+  code: 'ERR_MODULE_NOT_FOUND'
+}
+
+Node.js v24.6.0
+✖ tests\raising-backend.test.mjs (313.282ms)
+✔ raising endpoints require a session before invoking domain handlers (14.8736ms)
+✔ authenticated raising catalog is routed through the Worker (4.4811ms)
+node:internal/modules/package_json_reader:268
+  throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+        ^
+
+Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'playwright' imported from D:\deafly\tests\raising-scene-browser.test.mjs
+    at Object.getPackageJSONURL (node:internal/modules/package_json_reader:268:9)
+    at packageResolve (node:internal/modules/esm/resolve:768:81)
+    at moduleResolve (node:internal/modules/esm/resolve:858:18)
+    at defaultResolve (node:internal/modules/esm/resolve:990:11)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:735:20)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:712:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:310:38)
+    at #link (node:internal/modules/esm/module_job:208:49) {
+  code: 'ERR_MODULE_NOT_FOUND'
+}
+
+Node.js v24.6.0
+✖ tests\raising-scene-browser.test.mjs (290.8712ms)
+✔ outfits replace only cosmetic mounts and support clearing and invalid slot IDs (11.7364ms)
+✔ fly has a compact segmented silhouette, six articulated feet, compound eyes and veined wings (3.8445ms)
+node:internal/modules/package_json_reader:268
+  throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+        ^
+
+Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'miniflare' imported from D:\deafly\tests\raising-service.test.mjs
+    at Object.getPackageJSONURL (node:internal/modules/package_json_reader:268:9)
+    at packageResolve (node:internal/modules/esm/resolve:768:81)
+    at moduleResolve (node:internal/modules/esm/resolve:858:18)
+    at defaultResolve (node:internal/modules/esm/resolve:990:11)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:735:20)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:712:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:310:38)
+    at #link (node:internal/modules/esm/module_job:208:49) {
+  code: 'ERR_MODULE_NOT_FOUND'
+}
+
+Node.js v24.6.0
+✖ tests\raising-service.test.mjs (271.6625ms)
+✔ default checkpoint restores identical hash and masked deterministic inference (6.702ms)
+✔ feature extraction excludes future data and cosmetic identity and masks position actions (0.5276ms)
+✔ real supervised training reduces loss deterministically without mutating inputs (43.5919ms)
+✔ training rejects insufficient labels, duplicate observations, masked labels and overlapping splits (2.9821ms)
+✔ frozen future evaluation preserves checkpoints and applies identical costs and forced settlement (14.2904ms)
+✔ continuation never moves parent validation into training and excludes reserved test intervals (25.5276ms)
+✔ continuation rejects moving parent validation observations into training (12.7785ms)
+✔ missing demonstration masks are inferred from account features so impossible CLOSE is rejected (4.5184ms)
+✔ restored frozen checkpoints preserve inference and early stopping restores parent parameters (5.2135ms)
+✔ HOLD evaluation is neutral and repeatable with frozen inputs and nonzero costs (1.8161ms)
+✔ evaluation honors both checkpoint bounds and inclusive reserved interval boundaries (1.2077ms)
+✔ ineligible rows have no effect on training and chronological input order is canonical (5.8257ms)
+✔ fresh load prepares historical bars without decisions (1.4482ms)
+✔ training retries reuse the uncertain request key and new attempts rotate it (1.5344ms)
+✔ evaluation presents baseline and frozen model metrics without claiming improvement (0.3091ms)
+✔ complete round refreshes earned points; failed retry preserves idempotency and wardrobe uses catalog IDs (0.7069ms)
+✔ restores profile outfit and active round; HOLD submits explicit human action and idempotency (0.2572ms)
+✔ workstation boots raising without auto-start or synthetic seed; live refresh is mode guarded (3.6621ms)
+✔ invalid persisted session stays stored and requires explicit reset (17.0815ms)
+✔ new session is persisted and origin configuration is local-aware (0.4401ms)
+✔ restores persisted session before considering creation (0.268ms)
+node:internal/modules/package_json_reader:268
+  throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+        ^
+
+Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'playwright' imported from D:\deafly\tests\raising-ui-training.test.mjs
+    at Object.getPackageJSONURL (node:internal/modules/package_json_reader:268:9)
+    at packageResolve (node:internal/modules/esm/resolve:768:81)
+    at moduleResolve (node:internal/modules/esm/resolve:858:18)
+    at defaultResolve (node:internal/modules/esm/resolve:990:11)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:735:20)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:712:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:310:38)
+    at #link (node:internal/modules/esm/module_job:208:49) {
+  code: 'ERR_MODULE_NOT_FOUND'
+}
+
+Node.js v24.6.0
+✖ tests\raising-ui-training.test.mjs (169.2714ms)
+node:internal/modules/package_json_reader:268
+  throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+        ^
+
+Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'playwright' imported from D:\deafly\tests\raising-ui-view.test.mjs
+    at Object.getPackageJSONURL (node:internal/modules/package_json_reader:268:9)
+    at packageResolve (node:internal/modules/esm/resolve:768:81)
+    at moduleResolve (node:internal/modules/esm/resolve:858:18)
+    at defaultResolve (node:internal/modules/esm/resolve:990:11)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:735:20)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:712:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:310:38)
+    at #link (node:internal/modules/esm/module_job:208:49) {
+  code: 'ERR_MODULE_NOT_FOUND'
+}
+
+Node.js v24.6.0
+✖ tests\raising-ui-view.test.mjs (147.0186ms)
+✔ external four-box action legend is removed (0.6285ms)
+✔ chart has no misleading action legend; real teaching controls remain (0.6302ms)
+✔ backend status is not a loading placeholder (0.4863ms)
+✔ screen and retinal views use one normalized market texture builder (0.1585ms)
+✔ third-person scene has no decorative city columns (0.0921ms)
+✔ reference-faithful 3D fly workstation exists (0.56ms)
+✔ brain telemetry remains explicit and deterministic (1.0742ms)
+✔ raising desk keeps neural telemetry available in an expanded disclosure (0.6392ms)
+✔ screen aspect matches wide market chart and keyboard is wide across fly (0.5387ms)
+✔ autonomous failures stay visible and controls recover without silent fallback (0.7933ms)
+✔ three synchronized views are present (0.5175ms)
+✔ reference terminal visual contract is explicit (0.0801ms)
+ℹ tests 174
+ℹ suites 0
+ℹ pass 164
+ℹ fail 10
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1364.2341
+
+✖ failing tests:
+
+test at tests\99x-area-api-v2.test.mjs:1:611
+✖ 99x integration uses official API through a service binding (0.5303ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /service\s*=\s*"memeflow-worker"/. Input:
+
+  'name = "flydesk-v2-trial-worker"\r\n' +
+    'main = "src/index.mjs"\r\n' +
+    'compatibility_date = "2026-08-18"\r\n' +
+    '\r\n' +
+    '[[d1_databases]]\r\n' +
+    'binding = "DB"\r\n' +
+    'database_name = "flydesk-v2-trial-db"\r\n' +
+    'database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"\r\n' +
+    '\r\n' +
+    '[[services]]\r\n' +
+    'binding = "ARENA"\r\n' +
+    'service = "YOUR_ARENA_WORKER"\r\n' +
+    '\r\n' +
+    '[triggers]\r\n' +
+    'crons = ["*/1 * * * *"]\r\n' +
+    '\r\n' +
+    '[vars]\r\n' +
+    'APP_ENV = "trial"\r\n' +
+    'PAPER_ONLY = "true"\r\n' +
+    'ALLOWED_ORIGIN = "*"\r\n'
+
+      at TestContext.<anonymous> (file:///D:/deafly/tests/99x-area-api-v2.test.mjs:1:733)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1081:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:763:18)
+      at Test.postRun (node:internal/test_runner/test:1210:19)
+      at Test.run (node:internal/test_runner/test:1138:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:332:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'name = "flydesk-v2-trial-worker"\r\nmain = "src/index.mjs"\r\ncompatibility_date = "2026-08-18"\r\n\r\n[[d1_databases]]\r\nbinding = "DB"\r\ndatabase_name = "flydesk-v2-trial-db"\r\ndatabase_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"\r\n\r\n[[services]]\r\nbinding = "ARENA"\r\nservice = "YOUR_ARENA_WORKER"\r\n\r\n[triggers]\r\ncrons = ["*/1 * * * *"]\r\n\r\n[vars]\r\nAPP_ENV = "trial"\r\nPAPER_ONLY = "true"\r\nALLOWED_ORIGIN = "*"\r\n',
+    expected: /service\s*=\s*"memeflow-worker"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at tests\autostart-live-market-v1.test.mjs:25:1
+✖ live observation refreshes chart monitor and retina every ten seconds only in lab mode (0.9639ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /async\s+function\s+refreshObservation\s*\(\s*\)\s*\{\s*if\s*\(mode\s*!==\s*["']lab["']\s*\|\| autoRunning \|\| autoInFlight\)\s*return/. Input:
+
+  'import { startScene, startVisionScene, startBrainScene } from "./scene.js?v=4";\r\n' +
+    'import { createSessionClient, resolveApiOrigin } from "./session-client.js";\r\n' +
+    'import { init as initRaising } from "./raising-ui.js";\r\n' +
+    'import { UNAVAILABLE, verifyAnatomy } from "./neural-contract.js";\r\n' +
+    'import { createBrowserBrainClient, encodeMarketObservation } from "./browser-brain-client.js";\r\n' +
+    "import { routerRegistry, addRouter } from './router-registry.js';\r\n" +
+    "import { createFlyIdentity } from './fly-identity.js';\r\n" +
+    'let state = null,\r\n' +
+    '  lastAction = null,\r\n' +
+    '  scenes = {},\r\n' +
+    '  tradeMarkers = [];\r\n' +
+    'const $ = (s) => document.querySelector(s);\r\n' +
+    `const API = resolveApiOrigin($("meta[name='defly-api-origin']")?.content, location.hostname);\r\n` +
+    'const sessionClient = createSessionClient({origin: API, storage: localStorage});\r\n' +
+    'const api = sessionClient.api;\r\n' +
+    'function renderRouters(){if(!document.querySelector(\'#routerPeers\'))return;const el=$("#routerPeers"),items=routers.list();if(el)el.innerHTML=items.length?items.map(p=>`<div>${p.peer_id||p.base_url} · ${p.protocol}</div>`).join(\'\'):\'NO PEER ROUTERS\';const s=$("#routerStatus");if(s)s.textContent=items.length?`${items.length} PEER ROUTER${items.length>1?\'S\':\'\'}`:\'LOCAL ROUTER\';}\r\n' +
+    'const routers = routerRegistry(localStorage);\r\n' +
+    'let series = [], mode = "raising", raising = null, outfit = {}, booted = false;\r\n' +
+    'let anatomy = null, neuralSnapshot = null, neuralPayload = null, observationGeneration = 0;\r\n' +
+    `function renderBackend(state){const el=$("#activeBackend");if(!el)return;el.textContent=({ready:'FULL BROWSER WASM',loading:'FULL BROWSER WASM · LOADING',error:'FULL BROWSER WASM · ERROR',cancelled:'FULL BROWSER WASM · STOPPED'})[state] || 'BROWSER ACTIVITY UNAVAILABLE';}\r\n` +
+    'function initRouterControls(){if(!document.querySelector(\'#routerPeers\'))return;renderRouters();$("#routerConnect")?.addEventListener(\'click\',async()=>{const input=$("#routerUrl"),status=$("#routerStatus");try{status.textContent=\'CONNECTING...\';await addRouter({base_url:input.value},routers);input.value=\'\';renderRouters();status.textContent=\'CONNECTED\';}catch(e){status.textContent=`FAILED · ${e.message}`;}});}\r\n' +
+    `function initRouterAndIdentity(){initRouterControls();if(document.querySelector('#flyIdentity'))createFlyIdentity(localStorage,{genesis_model_hash:'full-browser-model'}).then(identity=>{const el=$("#flyIdentity");if(el)el.textContent=identity.fly_id.slice(0,16)+'…';}).catch(error=>{const el=$("#flyIdentity");if(el)el.textContent='UNAVAILABLE';const s=$("#flyIdentityStatus");if(s)s.textContent=error.message;});}\r\n` +
+    'const browserBrain = createBrowserBrainClient({\r\n' +
+    '  onStatus(status) {\r\n' +
+    '    renderBackend(status.state);\r\n' +
+    `    $("#brainRuntimeStatus").textContent = status.state === 'loading'\r\n` +
+    "      ? `PREPARING FULL BROWSER BRAIN · ${status.loaded || 0} / ${status.total || '…'} bytes`\r\n" +
+    "      : status.state === 'ready' ? `FULL BROWSER BRAIN READY · ${status.scope === 'autonomy' ? 'AUTONOMOUS PAPER · FRESH SESSION WEIGHTS' : 'OBSERVATION ONLY'}` : `BROWSER BRAIN ${status.state.toUpperCase()} · ${status.message || ''}`;\r\n" +
+    `    $("#brainCancel").hidden = !['loading','ready'].includes(status.state);\r\n` +
+    `    $("#brainRetry").hidden = ['loading','ready'].includes(status.state);\r\n` +
+    "    if (['cancelled','error'].includes(status.state)) { neuralPayload = null; renderNeural(); }\r\n" +
+    '  },\r\n' +
+    '  onActivity(payload, frame) {\r\n' +
+    '    if (!neuralSnapshot || frame.snapshot_hash !== neuralSnapshot.snapshot_hash || frame.frame_hash !== neuralSnapshot.frame_hash) return;\r\n' +
+    '    neuralPayload = payload; renderNeural();\r\n' +
+    '  },\r\n' +
+    '});\r\n' +
+    'async function observeBrowser(source, historical = false) {\r\n' +
+    "  if (browserBrain.scope === 'autonomy') return;\r\n" +
+    '  const generation = ++observationGeneration;\r\n' +
+    '  neuralSnapshot = null; neuralPayload = null; renderNeural();\r\n' +
+    '  try {\r\n' +
+    '    const frame = await encodeMarketObservation(source, historical);\r\n' +
+    '    if (generation !== observationGeneration) return;\r\n' +
+    '    neuralSnapshot = frame;\r\n' +
+    `    const canvas = $("#brainInput"), ctx = canvas.getContext('2d'), image = ctx.createImageData(frame.width, frame.height);\r\n` +
+    '    for (let i = 0; i < frame.rgb.length / 3; i++) { image.data[i*4] = frame.rgb[i*3]; image.data[i*4+1] = frame.rgb[i*3+1]; image.data[i*4+2] = frame.rgb[i*3+2]; image.data[i*4+3] = 255; }\r\n' +
+    '    ctx.putImageData(image, 0, 0);\r\n' +
+    '    $("#brainInputIdentity").textContent = `${frame.encoder_version} · ${frame.width}×${frame.height} RGB · ${historical ? \'HISTORICAL\' : \'CURRENT\'} · snapshot ${frame.snapshot_hash?.slice(0,12)} · pixels ${frame.frame_hash.slice(0,12)}`;\r\n' +
+    '    browserBrain.observe(frame);\r\n' +
+    `  } catch (error) { $("#brainRuntimeStatus").textContent = 'OBSERVATION UNAVAILABLE · ' + error.message; }\r\n` +
+    '}\r\n' +
+    "document.addEventListener('visibilitychange', () => {\r\n" +
+    '  if (document.hidden && autoRunning) stopAuto().catch(console.error);\r\n' +
+    '  else if (!document.hidden) {\r\n' +
+    "    if (!browserBrain.ready && anatomy) browserBrain.start(anatomy.nodes.map(n => n.id), 'observation');\r\n" +
+    '    browserBrain.resume();\r\n' +
+    "    if (mode === 'lab' && !autoRunning) refreshObservation();\r\n" +
+    "    else if (mode === 'raising' && raising?.state.session) observeBrowser(raising.state.session, true);\r\n" +
+    '  }\r\n' +
+    '});\r\n' +
+    '$("#brainCancel").onclick = () => { if(autoRunning) stopAuto().catch(console.error); else browserBrain.cancel(); };\r\n' +
+    '$("#brainRetry").onclick = () => { browserBrain.start(anatomy?.nodes.map(n => n.id) || []); if (neuralSnapshot) browserBrain.observe(neuralSnapshot); };\r\n' +
+    'function resizeScene() {\r\n' +
+    '  for (const [k, c] of Object.entries({\r\n' +
+    '    fly: $("#flyScene"),\r\n' +
+    '    vision: $("#visionScene"),\r\n' +
+    '    brain: $("#brainScene"),\r\n' +
+    '  }))\r\n' +
+    '    c.hidden = k !== current;\r\n' +
+    '  $("#sceneTitle").textContent = {\r\n' +
+    '    fly: "■ FLY.EXE",\r\n' +
+    '    vision: "■ RETINAL.INPUT",\r\n' +
+    '    brain: "■ BRAIN.EXE",\r\n' +
+    '  }[current];\r\n' +
+    '  $("#anatomyStatus").hidden = current !== "brain";\r\n' +
+    '}\r\n' +
+    'let current = "fly";\r\n' +
+    'function changeView(v) {\r\n' +
+    '  current = v;\r\n' +
+    `  if (v === 'brain' && !anatomy) { $("#brainScene").dataset.nodeCount = '0'; $("#anatomyStatus").textContent = 'ANATOMY UNAVAILABLE'; }\r\n` +
+    '  resizeScene();\r\n' +
+    '  for (const [k, scene] of Object.entries(scenes)) {\r\n' +
+    '    scene.setVisible?.(k === current);\r\n' +
+    '  }\r\n' +
+    '  if (!scenes[v]) {\r\n' +
+    `    if (v === 'brain' && !anatomy) $("#brainScene").dataset.nodeCount = '0';\r\n` +
+    '    try {\r\n' +
+    '      scenes[v] =\r\n' +
+    '        v === "fly"\r\n' +
+    '          ? startScene($("#flyScene"), series)\r\n' +
+    '          : v === "vision"\r\n' +
+    '            ? startVisionScene($("#visionScene"), series)\r\n' +
+    '            : startBrainScene($("#brainScene"), anatomy);\r\n' +
+    '    } catch (e) {\r\n' +
+    '      $("#sceneFallback").hidden = false;\r\n' +
+    '      $("#sceneFallback").textContent = "3D ERROR · " + e.message;\r\n' +
+    `      if (v === 'brain' && !anatomy) $("#brainScene").dataset.nodeCount = '0';\r\n` +
+    '      console.error("DEFLY_SCENE_INIT", v, e);\r\n' +
+    '    }\r\n' +
+    '  }\r\n' +
+    '}\r\n' +
+    'async function boot(reset = false) {\r\n' +
+    '  initRouterAndIdentity();\r\n' +
+    '  changeView("fly");\r\n' +
+    '  const saved = reset ? await sessionClient.reset() : await sessionClient.restore();\r\n' +
+    '  state = saved.portfolio;\r\n' +
+    '  const ownerToken=localStorage.getItem(`defly.session:${API}`);\r\n' +
+    "  browserBrain.setCheckpointKey(ownerToken ? await crypto.subtle.digest('SHA-256',new TextEncoder().encode(ownerToken)).then(b=>Array.from(new Uint8Array(b),v=>v.toString(16).padStart(2,'0')).join('')) : null);\r\n" +
+    '  // A reopened historical desk must not leave an earlier server run unattended.\r\n' +
+    '  await stopAuto();\r\n' +
+    "  if (anatomy) browserBrain.start(anatomy.nodes.map(n => n.id), 'observation');\r\n" +
+    '  $("#sessionRecovery").hidden = true;\r\n' +
+    '  raising = await initRaising({api,\r\n' +
+    '    onOutfit: loadout => { outfit = loadout; scenes.fly?.setOutfit?.(loadout); },\r\n' +
+    '    onMode: exitLab,\r\n' +
+    '    onObservation: applyRaisingObservation,\r\n' +
+    '    onAction: (action, eventId) => scenes.fly?.playAction?.(action, eventId),\r\n' +
+    '  });\r\n' +
+    '  if (!raising.state.session) renderState();\r\n' +
+    '  $("#notice").textContent = "RAISING DESK · PAPER ONLY";\r\n' +
+    '  drawMarket();\r\n' +
+    '  if (!booted) { setInterval(renderNeural, 1000); setInterval(refreshObservation, 10000); booted = true; }\r\n' +
+    '}\r\n' +
+    'function applyRaisingObservation(s) {\r\n' +
+    '  observeBrowser(s, true);\r\n' +
+    '  tradeMarkers = [];\r\n' +
+    '  series = (s.bars || []).map(bar => bar.close);\r\n' +
+    '  drawMarket();\r\n' +
+    '  scenes.fly?.updateMarket?.(series);\r\n' +
+    '  scenes.vision?.updateMarket?.(series);\r\n' +
+    '  $("#chartSymbol").textContent = s.symbol || "MARKET";\r\n' +
+    '  $("#price").textContent = series.length ? "$" + Number(series.at(-1)).toFixed(2) : "—";\r\n' +
+    '  $("#chartSource").textContent = "HISTORICAL · " + (s.provenance?.provider || "SERVER");\r\n' +
+    '  // Teaching mode does not change the neural runtime identity.\r\n' +
+    '  $("#neuralOrder").textContent = s.status === "ACTIVE" ? "YOUR DECISION" : "ROUND COMPLETE";\r\n' +
+    '  $("#neuralReason").textContent = `CLOSED BARS · STEP ${s.step} · ${s.observation_hash?.slice(0,10) || ""}`;\r\n' +
+    '  const a = s.account;\r\n' +
+    '  if (a) {\r\n' +
+    '    $("#cash").textContent = "$" + Number(a.cash).toFixed(2);\r\n' +
+    '    $("#equity").textContent = "$" + Number(a.equity).toFixed(2);\r\n' +
+    '    $("#qty").textContent = Number(a.quantity).toFixed(6);\r\n' +
+    '    $("#side").textContent = a.side;\r\n' +
+    '    $("#avg").textContent = "$" + Number(a.entry_price).toFixed(2);\r\n' +
+    '  }\r\n' +
+    '}\r\n' +
+    'let observationRefreshInFlight = null;\r\n' +
+    'let observationRefreshAt = 0;\r\n' +
+    'const OBSERVATION_REFRESH_MS = 30000;\r\n' +
+    'async function refreshObservation(force = false) {\r\n' +
+    '  if (mode !== "lab" || autoRunning || autoInFlight) return;\r\n' +
+    '  if (!force && Date.now() - observationRefreshAt < OBSERVATION_REFRESH_MS) return;\r\n' +
+    '  if (observationRefreshInFlight) return observationRefreshInFlight;\r\n' +
+    '  observationRefreshInFlight = (async () => {\r\n' +
+    '    try {\r\n' +
+    '      await applyObservation(await api("/api/observation"));\r\n' +
+    '      observationRefreshAt = Date.now();\r\n' +
+    '    } catch (e) {\r\n' +
+    '      console.warn("OBSERVATION_REFRESH", e.message);\r\n' +
+    '    } finally {\r\n' +
+    '      observationRefreshInFlight = null;\r\n' +
+    '    }\r\n' +
+    '  })();\r\n' +
+    '  return observationRefreshInFlight;\r\n' +
+    '}\r\n' +
+    'async function applyObservation(o) {\r\n' +
+    '  if (mode !== "lab") return;\r\n' +
+    '  if (!o?.candles?.length) return;\r\n' +
+    '  observeBrowser(o);\r\n' +
+    '  $("#chartSource").textContent = "LIVE · KRAKEN MARKET";\r\n' +
+    '  series = o.candles.map((x) => x.close);\r\n' +
+    '  drawMarket();\r\n' +
+    '  scenes.f'... 21515 more characters
+
+      at TestContext.<anonymous> (file:///D:/deafly/tests/autostart-live-market-v1.test.mjs:26:10)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1081:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:763:18)
+      at Test.postRun (node:internal/test_runner/test:1210:19)
+      at Test.run (node:internal/test_runner/test:1138:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:332:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'import { startScene, startVisionScene, startBrainScene } from "./scene.js?v=4";\r\nimport { createSessionClient, resolveApiOrigin } from "./session-client.js";\r\nimport { init as initRaising } from "./raising-ui.js";\r\nimport { UNAVAILABLE, verifyAnatomy } from "./neural-contract.js";\r\nimport { createBrowserBrainClient, encodeMarketObservation } from "./browser-brain-client.js";\r\nimport { routerRegistry, addRouter } from \'./router-registry.js\';\r\nimport { createFlyIdentity } from \'./fly-identity.js\';\r\nlet state = null,\r\n  lastAction = null,\r\n  scenes = {},\r\n  tradeMarkers = [];\r\nconst $ = (s) => document.querySelector(s);\r\nconst API = resolveApiOrigin($("meta[name=\'defly-api-origin\']")?.content, location.hostname);\r\nconst sessionClient = createSessionClient({origin: API, storage: localStorage});\r\nconst api = sessionClient.api;\r\nfunction renderRouters(){if(!document.querySelector(\'#routerPeers\'))return;const el=$("#routerPeers"),items=routers.list();if(el)el.innerHTML=items.length?items.map(p=>`<div>${p.peer_id||p.base_url} · ${p.protocol}</div>`).join(\'\'):\'NO PEER ROUTERS\';const s=$("#routerStatus");if(s)s.textContent=items.length?`${items.length} PEER ROUTER${items.length>1?\'S\':\'\'}`:\'LOCAL ROUTER\';}\r\nconst routers = routerRegistry(localStorage);\r\nlet series = [], mode = "raising", raising = null, outfit = {}, booted = false;\r\nlet anatomy = null, neuralSnapshot = null, neuralPayload = null, observationGeneration = 0;\r\nfunction renderBackend(state){const el=$("#activeBackend");if(!el)return;el.textContent=({ready:\'FULL BROWSER WASM\',loading:\'FULL BROWSER WASM · LOADING\',error:\'FULL BROWSER WASM · ERROR\',cancelled:\'FULL BROWSER WASM · STOPPED\'})[state] || \'BROWSER ACTIVITY UNAVAILABLE\';}\r\nfunction initRouterControls(){if(!document.querySelector(\'#routerPeers\'))return;renderRouters();$("#routerConnect")?.addEventListener(\'click\',async()=>{const input=$("#routerUrl"),status=$("#routerStatus");try{status.textContent=\'CONNECTING...\';await addRouter({base_url:input.value},routers);input.value=\'\';renderRouters();status.textContent=\'CONNECTED\';}catch(e){status.textContent=`FAILED · ${e.message}`;}});}\r\nfunction initRouterAndIdentity(){initRouterControls();if(document.querySelector(\'#flyIdentity\'))createFlyIdentity(localStorage,{genesis_model_hash:\'full-browser-model\'}).then(identity=>{const el=$("#flyIdentity");if(el)el.textContent=identity.fly_id.slice(0,16)+\'…\';}).catch(error=>{const el=$("#flyIdentity");if(el)el.textContent=\'UNAVAILABLE\';const s=$("#flyIdentityStatus");if(s)s.textContent=error.message;});}\r\nconst browserBrain = createBrowserBrainClient({\r\n  onStatus(status) {\r\n    renderBackend(status.state);\r\n    $("#brainRuntimeStatus").textContent = status.state === \'loading\'\r\n      ? `PREPARING FULL BROWSER BRAIN · ${status.loaded || 0} / ${status.total || \'…\'} bytes`\r\n      : status.state === \'ready\' ? `FULL BROWSER BRAIN READY · ${status.scope === \'autonomy\' ? \'AUTONOMOUS PAPER · FRESH SESSION WEIGHTS\' : \'OBSERVATION ONLY\'}` : `BROWSER BRAIN ${status.state.toUpperCase()} · ${status.message || \'\'}`;\r\n    $("#brainCancel").hidden = ![\'loading\',\'ready\'].includes(status.state);\r\n    $("#brainRetry").hidden = [\'loading\',\'ready\'].includes(status.state);\r\n    if ([\'cancelled\',\'error\'].includes(status.state)) { neuralPayload = null; renderNeural(); }\r\n  },\r\n  onActivity(payload, frame) {\r\n    if (!neuralSnapshot || frame.snapshot_hash !== neuralSnapshot.snapshot_hash || frame.frame_hash !== neuralSnapshot.frame_hash) return;\r\n    neuralPayload = payload; renderNeural();\r\n  },\r\n});\r\nasync function observeBrowser(source, historical = false) {\r\n  if (browserBrain.scope === \'autonomy\') return;\r\n  const generation = ++observationGeneration;\r\n  neuralSnapshot = null; neuralPayload = null; renderNeural();\r\n  try {\r\n    const frame = await encodeMarketObservation(source, historical);\r\n    if (generation !== observationGeneration) return;\r\n    neuralSnapshot = frame;\r\n    const canvas = $("#brainInput"), ctx = canvas.getContext(\'2d\'), image = ctx.createImageData(frame.width, frame.height);\r\n    for (let i = 0; i < frame.rgb.length / 3; i++) { image.data[i*4] = frame.rgb[i*3]; image.data[i*4+1] = frame.rgb[i*3+1]; image.data[i*4+2] = frame.rgb[i*3+2]; image.data[i*4+3] = 255; }\r\n    ctx.putImageData(image, 0, 0);\r\n    $("#brainInputIdentity").textContent = `${frame.encoder_version} · ${frame.width}×${frame.height} RGB · ${historical ? \'HISTORICAL\' : \'CURRENT\'} · snapshot ${frame.snapshot_hash?.slice(0,12)} · pixels ${frame.frame_hash.slice(0,12)}`;\r\n    browserBrain.observe(frame);\r\n  } catch (error) { $("#brainRuntimeStatus").textContent = \'OBSERVATION UNAVAILABLE · \' + error.message; }\r\n}\r\ndocument.addEventListener(\'visibilitychange\', () => {\r\n  if (document.hidden && autoRunning) stopAuto().catch(console.error);\r\n  else if (!document.hidden) {\r\n    if (!browserBrain.ready && anatomy) browserBrain.start(anatomy.nodes.map(n => n.id), \'observation\');\r\n    browserBrain.resume();\r\n    if (mode === \'lab\' && !autoRunning) refreshObservation();\r\n    else if (mode === \'raising\' && raising?.state.session) observeBrowser(raising.state.session, true);\r\n  }\r\n});\r\n$("#brainCancel").onclick = () => { if(autoRunning) stopAuto().catch(console.error); else browserBrain.cancel(); };\r\n$("#brainRetry").onclick = () => { browserBrain.start(anatomy?.nodes.map(n => n.id) || []); if (neuralSnapshot) browserBrain.observe(neuralSnapshot); };\r\nfunction resizeScene() {\r\n  for (const [k, c] of Object.entries({\r\n    fly: $("#flyScene"),\r\n    vision: $("#visionScene"),\r\n    brain: $("#brainScene"),\r\n  }))\r\n    c.hidden = k !== current;\r\n  $("#sceneTitle").textContent = {\r\n    fly: "■ FLY.EXE",\r\n    vision: "■ RETINAL.INPUT",\r\n    brain: "■ BRAIN.EXE",\r\n  }[current];\r\n  $("#anatomyStatus").hidden = current !== "brain";\r\n}\r\nlet current = "fly";\r\nfunction changeView(v) {\r\n  current = v;\r\n  if (v === \'brain\' && !anatomy) { $("#brainScene").dataset.nodeCount = \'0\'; $("#anatomyStatus").textContent = \'ANATOMY UNAVAILABLE\'; }\r\n  resizeScene();\r\n  for (const [k, scene] of Object.entries(scenes)) {\r\n    scene.setVisible?.(k === current);\r\n  }\r\n  if (!scenes[v]) {\r\n    if (v === \'brain\' && !anatomy) $("#brainScene").dataset.nodeCount = \'0\';\r\n    try {\r\n      scenes[v] =\r\n        v === "fly"\r\n          ? startScene($("#flyScene"), series)\r\n          : v === "vision"\r\n            ? startVisionScene($("#visionScene"), series)\r\n            : startBrainScene($("#brainScene"), anatomy);\r\n    } catch (e) {\r\n      $("#sceneFallback").hidden = false;\r\n      $("#sceneFallback").textContent = "3D ERROR · " + e.message;\r\n      if (v === \'brain\' && !anatomy) $("#brainScene").dataset.nodeCount = \'0\';\r\n      console.error("DEFLY_SCENE_INIT", v, e);\r\n    }\r\n  }\r\n}\r\nasync function boot(reset = false) {\r\n  initRouterAndIdentity();\r\n  changeView("fly");\r\n  const saved = reset ? await sessionClient.reset() : await sessionClient.restore();\r\n  state = saved.portfolio;\r\n  const ownerToken=localStorage.getItem(`defly.session:${API}`);\r\n  browserBrain.setCheckpointKey(ownerToken ? await crypto.subtle.digest(\'SHA-256\',new TextEncoder().encode(ownerToken)).then(b=>Array.from(new Uint8Array(b),v=>v.toString(16).padStart(2,\'0\')).join(\'\')) : null);\r\n  // A reopened historical desk must not leave an earlier server run unattended.\r\n  await stopAuto();\r\n  if (anatomy) browserBrain.start(anatomy.nodes.map(n => n.id), \'observation\');\r\n  $("#sessionRecovery").hidden = true;\r\n  raising = await initRaising({api,\r\n    onOutfit: loadout => { outfit = loadout; scenes.fly?.setOutfit?.(loadout); },\r\n    onMode: exitLab,\r\n    onObservation: applyRaisingObservation,\r\n    onAction: (action, eventId) => scenes.fly?.playAction?.(action, eventId),\r\n  });\r\n  if (!raising.state.session) renderState();\r\n  $("#notice").textContent = "RAISING DESK · PAPER ONLY";\r\n  drawMarket();\r\n  if (!booted) { setInterval(renderNeural, 1000); setInterval(refreshObservation, 10000); booted = true; }\r\n}\r\nfunction applyRaisingObservation(s) {\r\n  observeBrowser(s, true);\r\n  tradeMarkers = [];\r\n  series = (s.bars || []).map(bar => bar.close);\r\n  drawMarket();\r\n  scenes.fly?.updateMarket?.(series);\r\n  scenes.vision?.updateMarket?.(series);\r\n  $("#chartSymbol").textContent = s.symbol || "MARKET";\r\n  $("#price").textContent = series.length ? "$" + Number(series.at(-1)).toFixed(2) : "—";\r\n  $("#chartSource").textContent = "HISTORICAL · " + (s.provenance?.provider || "SERVER");\r\n  // Teaching mode does not change the neural runtime identity.\r\n  $("#neuralOrder").textContent = s.status === "ACTIVE" ? "YOUR DECISION" : "ROUND COMPLETE";\r\n  $("#neuralReason").textContent = `CLOSED BARS · STEP ${s.step} · ${s.observation_hash?.slice(0,10) || ""}`;\r\n  const a = s.account;\r\n  if (a) {\r\n    $("#cash").textContent = "$" + Number(a.cash).toFixed(2);\r\n    $("#equity").textContent = "$" + Number(a.equity).toFixed(2);\r\n    $("#qty").textContent = Number(a.quantity).toFixed(6);\r\n    $("#side").textContent = a.side;\r\n    $("#avg").textContent = "$" + Number(a.entry_price).toFixed(2);\r\n  }\r\n}\r\nlet observationRefreshInFlight = null;\r\nlet observationRefreshAt = 0;\r\nconst OBSERVATION_REFRESH_MS = 30000;\r\nasync function refreshObservation(force = false) {\r\n  if (mode !== "lab" || autoRunning || autoInFlight) return;\r\n  if (!force && Date.now() - observationRefreshAt < OBSERVATION_REFRESH_MS) return;\r\n  if (observationRefreshInFlight) return observationRefreshInFlight;\r\n  observationRefreshInFlight = (async () => {\r\n    try {\r\n      await applyObservation(await api("/api/observation"));\r\n      observationRefreshAt = Date.now();\r\n    } catch (e) {\r\n      console.warn("OBSERVATION_REFRESH", e.message);\r\n    } finally {\r\n      observationRefreshInFlight = null;\r\n    }\r\n  })();\r\n  return observationRefreshInFlight;\r\n}\r\nasync function applyObservation(o) {\r\n  if (mode !== "lab") return;\r\n  if (!o?.candles?.length) return;\r\n  observeBrowser(o);\r\n  $("#chartSource").textContent = "LIVE · KRAKEN MARKET";\r\n  series = o.candles.map((x) => x.close);\r\n  drawMarket();\r\n  scenes.f'... 21515 more characters,
+    expected: /async\s+function\s+refreshObservation\s*\(\s*\)\s*\{\s*if\s*\(mode\s*!==\s*["']lab["']\s*\|\| autoRunning \|\| autoInFlight\)\s*return/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at tests\browser-brain-runtime.test.mjs:1:1
+✖ tests\browser-brain-runtime.test.mjs (386.6661ms)
+  'test failed'
+
+test at tests\inactivity-penalty-v1.test.mjs:1:785
+✖ browser cadence is ten seconds (0.8659ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /next step in 10s/i. Input:
+
+  'import { startScene, startVisionScene, startBrainScene } from "./scene.js?v=4";\r\n' +
+    'import { createSessionClient, resolveApiOrigin } from "./session-client.js";\r\n' +
+    'import { init as initRaising } from "./raising-ui.js";\r\n' +
+    'import { UNAVAILABLE, verifyAnatomy } from "./neural-contract.js";\r\n' +
+    'import { createBrowserBrainClient, encodeMarketObservation } from "./browser-brain-client.js";\r\n' +
+    "import { routerRegistry, addRouter } from './router-registry.js';\r\n" +
+    "import { createFlyIdentity } from './fly-identity.js';\r\n" +
+    'let state = null,\r\n' +
+    '  lastAction = null,\r\n' +
+    '  scenes = {},\r\n' +
+    '  tradeMarkers = [];\r\n' +
+    'const $ = (s) => document.querySelector(s);\r\n' +
+    `const API = resolveApiOrigin($("meta[name='defly-api-origin']")?.content, location.hostname);\r\n` +
+    'const sessionClient = createSessionClient({origin: API, storage: localStorage});\r\n' +
+    'const api = sessionClient.api;\r\n' +
+    'function renderRouters(){if(!document.querySelector(\'#routerPeers\'))return;const el=$("#routerPeers"),items=routers.list();if(el)el.innerHTML=items.length?items.map(p=>`<div>${p.peer_id||p.base_url} · ${p.protocol}</div>`).join(\'\'):\'NO PEER ROUTERS\';const s=$("#routerStatus");if(s)s.textContent=items.length?`${items.length} PEER ROUTER${items.length>1?\'S\':\'\'}`:\'LOCAL ROUTER\';}\r\n' +
+    'const routers = routerRegistry(localStorage);\r\n' +
+    'let series = [], mode = "raising", raising = null, outfit = {}, booted = false;\r\n' +
+    'let anatomy = null, neuralSnapshot = null, neuralPayload = null, observationGeneration = 0;\r\n' +
+    `function renderBackend(state){const el=$("#activeBackend");if(!el)return;el.textContent=({ready:'FULL BROWSER WASM',loading:'FULL BROWSER WASM · LOADING',error:'FULL BROWSER WASM · ERROR',cancelled:'FULL BROWSER WASM · STOPPED'})[state] || 'BROWSER ACTIVITY UNAVAILABLE';}\r\n` +
+    'function initRouterControls(){if(!document.querySelector(\'#routerPeers\'))return;renderRouters();$("#routerConnect")?.addEventListener(\'click\',async()=>{const input=$("#routerUrl"),status=$("#routerStatus");try{status.textContent=\'CONNECTING...\';await addRouter({base_url:input.value},routers);input.value=\'\';renderRouters();status.textContent=\'CONNECTED\';}catch(e){status.textContent=`FAILED · ${e.message}`;}});}\r\n' +
+    `function initRouterAndIdentity(){initRouterControls();if(document.querySelector('#flyIdentity'))createFlyIdentity(localStorage,{genesis_model_hash:'full-browser-model'}).then(identity=>{const el=$("#flyIdentity");if(el)el.textContent=identity.fly_id.slice(0,16)+'…';}).catch(error=>{const el=$("#flyIdentity");if(el)el.textContent='UNAVAILABLE';const s=$("#flyIdentityStatus");if(s)s.textContent=error.message;});}\r\n` +
+    'const browserBrain = createBrowserBrainClient({\r\n' +
+    '  onStatus(status) {\r\n' +
+    '    renderBackend(status.state);\r\n' +
+    `    $("#brainRuntimeStatus").textContent = status.state === 'loading'\r\n` +
+    "      ? `PREPARING FULL BROWSER BRAIN · ${status.loaded || 0} / ${status.total || '…'} bytes`\r\n" +
+    "      : status.state === 'ready' ? `FULL BROWSER BRAIN READY · ${status.scope === 'autonomy' ? 'AUTONOMOUS PAPER · FRESH SESSION WEIGHTS' : 'OBSERVATION ONLY'}` : `BROWSER BRAIN ${status.state.toUpperCase()} · ${status.message || ''}`;\r\n" +
+    `    $("#brainCancel").hidden = !['loading','ready'].includes(status.state);\r\n` +
+    `    $("#brainRetry").hidden = ['loading','ready'].includes(status.state);\r\n` +
+    "    if (['cancelled','error'].includes(status.state)) { neuralPayload = null; renderNeural(); }\r\n" +
+    '  },\r\n' +
+    '  onActivity(payload, frame) {\r\n' +
+    '    if (!neuralSnapshot || frame.snapshot_hash !== neuralSnapshot.snapshot_hash || frame.frame_hash !== neuralSnapshot.frame_hash) return;\r\n' +
+    '    neuralPayload = payload; renderNeural();\r\n' +
+    '  },\r\n' +
+    '});\r\n' +
+    'async function observeBrowser(source, historical = false) {\r\n' +
+    "  if (browserBrain.scope === 'autonomy') return;\r\n" +
+    '  const generation = ++observationGeneration;\r\n' +
+    '  neuralSnapshot = null; neuralPayload = null; renderNeural();\r\n' +
+    '  try {\r\n' +
+    '    const frame = await encodeMarketObservation(source, historical);\r\n' +
+    '    if (generation !== observationGeneration) return;\r\n' +
+    '    neuralSnapshot = frame;\r\n' +
+    `    const canvas = $("#brainInput"), ctx = canvas.getContext('2d'), image = ctx.createImageData(frame.width, frame.height);\r\n` +
+    '    for (let i = 0; i < frame.rgb.length / 3; i++) { image.data[i*4] = frame.rgb[i*3]; image.data[i*4+1] = frame.rgb[i*3+1]; image.data[i*4+2] = frame.rgb[i*3+2]; image.data[i*4+3] = 255; }\r\n' +
+    '    ctx.putImageData(image, 0, 0);\r\n' +
+    '    $("#brainInputIdentity").textContent = `${frame.encoder_version} · ${frame.width}×${frame.height} RGB · ${historical ? \'HISTORICAL\' : \'CURRENT\'} · snapshot ${frame.snapshot_hash?.slice(0,12)} · pixels ${frame.frame_hash.slice(0,12)}`;\r\n' +
+    '    browserBrain.observe(frame);\r\n' +
+    `  } catch (error) { $("#brainRuntimeStatus").textContent = 'OBSERVATION UNAVAILABLE · ' + error.message; }\r\n` +
+    '}\r\n' +
+    "document.addEventListener('visibilitychange', () => {\r\n" +
+    '  if (document.hidden && autoRunning) stopAuto().catch(console.error);\r\n' +
+    '  else if (!document.hidden) {\r\n' +
+    "    if (!browserBrain.ready && anatomy) browserBrain.start(anatomy.nodes.map(n => n.id), 'observation');\r\n" +
+    '    browserBrain.resume();\r\n' +
+    "    if (mode === 'lab' && !autoRunning) refreshObservation();\r\n" +
+    "    else if (mode === 'raising' && raising?.state.session) observeBrowser(raising.state.session, true);\r\n" +
+    '  }\r\n' +
+    '});\r\n' +
+    '$("#brainCancel").onclick = () => { if(autoRunning) stopAuto().catch(console.error); else browserBrain.cancel(); };\r\n' +
+    '$("#brainRetry").onclick = () => { browserBrain.start(anatomy?.nodes.map(n => n.id) || []); if (neuralSnapshot) browserBrain.observe(neuralSnapshot); };\r\n' +
+    'function resizeScene() {\r\n' +
+    '  for (const [k, c] of Object.entries({\r\n' +
+    '    fly: $("#flyScene"),\r\n' +
+    '    vision: $("#visionScene"),\r\n' +
+    '    brain: $("#brainScene"),\r\n' +
+    '  }))\r\n' +
+    '    c.hidden = k !== current;\r\n' +
+    '  $("#sceneTitle").textContent = {\r\n' +
+    '    fly: "■ FLY.EXE",\r\n' +
+    '    vision: "■ RETINAL.INPUT",\r\n' +
+    '    brain: "■ BRAIN.EXE",\r\n' +
+    '  }[current];\r\n' +
+    '  $("#anatomyStatus").hidden = current !== "brain";\r\n' +
+    '}\r\n' +
+    'let current = "fly";\r\n' +
+    'function changeView(v) {\r\n' +
+    '  current = v;\r\n' +
+    `  if (v === 'brain' && !anatomy) { $("#brainScene").dataset.nodeCount = '0'; $("#anatomyStatus").textContent = 'ANATOMY UNAVAILABLE'; }\r\n` +
+    '  resizeScene();\r\n' +
+    '  for (const [k, scene] of Object.entries(scenes)) {\r\n' +
+    '    scene.setVisible?.(k === current);\r\n' +
+    '  }\r\n' +
+    '  if (!scenes[v]) {\r\n' +
+    `    if (v === 'brain' && !anatomy) $("#brainScene").dataset.nodeCount = '0';\r\n` +
+    '    try {\r\n' +
+    '      scenes[v] =\r\n' +
+    '        v === "fly"\r\n' +
+    '          ? startScene($("#flyScene"), series)\r\n' +
+    '          : v === "vision"\r\n' +
+    '            ? startVisionScene($("#visionScene"), series)\r\n' +
+    '            : startBrainScene($("#brainScene"), anatomy);\r\n' +
+    '    } catch (e) {\r\n' +
+    '      $("#sceneFallback").hidden = false;\r\n' +
+    '      $("#sceneFallback").textContent = "3D ERROR · " + e.message;\r\n' +
+    `      if (v === 'brain' && !anatomy) $("#brainScene").dataset.nodeCount = '0';\r\n` +
+    '      console.error("DEFLY_SCENE_INIT", v, e);\r\n' +
+    '    }\r\n' +
+    '  }\r\n' +
+    '}\r\n' +
+    'async function boot(reset = false) {\r\n' +
+    '  initRouterAndIdentity();\r\n' +
+    '  changeView("fly");\r\n' +
+    '  const saved = reset ? await sessionClient.reset() : await sessionClient.restore();\r\n' +
+    '  state = saved.portfolio;\r\n' +
+    '  const ownerToken=localStorage.getItem(`defly.session:${API}`);\r\n' +
+    "  browserBrain.setCheckpointKey(ownerToken ? await crypto.subtle.digest('SHA-256',new TextEncoder().encode(ownerToken)).then(b=>Array.from(new Uint8Array(b),v=>v.toString(16).padStart(2,'0')).join('')) : null);\r\n" +
+    '  // A reopened historical desk must not leave an earlier server run unattended.\r\n' +
+    '  await stopAuto();\r\n' +
+    "  if (anatomy) browserBrain.start(anatomy.nodes.map(n => n.id), 'observation');\r\n" +
+    '  $("#sessionRecovery").hidden = true;\r\n' +
+    '  raising = await initRaising({api,\r\n' +
+    '    onOutfit: loadout => { outfit = loadout; scenes.fly?.setOutfit?.(loadout); },\r\n' +
+    '    onMode: exitLab,\r\n' +
+    '    onObservation: applyRaisingObservation,\r\n' +
+    '    onAction: (action, eventId) => scenes.fly?.playAction?.(action, eventId),\r\n' +
+    '  });\r\n' +
+    '  if (!raising.state.session) renderState();\r\n' +
+    '  $("#notice").textContent = "RAISING DESK · PAPER ONLY";\r\n' +
+    '  drawMarket();\r\n' +
+    '  if (!booted) { setInterval(renderNeural, 1000); setInterval(refreshObservation, 10000); booted = true; }\r\n' +
+    '}\r\n' +
+    'function applyRaisingObservation(s) {\r\n' +
+    '  observeBrowser(s, true);\r\n' +
+    '  tradeMarkers = [];\r\n' +
+    '  series = (s.bars || []).map(bar => bar.close);\r\n' +
+    '  drawMarket();\r\n' +
+    '  scenes.fly?.updateMarket?.(series);\r\n' +
+    '  scenes.vision?.updateMarket?.(series);\r\n' +
+    '  $("#chartSymbol").textContent = s.symbol || "MARKET";\r\n' +
+    '  $("#price").textContent = series.length ? "$" + Number(series.at(-1)).toFixed(2) : "—";\r\n' +
+    '  $("#chartSource").textContent = "HISTORICAL · " + (s.provenance?.provider || "SERVER");\r\n' +
+    '  // Teaching mode does not change the neural runtime identity.\r\n' +
+    '  $("#neuralOrder").textContent = s.status === "ACTIVE" ? "YOUR DECISION" : "ROUND COMPLETE";\r\n' +
+    '  $("#neuralReason").textContent = `CLOSED BARS · STEP ${s.step} · ${s.observation_hash?.slice(0,10) || ""}`;\r\n' +
+    '  const a = s.account;\r\n' +
+    '  if (a) {\r\n' +
+    '    $("#cash").textContent = "$" + Number(a.cash).toFixed(2);\r\n' +
+    '    $("#equity").textContent = "$" + Number(a.equity).toFixed(2);\r\n' +
+    '    $("#qty").textContent = Number(a.quantity).toFixed(6);\r\n' +
+    '    $("#side").textContent = a.side;\r\n' +
+    '    $("#avg").textContent = "$" + Number(a.entry_price).toFixed(2);\r\n' +
+    '  }\r\n' +
+    '}\r\n' +
+    'let observationRefreshInFlight = null;\r\n' +
+    'let observationRefreshAt = 0;\r\n' +
+    'const OBSERVATION_REFRESH_MS = 30000;\r\n' +
+    'async function refreshObservation(force = false) {\r\n' +
+    '  if (mode !== "lab" || autoRunning || autoInFlight) return;\r\n' +
+    '  if (!force && Date.now() - observationRefreshAt < OBSERVATION_REFRESH_MS) return;\r\n' +
+    '  if (observationRefreshInFlight) return observationRefreshInFlight;\r\n' +
+    '  observationRefreshInFlight = (async () => {\r\n' +
+    '    try {\r\n' +
+    '      await applyObservation(await api("/api/observation"));\r\n' +
+    '      observationRefreshAt = Date.now();\r\n' +
+    '    } catch (e) {\r\n' +
+    '      console.warn("OBSERVATION_REFRESH", e.message);\r\n' +
+    '    } finally {\r\n' +
+    '      observationRefreshInFlight = null;\r\n' +
+    '    }\r\n' +
+    '  })();\r\n' +
+    '  return observationRefreshInFlight;\r\n' +
+    '}\r\n' +
+    'async function applyObservation(o) {\r\n' +
+    '  if (mode !== "lab") return;\r\n' +
+    '  if (!o?.candles?.length) return;\r\n' +
+    '  observeBrowser(o);\r\n' +
+    '  $("#chartSource").textContent = "LIVE · KRAKEN MARKET";\r\n' +
+    '  series = o.candles.map((x) => x.close);\r\n' +
+    '  drawMarket();\r\n' +
+    '  scenes.f'... 21515 more characters
+
+      at TestContext.<anonymous> (file:///D:/deafly/tests/inactivity-penalty-v1.test.mjs:1:910)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1081:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:763:18)
+      at Test.postRun (node:internal/test_runner/test:1210:19)
+      at Test.run (node:internal/test_runner/test:1138:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:763:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'import { startScene, startVisionScene, startBrainScene } from "./scene.js?v=4";\r\nimport { createSessionClient, resolveApiOrigin } from "./session-client.js";\r\nimport { init as initRaising } from "./raising-ui.js";\r\nimport { UNAVAILABLE, verifyAnatomy } from "./neural-contract.js";\r\nimport { createBrowserBrainClient, encodeMarketObservation } from "./browser-brain-client.js";\r\nimport { routerRegistry, addRouter } from \'./router-registry.js\';\r\nimport { createFlyIdentity } from \'./fly-identity.js\';\r\nlet state = null,\r\n  lastAction = null,\r\n  scenes = {},\r\n  tradeMarkers = [];\r\nconst $ = (s) => document.querySelector(s);\r\nconst API = resolveApiOrigin($("meta[name=\'defly-api-origin\']")?.content, location.hostname);\r\nconst sessionClient = createSessionClient({origin: API, storage: localStorage});\r\nconst api = sessionClient.api;\r\nfunction renderRouters(){if(!document.querySelector(\'#routerPeers\'))return;const el=$("#routerPeers"),items=routers.list();if(el)el.innerHTML=items.length?items.map(p=>`<div>${p.peer_id||p.base_url} · ${p.protocol}</div>`).join(\'\'):\'NO PEER ROUTERS\';const s=$("#routerStatus");if(s)s.textContent=items.length?`${items.length} PEER ROUTER${items.length>1?\'S\':\'\'}`:\'LOCAL ROUTER\';}\r\nconst routers = routerRegistry(localStorage);\r\nlet series = [], mode = "raising", raising = null, outfit = {}, booted = false;\r\nlet anatomy = null, neuralSnapshot = null, neuralPayload = null, observationGeneration = 0;\r\nfunction renderBackend(state){const el=$("#activeBackend");if(!el)return;el.textContent=({ready:\'FULL BROWSER WASM\',loading:\'FULL BROWSER WASM · LOADING\',error:\'FULL BROWSER WASM · ERROR\',cancelled:\'FULL BROWSER WASM · STOPPED\'})[state] || \'BROWSER ACTIVITY UNAVAILABLE\';}\r\nfunction initRouterControls(){if(!document.querySelector(\'#routerPeers\'))return;renderRouters();$("#routerConnect")?.addEventListener(\'click\',async()=>{const input=$("#routerUrl"),status=$("#routerStatus");try{status.textContent=\'CONNECTING...\';await addRouter({base_url:input.value},routers);input.value=\'\';renderRouters();status.textContent=\'CONNECTED\';}catch(e){status.textContent=`FAILED · ${e.message}`;}});}\r\nfunction initRouterAndIdentity(){initRouterControls();if(document.querySelector(\'#flyIdentity\'))createFlyIdentity(localStorage,{genesis_model_hash:\'full-browser-model\'}).then(identity=>{const el=$("#flyIdentity");if(el)el.textContent=identity.fly_id.slice(0,16)+\'…\';}).catch(error=>{const el=$("#flyIdentity");if(el)el.textContent=\'UNAVAILABLE\';const s=$("#flyIdentityStatus");if(s)s.textContent=error.message;});}\r\nconst browserBrain = createBrowserBrainClient({\r\n  onStatus(status) {\r\n    renderBackend(status.state);\r\n    $("#brainRuntimeStatus").textContent = status.state === \'loading\'\r\n      ? `PREPARING FULL BROWSER BRAIN · ${status.loaded || 0} / ${status.total || \'…\'} bytes`\r\n      : status.state === \'ready\' ? `FULL BROWSER BRAIN READY · ${status.scope === \'autonomy\' ? \'AUTONOMOUS PAPER · FRESH SESSION WEIGHTS\' : \'OBSERVATION ONLY\'}` : `BROWSER BRAIN ${status.state.toUpperCase()} · ${status.message || \'\'}`;\r\n    $("#brainCancel").hidden = ![\'loading\',\'ready\'].includes(status.state);\r\n    $("#brainRetry").hidden = [\'loading\',\'ready\'].includes(status.state);\r\n    if ([\'cancelled\',\'error\'].includes(status.state)) { neuralPayload = null; renderNeural(); }\r\n  },\r\n  onActivity(payload, frame) {\r\n    if (!neuralSnapshot || frame.snapshot_hash !== neuralSnapshot.snapshot_hash || frame.frame_hash !== neuralSnapshot.frame_hash) return;\r\n    neuralPayload = payload; renderNeural();\r\n  },\r\n});\r\nasync function observeBrowser(source, historical = false) {\r\n  if (browserBrain.scope === \'autonomy\') return;\r\n  const generation = ++observationGeneration;\r\n  neuralSnapshot = null; neuralPayload = null; renderNeural();\r\n  try {\r\n    const frame = await encodeMarketObservation(source, historical);\r\n    if (generation !== observationGeneration) return;\r\n    neuralSnapshot = frame;\r\n    const canvas = $("#brainInput"), ctx = canvas.getContext(\'2d\'), image = ctx.createImageData(frame.width, frame.height);\r\n    for (let i = 0; i < frame.rgb.length / 3; i++) { image.data[i*4] = frame.rgb[i*3]; image.data[i*4+1] = frame.rgb[i*3+1]; image.data[i*4+2] = frame.rgb[i*3+2]; image.data[i*4+3] = 255; }\r\n    ctx.putImageData(image, 0, 0);\r\n    $("#brainInputIdentity").textContent = `${frame.encoder_version} · ${frame.width}×${frame.height} RGB · ${historical ? \'HISTORICAL\' : \'CURRENT\'} · snapshot ${frame.snapshot_hash?.slice(0,12)} · pixels ${frame.frame_hash.slice(0,12)}`;\r\n    browserBrain.observe(frame);\r\n  } catch (error) { $("#brainRuntimeStatus").textContent = \'OBSERVATION UNAVAILABLE · \' + error.message; }\r\n}\r\ndocument.addEventListener(\'visibilitychange\', () => {\r\n  if (document.hidden && autoRunning) stopAuto().catch(console.error);\r\n  else if (!document.hidden) {\r\n    if (!browserBrain.ready && anatomy) browserBrain.start(anatomy.nodes.map(n => n.id), \'observation\');\r\n    browserBrain.resume();\r\n    if (mode === \'lab\' && !autoRunning) refreshObservation();\r\n    else if (mode === \'raising\' && raising?.state.session) observeBrowser(raising.state.session, true);\r\n  }\r\n});\r\n$("#brainCancel").onclick = () => { if(autoRunning) stopAuto().catch(console.error); else browserBrain.cancel(); };\r\n$("#brainRetry").onclick = () => { browserBrain.start(anatomy?.nodes.map(n => n.id) || []); if (neuralSnapshot) browserBrain.observe(neuralSnapshot); };\r\nfunction resizeScene() {\r\n  for (const [k, c] of Object.entries({\r\n    fly: $("#flyScene"),\r\n    vision: $("#visionScene"),\r\n    brain: $("#brainScene"),\r\n  }))\r\n    c.hidden = k !== current;\r\n  $("#sceneTitle").textContent = {\r\n    fly: "■ FLY.EXE",\r\n    vision: "■ RETINAL.INPUT",\r\n    brain: "■ BRAIN.EXE",\r\n  }[current];\r\n  $("#anatomyStatus").hidden = current !== "brain";\r\n}\r\nlet current = "fly";\r\nfunction changeView(v) {\r\n  current = v;\r\n  if (v === \'brain\' && !anatomy) { $("#brainScene").dataset.nodeCount = \'0\'; $("#anatomyStatus").textContent = \'ANATOMY UNAVAILABLE\'; }\r\n  resizeScene();\r\n  for (const [k, scene] of Object.entries(scenes)) {\r\n    scene.setVisible?.(k === current);\r\n  }\r\n  if (!scenes[v]) {\r\n    if (v === \'brain\' && !anatomy) $("#brainScene").dataset.nodeCount = \'0\';\r\n    try {\r\n      scenes[v] =\r\n        v === "fly"\r\n          ? startScene($("#flyScene"), series)\r\n          : v === "vision"\r\n            ? startVisionScene($("#visionScene"), series)\r\n            : startBrainScene($("#brainScene"), anatomy);\r\n    } catch (e) {\r\n      $("#sceneFallback").hidden = false;\r\n      $("#sceneFallback").textContent = "3D ERROR · " + e.message;\r\n      if (v === \'brain\' && !anatomy) $("#brainScene").dataset.nodeCount = \'0\';\r\n      console.error("DEFLY_SCENE_INIT", v, e);\r\n    }\r\n  }\r\n}\r\nasync function boot(reset = false) {\r\n  initRouterAndIdentity();\r\n  changeView("fly");\r\n  const saved = reset ? await sessionClient.reset() : await sessionClient.restore();\r\n  state = saved.portfolio;\r\n  const ownerToken=localStorage.getItem(`defly.session:${API}`);\r\n  browserBrain.setCheckpointKey(ownerToken ? await crypto.subtle.digest(\'SHA-256\',new TextEncoder().encode(ownerToken)).then(b=>Array.from(new Uint8Array(b),v=>v.toString(16).padStart(2,\'0\')).join(\'\')) : null);\r\n  // A reopened historical desk must not leave an earlier server run unattended.\r\n  await stopAuto();\r\n  if (anatomy) browserBrain.start(anatomy.nodes.map(n => n.id), \'observation\');\r\n  $("#sessionRecovery").hidden = true;\r\n  raising = await initRaising({api,\r\n    onOutfit: loadout => { outfit = loadout; scenes.fly?.setOutfit?.(loadout); },\r\n    onMode: exitLab,\r\n    onObservation: applyRaisingObservation,\r\n    onAction: (action, eventId) => scenes.fly?.playAction?.(action, eventId),\r\n  });\r\n  if (!raising.state.session) renderState();\r\n  $("#notice").textContent = "RAISING DESK · PAPER ONLY";\r\n  drawMarket();\r\n  if (!booted) { setInterval(renderNeural, 1000); setInterval(refreshObservation, 10000); booted = true; }\r\n}\r\nfunction applyRaisingObservation(s) {\r\n  observeBrowser(s, true);\r\n  tradeMarkers = [];\r\n  series = (s.bars || []).map(bar => bar.close);\r\n  drawMarket();\r\n  scenes.fly?.updateMarket?.(series);\r\n  scenes.vision?.updateMarket?.(series);\r\n  $("#chartSymbol").textContent = s.symbol || "MARKET";\r\n  $("#price").textContent = series.length ? "$" + Number(series.at(-1)).toFixed(2) : "—";\r\n  $("#chartSource").textContent = "HISTORICAL · " + (s.provenance?.provider || "SERVER");\r\n  // Teaching mode does not change the neural runtime identity.\r\n  $("#neuralOrder").textContent = s.status === "ACTIVE" ? "YOUR DECISION" : "ROUND COMPLETE";\r\n  $("#neuralReason").textContent = `CLOSED BARS · STEP ${s.step} · ${s.observation_hash?.slice(0,10) || ""}`;\r\n  const a = s.account;\r\n  if (a) {\r\n    $("#cash").textContent = "$" + Number(a.cash).toFixed(2);\r\n    $("#equity").textContent = "$" + Number(a.equity).toFixed(2);\r\n    $("#qty").textContent = Number(a.quantity).toFixed(6);\r\n    $("#side").textContent = a.side;\r\n    $("#avg").textContent = "$" + Number(a.entry_price).toFixed(2);\r\n  }\r\n}\r\nlet observationRefreshInFlight = null;\r\nlet observationRefreshAt = 0;\r\nconst OBSERVATION_REFRESH_MS = 30000;\r\nasync function refreshObservation(force = false) {\r\n  if (mode !== "lab" || autoRunning || autoInFlight) return;\r\n  if (!force && Date.now() - observationRefreshAt < OBSERVATION_REFRESH_MS) return;\r\n  if (observationRefreshInFlight) return observationRefreshInFlight;\r\n  observationRefreshInFlight = (async () => {\r\n    try {\r\n      await applyObservation(await api("/api/observation"));\r\n      observationRefreshAt = Date.now();\r\n    } catch (e) {\r\n      console.warn("OBSERVATION_REFRESH", e.message);\r\n    } finally {\r\n      observationRefreshInFlight = null;\r\n    }\r\n  })();\r\n  return observationRefreshInFlight;\r\n}\r\nasync function applyObservation(o) {\r\n  if (mode !== "lab") return;\r\n  if (!o?.candles?.length) return;\r\n  observeBrowser(o);\r\n  $("#chartSource").textContent = "LIVE · KRAKEN MARKET";\r\n  series = o.candles.map((x) => x.close);\r\n  drawMarket();\r\n  scenes.f'... 21515 more characters,
+    expected: /next step in 10s/i,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at tests\neural-browser.test.mjs:1:1
+✖ tests\neural-browser.test.mjs (444.589ms)
+  'test failed'
+
+test at tests\raising-backend.test.mjs:1:1
+✖ tests\raising-backend.test.mjs (313.282ms)
+  'test failed'
+
+test at tests\raising-scene-browser.test.mjs:1:1
+✖ tests\raising-scene-browser.test.mjs (290.8712ms)
+  'test failed'
+
+test at tests\raising-service.test.mjs:1:1
+✖ tests\raising-service.test.mjs (271.6625ms)
+  'test failed'
+
+test at tests\raising-ui-training.test.mjs:1:1
+✖ tests\raising-ui-training.test.mjs (169.2714ms)
+  'test failed'
+
+test at tests\raising-ui-view.test.mjs:1:1
+✖ tests\raising-ui-view.test.mjs (147.0186ms)
+  'test failed'

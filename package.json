@@ -4,13 +4,19 @@
   "type": "module",
   "scripts": {
     "test": "node --test tests/*.test.mjs",
-    "check": "node scripts/check-modules.mjs"
+    "check": "node scripts/check-modules.mjs",
+    "dev": "node scripts/flydesk-dev.mjs",
+    "dev:fixture": "node scripts/flydesk-dev.mjs --fixture",
+    "test:flydesk": "node --test --test-concurrency=1 tests/flydesk-*.test.mjs",
+    "worker:build": "esbuild worker/src/index.mjs --bundle --format=esm --platform=browser --outfile=runtime/worker.mjs"
   },
   "devDependencies": {
+    "esbuild": "0.28.1",
     "playwright": "^1.63.0",
-    "wrangler": "4.123.0"
+    "wrangler": "4.137.0"
   },
   "dependencies": {
+    "@noble/hashes": "^2.4.0",
     "three": "^0.180.0"
   }
 }

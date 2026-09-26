@@ -1,9 +1,13 @@
+import {cookieUser,handleAccount,allowedOrigin} from './flydesk-auth.mjs';
+export {FlydeskLive} from './flydesk-live.mjs';
 import { BROWSER_BACKEND, PINNED_MANIFEST, browserRun, prepareBrowser, stepBrowser } from "./browser-autonomy.mjs";
 import { fetchMarket, canonicalSymbol, marketSource } from "./market.mjs";
 import { federation } from "./federation.mjs";
 import { NINEX_MARKETS } from "./core.mjs";
 import { handleRaising } from "./raising.mjs";
 import { handleRaisingTraining, runTrainingJobs } from "./raising-training-service.mjs";
+import { handleFlydesk } from './flydesk.mjs';
+import { handleFlydeskTraining, runFlydeskTrainingJobs } from './flydesk-training-service.mjs';
 import {
   buyFill,
   sellFill,
@@ -605,10 +609,11 @@ async function arenaProxy(r, e, path, method = "GET", body = null) {
 async function runScheduledAutonomy(e) {
   await e.DB.prepare("UPDATE autonomous_runs SET status='STOPPED',updated_at=? WHERE status='RUNNING' AND NOT EXISTS (SELECT 1 FROM browser_autonomy_runs b WHERE b.run_id=autonomous_runs.id)").bind(now()).run();
 }
-export default {
+const application = {
   async scheduled(controller, e, ctx) {
     ctx.waitUntil(runScheduledAutonomy(e));
     ctx.waitUntil(runTrainingJobs(e));
+    ctx.waitUntil(runFlydeskTrainingJobs(e));
   },
   async fetch(r, e, ctx) {
     try {
@@ -624,6 +629,7 @@ export default {
           },
         });
       const u = new URL(r.url);
+      if(u.pathname.startsWith('/api/account/'))return handleAccount(r,e,(await cookieUser(r,e))||await auth(r,e));
       if (u.pathname === "/api/99x/markets" && r.method === "GET")
         return arenaProxy(r, e, "/api/arena/markets");
       if (u.pathname === "/api/99x/leaderboard" && r.method === "GET")
@@ -680,8 +686,20 @@ export default {
         });
       }
       if (u.pathname === "/api/router/info" && r.method === "GET") return federation(r,e,null,u.pathname);
-      const user = await auth(r, e);
+      const user = (r.headers.get("cookie")?.includes("flydesk_session=")?await cookieUser(r,e):null)||await auth(r, e);
       if (!user) return json({ error: "UNAUTHORIZED" }, 401);
+      if(u.pathname.startsWith('/api/flydesk/')) {
+        if(u.pathname.startsWith('/api/flydesk/live/')) {
+          if(!e.FLYDESK_LIVE)return json({error:'LIVE_SERVICE_NOT_CONFIGURED'},503);
+          const op=u.pathname.split('/').at(-1);
+          if(!['start','state','action','abort'].includes(op)||(op==='state'?r.method!=='GET':r.method!=='POST'))return json({error:'METHOD_NOT_ALLOWED'},405);
+          const stub=e.FLYDESK_LIVE.get(e.FLYDESK_LIVE.idFromName(user.id));
+          return stub.fetch(new Request('https://live/'+op,{method:r.method,headers:{'x-owner-id':user.id},...(r.method==='POST'?{body:await r.text()}:{})}));
+        }
+        const response=await handleFlydeskTraining(r,e,user,ctx)||await handleFlydesk(r,e,user);
+        const headers=new Headers(response.headers);for(const [k,v] of Object.entries(CORS))headers.set(k,v);
+        return new Response(response.body,{status:response.status,headers});
+      }
       const federated = await federation(r, e, user, u.pathname);
       if (federated) return federated;
       if (u.pathname.startsWith("/api/raising/")) {
@@ -818,4 +836,15 @@ export default {
       return json({ error: "INTERNAL_ERROR" }, 500);
     }
   },
+};
+
+export default {
+  scheduled:application.scheduled,
+  async fetch(request,env,ctx){
+    if(env.PAPER_ONLY && env.PAPER_ONLY!=='true')return new Response('PAPER_ONLY_REQUIRED',{status:503});
+    if(!['GET','HEAD','OPTIONS'].includes(request.method)&&!allowedOrigin(request,env))return new Response('ORIGIN_DENIED',{status:403});
+    const response=await application.fetch(request,env,ctx),headers=new Headers(response.headers),origin=request.headers.get('origin');
+    if(origin&&allowedOrigin(request,env)){headers.set('access-control-allow-origin',origin);headers.set('access-control-allow-credentials','true');headers.set('vary','Origin');}
+    return new Response(response.body,{status:response.status,headers});
+  }
 };

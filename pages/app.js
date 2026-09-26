@@ -5,14 +5,25 @@ import { UNAVAILABLE, verifyAnatomy } from "./neural-contract.js";
 import { createBrowserBrainClient, encodeMarketObservation } from "./browser-brain-client.js";
 import { routerRegistry, addRouter } from './router-registry.js';
 import { createFlyIdentity } from './fly-identity.js';
+import {createDeskChart} from './flydesk-chart.js';
+import {initLiveDesk} from './flydesk-live-ui.js';
+import {mountDeskAdmin} from './flydesk-admin.js';
 let state = null,
   lastAction = null,
   scenes = {},
   tradeMarkers = [];
 const $ = (s) => document.querySelector(s);
 const API = resolveApiOrigin($("meta[name='defly-api-origin']")?.content, location.hostname);
-const sessionClient = createSessionClient({origin: API, storage: localStorage});
+const sessionClient = createSessionClient({origin: API, storage: localStorage,cookieMode:true});
 const api = sessionClient.api;
+mountDeskAdmin(api);
+const accountBox=document.createElement('details');accountBox.className='account-login';accountBox.innerHTML='<summary>账号登录 / 保存当前果蝇</summary><form><label>用户名 <input name="username" autocomplete="username" required minlength="3" maxlength="40"></label><label>密码 <input name="password" type="password" autocomplete="current-password" required minlength="12" maxlength="256"></label><button name="login" type="submit">登录</button><button name="register" type="submit">注册并保存当前果蝇</button><button name="logout" type="button">退出</button><p role="status"></p></form>';
+document.querySelector('main').prepend(accountBox);
+accountBox.querySelector('form').onsubmit=async e=>{e.preventDefault();const f=e.currentTarget,status=f.querySelector('[role=status]');try{status.textContent='正在处理';await sessionClient.account(e.submitter.name,{username:f.username.value,password:f.password.value});f.password.value='';location.reload();}catch(error){status.textContent=error.message;}};
+accountBox.querySelector('[name=logout]').onclick=async()=>{await sessionClient.account('logout');location.reload();};
+const deskApi=(path,options)=>api(path.replace('/api/raising/','/api/flydesk/'),options);
+let deskSession=null;
+const deskChart=createDeskChart(document.querySelector('#chart'),{save:analysis=>deskSession&&deskSession.status==='ACTIVE'&&deskSession.market_mode!=='LIVE'?deskApi('/api/raising/sessions/'+deskSession.id+'/analysis',{method:'POST',body:analysis}):Promise.resolve()});
 function renderRouters(){if(!document.querySelector('#routerPeers'))return;const el=$("#routerPeers"),items=routers.list();if(el)el.innerHTML=items.length?items.map(p=>`<div>${p.peer_id||p.base_url} · ${p.protocol}</div>`).join(''):'NO PEER ROUTERS';const s=$("#routerStatus");if(s)s.textContent=items.length?`${items.length} PEER ROUTER${items.length>1?'S':''}`:'LOCAL ROUTER';}
 const routers = routerRegistry(localStorage);
 let series = [], mode = "raising", raising = null, outfit = {}, booted = false;
@@ -111,18 +122,21 @@ async function boot(reset = false) {
   await stopAuto();
   if (anatomy) browserBrain.start(anatomy.nodes.map(n => n.id), 'observation');
   $("#sessionRecovery").hidden = true;
-  raising = await initRaising({api,
+  raising = await initRaising({api:deskApi,flydesk:true,beforeAction:()=>deskChart.flush(),
     onOutfit: loadout => { outfit = loadout; scenes.fly?.setOutfit?.(loadout); },
     onMode: exitLab,
     onObservation: applyRaisingObservation,
     onAction: (action, eventId) => scenes.fly?.playAction?.(action, eventId),
   });
   if (!raising.state.session) renderState();
+  if(!document.querySelector('.live-desk'))initLiveDesk({root:document.querySelector('#raisingTeach'),api,isVisible:()=>mode==='live',onSelect:async()=>{await stopAuto();mode='live';renderMode();document.querySelector('.teach-actions').hidden=true;},getAnalysis:()=>deskChart.getAnalysis(),onObservation:s=>{mode='live';applyRaisingObservation(s);document.querySelector('#chartSource').textContent='实时模拟 · COINBASE';}});
   $("#notice").textContent = "RAISING DESK · PAPER ONLY";
   drawMarket();
   if (!booted) { setInterval(renderNeural, 1000); setInterval(refreshObservation, 10000); booted = true; }
 }
 function applyRaisingObservation(s) {
+  deskSession=s;
+  deskChart.setSession(s);
   observeBrowser(s, true);
   tradeMarkers = [];
   series = (s.bars || []).map(bar => bar.close);
@@ -446,6 +460,8 @@ async function predict(market_id, action) {
   alert(`SIMULATED PREDICTION ${action} RECORDED. AWAITING PUBLIC RESOLUTION.`);
 }
 function drawMarket() {
+  if(mode==='live'||(mode==='raising'&&raising?.state.session?.views)){deskChart.setVisible(true);deskChart.render();return;}
+  deskChart.setVisible(false);
   const c = $("#chart"),
     x = c.getContext("2d"),
     w = c.width,
@@ -618,12 +634,13 @@ $("#resetSession").onclick = () => {
 let modeBusy = false;
 function renderMode() {
   const lab = mode === "lab";
+  if(document.querySelector(".teach-actions"))document.querySelector(".teach-actions").hidden=mode==="live";
   $("#historicalMode").setAttribute("aria-pressed", String(!lab));
   $("#autonomousMode").setAttribute("aria-pressed", String(lab));
   $("#raisingRoot").hidden = lab;
   $("#experimentalLab").hidden = !lab;
   $("#labControls").hidden = !lab;
-  $("#modeStatus").textContent = lab ? "LIVE PAPER · EXPLICIT START REQUIRED" : "HISTORICAL · HUMAN DECISIONS";
+  $("#modeStatus").textContent = lab ? "LIVE PAPER · EXPLICIT START REQUIRED" : mode==="live"?"实时模拟 · 人类判断":"HISTORICAL · HUMAN DECISIONS";
   const terminal = $(".terminal");
   if (lab) $("#experimentalLab").prepend(terminal);
   else if ($("#raisingTeach")) $("#raisingTeach").insertBefore(terminal, $(".teach-actions"));

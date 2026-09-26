@@ -14,3 +14,11 @@ crons = ["*/1 * * * *"]
 APP_ENV = "trial"
 PAPER_ONLY = "true"
 ALLOWED_ORIGIN = "*"
+
+[[durable_objects.bindings]]
+name = "FLYDESK_LIVE"
+class_name = "FlydeskLive"
+
+[[migrations]]
+tag = "flydesk-live-v1"
+new_sqlite_classes = ["FlydeskLive"]

@@ -41,6 +41,7 @@ test('ten-second observation scheduler enforces thirty-second request throttle a
   }
   assert.match(app, /setInterval\(\s*refreshObservation\s*,\s*10000\s*,?\s*\)/);
 });
+
 test('autonomy awaits browser inference and fails closed without a server-policy fallback', async () => {
   const { runInNewContext } = await import('node:vm');
   const source = app.slice(app.indexOf('async function autoStep()'), app.indexOf('async function startAuto'));
