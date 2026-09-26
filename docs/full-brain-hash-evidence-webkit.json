@@ -1,0 +1,35 @@
+{
+  "environment": "desktop webkit, not physical phone",
+  "nodes": 166700,
+  "edges": 25582938,
+  "plasticEdges": 7835,
+  "heapBytes": 201326592,
+  "immutableContactBytes": 51165876,
+  "checks": [
+    {
+      "phase": "initial",
+      "match": true,
+      "hash": "ccaf3b4f85946c8a92ae7b2566590d077bf7fc9e55d547f790aeafda38b2de8a",
+      "contactUnchanged": true
+    },
+    {
+      "phase": "observation",
+      "match": true,
+      "hash": "a7d73898f6d81c170810a42de4bf136b9e7a764b028d6c793fb2b7ce32fd0a32",
+      "contactUnchanged": true,
+      "computeMs": 43
+    },
+    {
+      "phase": "reward",
+      "match": true,
+      "hash": "5c51a561d21070201c546aff8e904e8762deac53415cd14a0192804cfd3e4a68",
+      "contactUnchanged": true,
+      "computeMs": 46
+    },
+    {
+      "phase": "restore",
+      "match": true,
+      "contactUnchanged": true
+    }
+  ]
+}

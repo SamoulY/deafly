@@ -1,5 +1,9 @@
 # 001: Full Stonkfly kernel and mobile delivery
 
+## Historical experiment — superseded architecture recommendation
+
+The measurements below are retained as historical evidence, not current deployment advice. The later `pages/full-brain/` WASM runtime runs in the browser. The product target is the full scientifically sourced network on physical phone browsers, with no pruning or server inference substitution. The server/thin-client recommendation below is superseded; physical-device and reference-parity gates remain open.
+
 ## Verdict: PARTIAL
 
 The exact upstream kernel is verified locally, but a stock mobile browser is not a credible always-on host. Use the complete native kernel on a persistent server and keep phones as thin clients. A purpose-built native ARM64 app remains an experimental second path.
