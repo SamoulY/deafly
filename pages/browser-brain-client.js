@@ -25,21 +25,30 @@ export async function encodeMarketObservation(source, historical = false) {
 }
 
 export function createBrowserBrainClient({workerFactory = () => new Worker('/full-brain/worker.mjs', {type:'module'}), onStatus = () => {}, onActivity = () => {}, isHidden = () => document.hidden, timeoutMs = 60000} = {}) {
-  let worker, ready = false, busy = false, latest = null, pending = null, sampleIds = [], serial = 0, scope = 'observation', readiness = [], checkpointKey = null;
+  let worker, ready = false, busy = false, latest = null, pending = null, sampleIds = [], serial = 0, scope = 'observation', readiness = [], checkpointKey = null, checkpointPersistence = 'normal';
   const trusted = new WeakSet();
+  const commandQueue = [];
   const status = (state, detail = {}) => onStatus({state, scope, ...detail});
   function rejectPending(error) { if (pending) { clearTimeout(pending.timer); pending.reject?.(error); } pending = null; busy = false; }
-  function cancel() { worker?.terminate(); worker = null; ready = false; latest = null; rejectPending(Error('Inference cancelled')); for (const r of readiness.splice(0)) {clearTimeout(r.timer); r.reject(Error('Runtime cancelled'));} status('cancelled'); }
+  function cancel() { for(const item of commandQueue.splice(0)) item.reject(Error('Runtime cancelled')); for(const c of controls.values()){clearTimeout(c.timer);c.reject(Error('Checkpoint cancelled'));} controls.clear(); worker?.terminate(); worker = null; ready = false; latest = null; rejectPending(Error('Inference cancelled')); for (const r of readiness.splice(0)) {clearTimeout(r.timer); r.reject(Error('Runtime cancelled'));} status('cancelled'); }
   function send(frame, resolve, reject, type = 'OBSERVE', reward) {
     busy = true; const request_id = ++serial;
     pending = {frame, resolve, reject, request_id, type, timer:setTimeout(() => { const fail = pending?.reject; cancel(); fail?.(Error('Inference timeout')); }, timeoutMs)};
     const {rgb,width,height,snapshot_hash,frame_hash,observed_at} = frame;
     worker.postMessage({type, request_id, rgb,width,height,snapshot_hash,frame_hash,observed_at,reward});
   }
-  function pump() { if (worker && ready && !busy && latest && !isHidden() && scope === 'observation') { const frame = latest; latest = null; send(frame); } }
-  function start(ids = sampleIds, nextScope = 'observation') {
+  const controls=new Map();
+  function control(type) { return new Promise((resolve,reject)=>{
+    if(!worker||!ready)return reject(Error('Full brain unavailable'));
+    commandQueue.push({reject,run(){
+      busy=true;const request_id=++serial,timer=setTimeout(()=>{cancel();reject(Error('Checkpoint request timeout'));},timeoutMs);
+      controls.set(request_id,{resolve,reject,timer});worker.postMessage({type,request_id});
+    }});pump();
+  }); }
+  function pump() { if(worker && ready && !busy && commandQueue.length){commandQueue.shift().run();return;} if (worker && ready && !busy && latest && !isHidden() && scope === 'observation') { const frame = latest; latest = null; send(frame); } }
+  function start(ids = sampleIds, nextScope = 'observation', options = {}) {
     const queued = nextScope === 'observation' && scope === 'observation' ? latest : null;
-    cancel(); latest = queued; sampleIds = ids; scope = nextScope; status('loading');
+    cancel(); latest = queued; sampleIds = ids; scope = nextScope; checkpointPersistence = options.checkpointPersistence === 'ephemeral' ? 'ephemeral' : 'normal'; status('loading');
     try {
       const active = worker = workerFactory();
       active.onerror = e => { if (worker !== active) return; cancel(); status('error', {message:e.message || 'Worker failed'}); };
@@ -47,7 +56,8 @@ export function createBrowserBrainClient({workerFactory = () => new Worker('/ful
         if (worker !== active) return;
         if (data.type === 'PROGRESS') status('loading', data);
         else if (data.type === 'READY') { ready = true; for (const r of readiness.splice(0)) {clearTimeout(r.timer); r.resolve();} status('ready', data); pump(); }
-        else if (data.type === 'ERROR') { cancel(); status('error', {message:data.message}); }
+        else if (controls.has(data.request_id)) {const c=controls.get(data.request_id);controls.delete(data.request_id);clearTimeout(c.timer);busy=false;if(data.type==='ERROR')c.reject(Error(data.message));else c.resolve(data.payload);pump();}
+        else if (data.type === 'ERROR') { rejectPending(Error(data.message));cancel(); status('error', {message:data.message}); }
         else if (['ACTIVITY','REINFORCED'].includes(data.type) && pending && data.request_id === pending.request_id) {
           const p = pending, payload = data.payload; clearTimeout(p.timer); pending = null; busy = false;
           if (!payload || payload.snapshot_hash !== p.frame.snapshot_hash || payload.frame_hash !== p.frame.frame_hash) p.reject?.(Error('Stale inference identity'));
@@ -55,14 +65,14 @@ export function createBrowserBrainClient({workerFactory = () => new Worker('/ful
           pump();
         }
       };
-      worker.postMessage({type:'INIT', sample_ids:sampleIds, scope, checkpoint_key:checkpointKey});
+      worker.postMessage({type:'INIT', sample_ids:sampleIds, scope, checkpoint_key:checkpointKey, checkpoint_persistence:checkpointPersistence});
     } catch (error) { cancel(); status('error', {message:error.message}); }
   }
   function request(frame, type, reward) { return new Promise((resolve,reject) => {
-    if (!ready || !worker || busy || isHidden() || scope !== 'autonomy') return reject(Error('Full brain unavailable, busy, or paused'));
-    send(frame,resolve,reject,type,reward);
+    if (!ready || !worker || (busy && pending) || isHidden() || scope !== 'autonomy') return reject(Error('Full brain unavailable, busy, or paused'));
+    commandQueue.push({reject,run:()=>send(frame,resolve,reject,type,reward)});pump();
   }); }
-  return {start,cancel,setCheckpointKey(key){checkpointKey=key;},resume:pump,get ready(){return ready;},get scope(){return scope;},
+  return {start,cancel,saveCheckpoint:()=>control('SAVE_CHECKPOINT'),checkpointStatus:()=>control('CHECKPOINT_STATUS'),exportCheckpoint:()=>control('EXPORT_CHECKPOINT'),flush:()=>control('SAVE_CHECKPOINT'),async shutdown(){await control('SAVE_CHECKPOINT');cancel();},setCheckpointKey(key){if(worker&&key!==checkpointKey)throw Error('Stop runtime before changing checkpoint owner');if(key!==null&&(typeof key!=='string'||!key.trim()))throw Error('Checkpoint owner required');checkpointKey=key;},resume:pump,get ready(){return ready;},get scope(){return scope;},
     waitReady() { if (ready) return Promise.resolve(); if (!worker) return Promise.reject(Error('Full brain unavailable')); return new Promise((resolve,reject) => {const r={resolve,reject}; r.timer=setTimeout(()=>{readiness=readiness.filter(x=>x!==r); reject(Error('Brain readiness timeout'));},timeoutMs); readiness.push(r);}); },
     infer:frame=>request(frame,'OBSERVE'), reinforce:(frame,reward)=>request(frame,'REINFORCE',reward),
     observe(frame) { if(scope !== 'observation') return; latest = frame; pump(); },

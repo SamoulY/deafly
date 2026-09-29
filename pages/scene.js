@@ -131,13 +131,13 @@ function buildDesk(root) {
   });
 }
 function lookAtScreen(fly) { fly.position.set(-1.5, -0.63, 0.2); fly.rotation.y = Math.PI / 2; }
-function buildFly(root) {
-  const model = createFlyModel();
+function buildFly(root, flyId = 'default') {
+  const model = createFlyModel(flyId);
   lookAtScreen(model.fly); root.add(model.fly);
   return model;
 }
 
-export function startScene(canvas, series = []) {
+export function startScene(canvas, series = [], flyId = 'default') {
   const { renderer, scene, camera } = makeRenderer(canvas);
   camera.position.set(-6, 4.2, 9); camera.lookAt(0.1, -0.35, 0);
   const root = new THREE.Group(); scene.add(root);
@@ -145,7 +145,7 @@ export function startScene(canvas, series = []) {
   const key = new THREE.DirectionalLight('#bdffcc', 3); key.position.set(-4, 8, 6); scene.add(key);
   const rim = new THREE.DirectionalLight('#c2dfff', 1.6); rim.position.set(-3, 3, -5); scene.add(rim);
   const fill = new THREE.DirectionalLight('#ffddd6', .7); fill.position.set(3, 2, 5); scene.add(fill);
-  const keys=buildDesk(root);canvas.dataset.keyCount=String(keys.length); const monitor = buildTerminal(root, series); const { fly, setOutfit } = buildFly(root); const move = orbit(canvas, root);
+  const keys=buildDesk(root);canvas.dataset.keyCount=String(keys.length); const monitor = buildTerminal(root, series); const { fly, setOutfit, setAppearance } = buildFly(root, flyId); const move = orbit(canvas, root);
   const motion=createMotion(fly,keys,canvas);
   let paused = false;
   const loop = t => {
@@ -165,6 +165,7 @@ export function startScene(canvas, series = []) {
       scene.background.set(backgrounds[normalized.background] || '#060709');
       return normalized;
     },
+    setAppearance(next) { return setAppearance(next); },
     updateMarket(values) { updateMarket(monitor.userData.monitorCanvas, values); monitor.userData.monitorTexture.needsUpdate = true; },
   };
 }

@@ -1,37 +1,11 @@
+export function checkpointMapKey(origin, ownerId) { return `defly.checkpoint-owner:${origin}:${ownerId}`; }
+async function tokenCheckpointKey(token) { return Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(token))),v=>v.toString(16).padStart(2,'0')).join(''); }
 export function createSessionClient({ origin, storage, fetch: request = globalThis.fetch, cookieMode = false }) {
-  const key = `defly.session:${origin}`;
-  let token = storage.getItem(key) || '';
-  async function api(path, options = {}) {
-    const headers = { 'content-type': 'application/json', ...options.headers };
-    if (token) headers['X-Session-Token'] = token;
-    const response = await request(origin + path, { ...options, ...(cookieMode?{credentials:"include"}:{}), headers,
-      body: options.body && typeof options.body !== 'string' ? JSON.stringify(options.body) : options.body });
-    const data = await response.json();
-    if (!response.ok) throw Object.assign(new Error(data.message || data.error || 'REQUEST_FAILED'), { status: response.status, code: data.error });
-    return data;
-  }
-  async function create() {
-    const previous = token;
-    token = '';
-    let result;
-    try { result = await api('/api/session', { method: 'POST', body: { nickname: 'FlyPilot' } }); }
-    catch (error) { token = previous; throw error; }
-    if (!result.token) { token = previous; throw new Error('SESSION_TOKEN_MISSING'); }
-    token = result.token;
-    storage.setItem(key, token);
-    return api('/api/state');
-  }
-  async function restore() {
-    if (!token) {if(cookieMode){try{return await api('/api/state');}catch(e){if(e.status!==401)throw e;if(storage.getItem(key+':account')){e.code='SESSION_LOGIN_REQUIRED';e.message='登录已过期，请重新登录以恢复原来的果蝇';throw e;}}}return create();}
-    try { return await api('/api/state'); }
-    catch (error) {
-      if (error.status === 401 || error.status === 403) error.code = 'SESSION_RESET_REQUIRED';
-      throw error;
-    }
-  }
-  return { api, restore, reset: create, async account(operation,body={}){const result=await api('/api/account/'+operation,{method:'POST',body});token='';storage.removeItem(key);if(operation==='logout')storage.removeItem(key+':account');else storage.setItem(key+':account',result.username||'registered');return result;} };
+  const key = `defly.session:${origin}`; let token = storage.getItem(key) || ''; let currentUser=null;
+  async function api(path, options = {}) { const headers = { 'content-type': 'application/json', ...options.headers }; if (token) headers['X-Session-Token'] = token; const response = await request(origin + path, { ...options, ...(cookieMode?{credentials:'include'}:{}), headers, body: options.body && typeof options.body !== 'string' ? JSON.stringify(options.body) : options.body }); const data = await response.json(); if (!response.ok) throw Object.assign(new Error(data.message || data.error || 'REQUEST_FAILED'), { status: response.status, code: data.error, current: data.current, data }); return data; }
+  async function rememberOwner(result) { const user=result?.user; if (!user?.id) return result; if (token && !storage.getItem(checkpointMapKey(origin,user.id))) { const legacy=await tokenCheckpointKey(token), claimKey=`defly.checkpoint-claim:${legacy}`, claim=JSON.stringify([origin,user.id]), previous=storage.getItem(claimKey); storage.setItem(checkpointMapKey(origin,user.id), !previous||previous===claim ? legacy : await tokenCheckpointKey(claim)); if(!previous)storage.setItem(claimKey,claim); } currentUser=user; return result; }
+  async function create() { const previous=token; token=''; let result; try { result=await api('/api/session',{method:'POST',body:{nickname:'FlyPilot'}}); } catch(error) { token=previous; throw error; } if(!result.token){token=previous;throw Error('SESSION_TOKEN_MISSING');} token=result.token; storage.setItem(key,token); return rememberOwner(await api('/api/state')); }
+  async function restore() { if(!token){ if(cookieMode){try{return await rememberOwner(await api('/api/state'));}catch(e){if(e.status!==401)throw e;if(storage.getItem(key+':account')){e.code='SESSION_LOGIN_REQUIRED';e.message='登录已过期，请重新登录以恢复原来的果蝇';throw e;}}} return create(); } try{return await rememberOwner(await api('/api/state'));}catch(error){if(error.status===401||error.status===403)error.code='SESSION_RESET_REQUIRED';throw error;} }
+  return {api,restore,reset:create,get currentUser(){return currentUser;},async account(operation,body={}){const result=await api('/api/account/'+operation,{method:'POST',body});token='';storage.removeItem(key);if(operation==='logout'){storage.removeItem(key+':account');currentUser=null;}else storage.setItem(key+':account',result.username||'registered');return result;}};
 }
-export function resolveApiOrigin(configured, hostname) {
-  return (configured || (['localhost', '127.0.0.1', '[::1]'].includes(hostname)
-    ? `http://${hostname}:8787` : 'https://flydesk-v2-trial-worker.testcf-195.workers.dev')).replace(/\/$/, '');
-}
+export function resolveApiOrigin(configured, hostname) { return (configured || (['localhost','127.0.0.1','[::1]'].includes(hostname) ? `http://${hostname}:8787` : 'https://flydesk-v2-trial-worker.testcf-195.workers.dev')).replace(/\/$/,''); }

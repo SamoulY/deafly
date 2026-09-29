@@ -1,0 +1,20 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {createFlyIdentity} from '../pages/fly-identity.js';
+import {verifyManifest,digest} from '../worker/src/federation.mjs';
+const storage=()=>{const m=new Map();return {getItem:k=>m.get(k)||null,setItem:(k,v)=>m.set(k,v)}};
+test('client consent and real signed snapshot/decoder/checkpoint binding; no fallback vote',async()=>{
+ const {createColonyClient}=await import('../pages/colony-client.js');
+ const identity=await createFlyIdentity(storage(),{genesis_model_hash:'a'.repeat(64)});
+ const snapshot={bars:[{close:10},{close:12}],symbol:'BTCUSD'};
+ const task={task_id:'task',colony_id:'colony',snapshot,snapshot_hash:await digest(snapshot),status:'OPEN',deadline:Date.now()+60000,members:[{member_user_id:'alice',fly_id:identity.fly_id}]};
+ const calls=[];let action='SELL',frames=[];
+ const api=async(path,o={})=>{calls.push([path,o.body]);if(path==='/api/state')return {user:{id:'alice'}};if(path.endsWith('/task'))return task;if(path==='/api/colony')return {colony_id:'colony'};return {accepted:true}};
+ const client=createColonyClient({api,identity,storage:storage(),withBrain:async fn=>fn({saveCheckpoint:async()=>({hash:'b'.repeat(64)}),infer:async frame=>{frames.push(frame);return {decoder:{proposed_action:action}}}})});
+ await assert.rejects(client.create({consent:false,quorum:0.5}),/CONSENT/);assert.equal(calls.length,0);
+ await client.create({consent:true,quorum:0.5});
+ for(const [path,b] of calls.filter(([p])=>p.includes('manifest')||p==='/api/colony'))assert.equal(await verifyManifest(b.proof||b),null,path);
+ await client.vote('task');const ballot=calls.find(([p])=>p.endsWith('/votes'))[1];assert.equal(await verifyManifest(ballot),null);assert.equal(ballot.action,'SELL');assert.equal(ballot.snapshot_hash,task.snapshot_hash);assert.equal(ballot.checkpoint_hash,'b'.repeat(64));assert.equal(frames[0].snapshot_hash,task.snapshot_hash);
+ action=undefined;await assert.rejects(client.vote('task'),/DECODER/);assert.equal(calls.filter(([p])=>p.endsWith('/votes')).length,1);
+ task.snapshot_hash='0'.repeat(64);await assert.rejects(client.vote('task'),/SNAPSHOT/);
+});

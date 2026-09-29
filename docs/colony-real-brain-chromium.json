@@ -1,0 +1,405 @@
+{
+  "engine": "chromium",
+  "market_source": "fixed fixture, NOT live market",
+  "brain": "real full browser WASM, no inference mock",
+  "scope": "single-member quorum; browser client to production Worker entrypoint to disposable D1; not full app UI",
+  "colony_id": "4eb8de90-2fab-4246-8394-3f2aab4177ab",
+  "task_id": "888a880e-1b8e-4024-a605-ba058fc7fc7e",
+  "vote": {
+    "accepted": true,
+    "vote_id": "ff2cc751-cbbf-4b35-9676-3225404dd89e",
+    "task_id": "888a880e-1b8e-4024-a605-ba058fc7fc7e",
+    "authority": "OWNER_SIGNED_REPORT",
+    "action": "BUY",
+    "checkpoint_hash": "40d19993de41a42a430f95a8e3a2c28eb7546c77326859bf1cd01d933a76cc6d"
+  },
+  "finalized": {
+    "task_id": "888a880e-1b8e-4024-a605-ba058fc7fc7e",
+    "colony_id": "4eb8de90-2fab-4246-8394-3f2aab4177ab",
+    "snapshot": {
+      "bars": [
+        {
+          "time": 1790483400,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100,
+          "volume": 10
+        },
+        {
+          "time": 1790483460,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.01,
+          "volume": 10
+        },
+        {
+          "time": 1790483520,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.02,
+          "volume": 10
+        },
+        {
+          "time": 1790483580,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.03,
+          "volume": 10
+        },
+        {
+          "time": 1790483640,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.04,
+          "volume": 10
+        },
+        {
+          "time": 1790483700,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.05,
+          "volume": 10
+        },
+        {
+          "time": 1790483760,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.06,
+          "volume": 10
+        },
+        {
+          "time": 1790483820,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.07,
+          "volume": 10
+        },
+        {
+          "time": 1790483880,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.08,
+          "volume": 10
+        },
+        {
+          "time": 1790483940,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.09,
+          "volume": 10
+        },
+        {
+          "time": 1790484000,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.1,
+          "volume": 10
+        },
+        {
+          "time": 1790484060,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.11,
+          "volume": 10
+        },
+        {
+          "time": 1790484120,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.12,
+          "volume": 10
+        },
+        {
+          "time": 1790484180,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.13,
+          "volume": 10
+        },
+        {
+          "time": 1790484240,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.14,
+          "volume": 10
+        },
+        {
+          "time": 1790484300,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.15,
+          "volume": 10
+        },
+        {
+          "time": 1790484360,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.16,
+          "volume": 10
+        },
+        {
+          "time": 1790484420,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.17,
+          "volume": 10
+        },
+        {
+          "time": 1790484480,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.18,
+          "volume": 10
+        },
+        {
+          "time": 1790484540,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.19,
+          "volume": 10
+        },
+        {
+          "time": 1790484600,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.2,
+          "volume": 10
+        },
+        {
+          "time": 1790484660,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.21,
+          "volume": 10
+        },
+        {
+          "time": 1790484720,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.22,
+          "volume": 10
+        },
+        {
+          "time": 1790484780,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.23,
+          "volume": 10
+        },
+        {
+          "time": 1790484840,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.24,
+          "volume": 10
+        },
+        {
+          "time": 1790484900,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.25,
+          "volume": 10
+        },
+        {
+          "time": 1790484960,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.26,
+          "volume": 10
+        },
+        {
+          "time": 1790485020,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.27,
+          "volume": 10
+        },
+        {
+          "time": 1790485080,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.28,
+          "volume": 10
+        },
+        {
+          "time": 1790485140,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.29,
+          "volume": 10
+        },
+        {
+          "time": 1790485200,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.3,
+          "volume": 10
+        },
+        {
+          "time": 1790485260,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.31,
+          "volume": 10
+        },
+        {
+          "time": 1790485320,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.32,
+          "volume": 10
+        },
+        {
+          "time": 1790485380,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.33,
+          "volume": 10
+        },
+        {
+          "time": 1790485440,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.34,
+          "volume": 10
+        },
+        {
+          "time": 1790485500,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.35,
+          "volume": 10
+        },
+        {
+          "time": 1790485560,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.36,
+          "volume": 10
+        },
+        {
+          "time": 1790485620,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.37,
+          "volume": 10
+        },
+        {
+          "time": 1790485680,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.38,
+          "volume": 10
+        },
+        {
+          "time": 1790485740,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.39,
+          "volume": 10
+        }
+      ],
+      "provider": "kraken",
+      "source": "kraken-public",
+      "symbol": "BTCUSD",
+      "synthetic": false,
+      "data_complete": true,
+      "attempted": []
+    },
+    "snapshot_hash": "7d94400821c73fdb9018dd97f614b133f57333c99a9afe2241fbd782b0efb3c5",
+    "members": [
+      {
+        "member_user_id": "e2e-owner",
+        "fly_id": "84bfe753072e635aa34a5deca8bb3ffcf61991baa50f9022f1b280a2e8873b3c"
+      }
+    ],
+    "quorum": 1,
+    "required": 1,
+    "deadline": 1790486110734,
+    "created_at": 1790485810734,
+    "status": "FINALIZED",
+    "result": {
+      "action": "BUY",
+      "status": "FINALIZED",
+      "counts": {
+        "BUY": 1,
+        "SELL": 0,
+        "HOLD": 0,
+        "CLOSE": 0
+      },
+      "total": 1,
+      "participation": 1,
+      "required": 1,
+      "agreement_rate": 1,
+      "checkpoint_diversity": 1,
+      "rule_version": "colony-v2",
+      "task_id": "888a880e-1b8e-4024-a605-ba058fc7fc7e",
+      "snapshot_hash": "7d94400821c73fdb9018dd97f614b133f57333c99a9afe2241fbd782b0efb3c5",
+      "quorum": 1,
+      "member_count": 1,
+      "authority": "OWNER_SIGNED_REPORT",
+      "paper_only": true
+    },
+    "result_hash": "a4a167581f52665ba1007207c45b1c66c1c3e8eb08b4eac60765b8becff02bba",
+    "rule_version": "colony-v2",
+    "authority": "OWNER_SIGNED_REPORT",
+    "paper_only": true
+  },
+  "checkpoint": {
+    "state": "saved",
+    "restored": false,
+    "hash": "6e1d0cab3093bc6376233e0204608c789aac5ea5b99b2cdf3fcd074e1b79a711",
+    "manifest_hash": "7f7c3bda9418c04d2e86cc7245b3569c7b63c772459f28b77ee328b192a86340",
+    "brain_ms": 100
+  },
+  "persisted": {
+    "result_json": "{\"action\":\"BUY\",\"status\":\"FINALIZED\",\"counts\":{\"BUY\":1,\"SELL\":0,\"HOLD\":0,\"CLOSE\":0},\"total\":1,\"participation\":1,\"required\":1,\"agreement_rate\":1,\"checkpoint_diversity\":1,\"rule_version\":\"colony-v2\",\"task_id\":\"888a880e-1b8e-4024-a605-ba058fc7fc7e\",\"snapshot_hash\":\"7d94400821c73fdb9018dd97f614b133f57333c99a9afe2241fbd782b0efb3c5\",\"quorum\":1,\"member_count\":1,\"authority\":\"OWNER_SIGNED_REPORT\",\"paper_only\":true}",
+    "result_hash": "a4a167581f52665ba1007207c45b1c66c1c3e8eb08b4eac60765b8becff02bba"
+  },
+  "votes": [
+    {
+      "action": "BUY",
+      "checkpoint_hash": "40d19993de41a42a430f95a8e3a2c28eb7546c77326859bf1cd01d933a76cc6d"
+    }
+  ]
+}

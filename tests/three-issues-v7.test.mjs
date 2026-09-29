@@ -3,11 +3,12 @@ import test from'node:test';import assert from'node:assert/strict';import{readFi
   const source=app.slice(app.indexOf('async function runAutonomy'),app.indexOf('$("#autoToggle").onclick'));
   const elements=new Map();
   const $=id=>{if(!elements.has(id))elements.set(id,{disabled:false,textContent:''});return elements.get(id)};
-  const context={modeBusy:false,mode:'lab',$};
+  const context={colonyBusy:false,modeBusy:false,mode:'lab',$};
   const run=runInNewContext(`(${source})`,context);
   let calls=0;
   await run(async()=>{calls++;assert.equal($('#autoToggle').disabled,true);throw new Error('brain unavailable')});
   assert.equal(calls,1,'failed task is not blindly replayed');
+  context.colonyBusy=true;await run(async()=>{calls++;});assert.equal(calls,1,'colony owns brain exclusively');context.colonyBusy=false;
   assert.match($('#notice').textContent,/AUTONOMY FAILED.*brain unavailable/);
   assert.equal(context.modeBusy,false);
   for(const id of ['historicalMode','autonomousMode','autoToggle','autoStep'])assert.equal($('#'+id).disabled,false);

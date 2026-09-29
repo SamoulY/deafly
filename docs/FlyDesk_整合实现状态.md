@@ -1,4 +1,4 @@
-# FlyDesk 与现有 DeFly 的整合实现状态
+# DeFly — FlyDesk 模块整合实现状态
 
 最后核验：2026-09-26。工作分支：`codex/flydesk-integration`。
 

@@ -5,8 +5,11 @@ async function sha(a){return Array.from(new Uint8Array(await crypto.subtle.diges
 function views(brain){const out={};for(const k of names){if(!ArrayBuffer.isView(brain.arrays[k]))throw Error('Missing checkpoint array '+k);out['kernel:'+k]=brain.arrays[k];}for(const group of ['learning','sensory'])for(const [k,v] of Object.entries(brain[group])){if(!ArrayBuffer.isView(v))throw Error('Unsupported checkpoint state '+k);out[group+':'+k]=v;}return out;}
 export async function captureCheckpoint(brain,scope){
  if(scope!=='autonomy')throw Error('Checkpoint scope mismatch');
- const entries={};for(const [k,a] of Object.entries(views(brain))){const data=bytes(a).slice();entries[k]={type:a.constructor.name,data,hash:await sha(data)};}
- const meta={version:1,scope,manifest_hash:brain.m.manifest_hash,brain_ms:brain.brainMs,entries:Object.entries(entries).map(([k,v])=>[k,v.type,v.data.length,v.hash])};
+ const brain_ms=brain.brainMs,entries={};
+ // Snapshot synchronously before the first await: hashing must not mix epochs.
+ for(const [k,a] of Object.entries(views(brain)))entries[k]={type:a.constructor.name,data:bytes(a).slice()};
+ for(const v of Object.values(entries))v.hash=await sha(v.data);
+ const meta={version:1,scope,manifest_hash:brain.m.manifest_hash,brain_ms,entries:Object.entries(entries).map(([k,v])=>[k,v.type,v.data.length,v.hash])};
  return {meta,entries,hash:await sha(new TextEncoder().encode(JSON.stringify(meta)))};
 }
 export async function restoreCheckpoint(brain,checkpoint,scope){

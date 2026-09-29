@@ -111,6 +111,13 @@ main {
   gap: 28px;
   grid-template-areas: "theater account" "poly poly";
 }
+.fly-identity-panel {
+  min-width: 0;
+  display: grid;
+  gap: 6px;
+  overflow-wrap: anywhere;
+}
+.fly-identity-panel > * { min-width: 0; max-width: 100%; }
 .theater {
   grid-area: theater;
   min-width: 0;

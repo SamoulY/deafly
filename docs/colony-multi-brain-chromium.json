@@ -1,0 +1,415 @@
+{
+  "engine": "chromium",
+  "market_source": "fixture; not production market",
+  "brain": "actual full WASM per isolated owner, no mock outputs",
+  "scope": "two-member browser clients, production route and disposable D1, not full app UI",
+  "first": {
+    "accepted": true,
+    "vote_id": "1090dc90-b759-4bf0-b7f4-7473484f2939",
+    "task_id": "61a7b42f-0fb1-4c27-9df9-487877d92203",
+    "authority": "OWNER_SIGNED_REPORT",
+    "action": "BUY",
+    "checkpoint_hash": "40d19993de41a42a430f95a8e3a2c28eb7546c77326859bf1cd01d933a76cc6d"
+  },
+  "second": {
+    "accepted": true,
+    "vote_id": "540a9016-0d8b-4d96-9c20-3ce7be7ea85c",
+    "task_id": "61a7b42f-0fb1-4c27-9df9-487877d92203",
+    "authority": "OWNER_SIGNED_REPORT",
+    "action": "BUY",
+    "checkpoint_hash": "40d19993de41a42a430f95a8e3a2c28eb7546c77326859bf1cd01d933a76cc6d"
+  },
+  "unauthorized": "403:{\"error\":\"NOT_MEMBER\"}",
+  "premature": "409:{\"error\":\"TASK_NOT_READY\"}",
+  "duplicate": "409:{\"error\":\"DUPLICATE_OR_CLOSED\"}",
+  "finalized": {
+    "task_id": "61a7b42f-0fb1-4c27-9df9-487877d92203",
+    "colony_id": "69e65b7a-cd3c-4afd-b5a2-ae2fb71baf57",
+    "snapshot": {
+      "bars": [
+        {
+          "time": 1790491800,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100,
+          "volume": 10
+        },
+        {
+          "time": 1790491860,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.01,
+          "volume": 10
+        },
+        {
+          "time": 1790491920,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.02,
+          "volume": 10
+        },
+        {
+          "time": 1790491980,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.03,
+          "volume": 10
+        },
+        {
+          "time": 1790492040,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.04,
+          "volume": 10
+        },
+        {
+          "time": 1790492100,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.05,
+          "volume": 10
+        },
+        {
+          "time": 1790492160,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.06,
+          "volume": 10
+        },
+        {
+          "time": 1790492220,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.07,
+          "volume": 10
+        },
+        {
+          "time": 1790492280,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.08,
+          "volume": 10
+        },
+        {
+          "time": 1790492340,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.09,
+          "volume": 10
+        },
+        {
+          "time": 1790492400,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.1,
+          "volume": 10
+        },
+        {
+          "time": 1790492460,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.11,
+          "volume": 10
+        },
+        {
+          "time": 1790492520,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.12,
+          "volume": 10
+        },
+        {
+          "time": 1790492580,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.13,
+          "volume": 10
+        },
+        {
+          "time": 1790492640,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.14,
+          "volume": 10
+        },
+        {
+          "time": 1790492700,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.15,
+          "volume": 10
+        },
+        {
+          "time": 1790492760,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.16,
+          "volume": 10
+        },
+        {
+          "time": 1790492820,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.17,
+          "volume": 10
+        },
+        {
+          "time": 1790492880,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.18,
+          "volume": 10
+        },
+        {
+          "time": 1790492940,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.19,
+          "volume": 10
+        },
+        {
+          "time": 1790493000,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.2,
+          "volume": 10
+        },
+        {
+          "time": 1790493060,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.21,
+          "volume": 10
+        },
+        {
+          "time": 1790493120,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.22,
+          "volume": 10
+        },
+        {
+          "time": 1790493180,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.23,
+          "volume": 10
+        },
+        {
+          "time": 1790493240,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.24,
+          "volume": 10
+        },
+        {
+          "time": 1790493300,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.25,
+          "volume": 10
+        },
+        {
+          "time": 1790493360,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.26,
+          "volume": 10
+        },
+        {
+          "time": 1790493420,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.27,
+          "volume": 10
+        },
+        {
+          "time": 1790493480,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.28,
+          "volume": 10
+        },
+        {
+          "time": 1790493540,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.29,
+          "volume": 10
+        },
+        {
+          "time": 1790493600,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.3,
+          "volume": 10
+        },
+        {
+          "time": 1790493660,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.31,
+          "volume": 10
+        },
+        {
+          "time": 1790493720,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.32,
+          "volume": 10
+        },
+        {
+          "time": 1790493780,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.33,
+          "volume": 10
+        },
+        {
+          "time": 1790493840,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.34,
+          "volume": 10
+        },
+        {
+          "time": 1790493900,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.35,
+          "volume": 10
+        },
+        {
+          "time": 1790493960,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.36,
+          "volume": 10
+        },
+        {
+          "time": 1790494020,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.37,
+          "volume": 10
+        },
+        {
+          "time": 1790494080,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.38,
+          "volume": 10
+        },
+        {
+          "time": 1790494140,
+          "open": 100,
+          "high": 102,
+          "low": 99,
+          "close": 100.39,
+          "volume": 10
+        }
+      ],
+      "provider": "kraken",
+      "source": "kraken-public",
+      "symbol": "BTCUSD",
+      "synthetic": false,
+      "data_complete": true,
+      "attempted": []
+    },
+    "snapshot_hash": "967b880bd5178f4fa7740b160e00a8d8f09f48b02002a98dd9bc54d92aed7f18",
+    "members": [
+      {
+        "member_user_id": "owner-0",
+        "fly_id": "6b7c8599c7cf6c389a9483199d76e3f8bba6d86e9c0c36622cbdd0442dcfa952"
+      },
+      {
+        "member_user_id": "owner-1",
+        "fly_id": "92accc4ca6e56ddbecbc86d9e668bf2d5937ac506ec6b184ec75387ff13a1c04"
+      }
+    ],
+    "quorum": 1,
+    "required": 2,
+    "deadline": 1790494547699,
+    "created_at": 1790494247699,
+    "status": "FINALIZED",
+    "result": {
+      "action": "BUY",
+      "status": "FINALIZED",
+      "counts": {
+        "BUY": 2,
+        "SELL": 0,
+        "HOLD": 0,
+        "CLOSE": 0
+      },
+      "total": 2,
+      "participation": 1,
+      "required": 2,
+      "agreement_rate": 1,
+      "checkpoint_diversity": 1,
+      "rule_version": "colony-v2",
+      "task_id": "61a7b42f-0fb1-4c27-9df9-487877d92203",
+      "snapshot_hash": "967b880bd5178f4fa7740b160e00a8d8f09f48b02002a98dd9bc54d92aed7f18",
+      "quorum": 1,
+      "member_count": 2,
+      "authority": "OWNER_SIGNED_REPORT",
+      "paper_only": true
+    },
+    "result_hash": "1cdd00960944abe19a3977adaecfa13d646963c40e93ca3f205625058443df86",
+    "rule_version": "colony-v2",
+    "authority": "OWNER_SIGNED_REPORT",
+    "paper_only": true
+  },
+  "votes": [
+    {
+      "member_user_id": "owner-0",
+      "fly_id": "6b7c8599c7cf6c389a9483199d76e3f8bba6d86e9c0c36622cbdd0442dcfa952",
+      "action": "BUY",
+      "checkpoint_hash": "40d19993de41a42a430f95a8e3a2c28eb7546c77326859bf1cd01d933a76cc6d"
+    },
+    {
+      "member_user_id": "owner-1",
+      "fly_id": "92accc4ca6e56ddbecbc86d9e668bf2d5937ac506ec6b184ec75387ff13a1c04",
+      "action": "BUY",
+      "checkpoint_hash": "40d19993de41a42a430f95a8e3a2c28eb7546c77326859bf1cd01d933a76cc6d"
+    }
+  ]
+}

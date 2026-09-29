@@ -27,7 +27,8 @@
           <div id="routerPeers" class="router-peers">NO PEER ROUTERS</div>
         </details>
       </section>
-      <section class="fly-identity-panel" aria-label="Local fly identity"><span>LOCAL FLY</span><strong id="flyIdentity">CREATING...</strong><small id="flyIdentityStatus">LOCAL OWNER KEY · NOT ON-CHAIN</small></section>
+      <section class="fly-identity-panel" aria-label="Local fly identity"><span>LOCAL FLY</span><strong id="flyIdentity">CREATING...</strong><small id="flyIdentityStatus">WAITING FOR SESSION OWNER</small><small>LOCAL ONLY · Identity and brain checkpoints stay in this browser. Clearing site data loses them; no cloud backup or cross-device sync. Appearance is cosmetic only.</small></section>
+      <section id="colonyRoot" class="router-panel" aria-label="Colony decision workspace">COLONY · WAITING FOR SESSION</section>
       <section class="theater">
         <div class="view-tabs" role="tablist">
           <button class="active" data-view="fly">THIRD-PERSON VIEW</button
@@ -58,6 +59,7 @@
         </div>
         <div class="brain-bar" aria-label="Neural telemetry">
           <div class="brain-runtime" aria-label="Browser brain runtime">
+            <p id="checkpointStatus" role="status">CHECKPOINT · WAITING FOR SESSION</p><div><button id="checkpointSave" disabled>SAVE BRAIN LOCALLY</button><button id="checkpointRefresh">CHECK SAVED BRAIN</button></div>
             <p id="brainRuntimeStatus" role="status">PREPARING FULL BROWSER BRAIN</p>
             <div class="brain-runtime-actions"><button id="brainCancel">CANCEL BRAIN</button><button id="brainRetry" hidden>RETRY BRAIN</button></div>
           </div>

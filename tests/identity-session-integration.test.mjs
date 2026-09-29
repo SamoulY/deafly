@@ -1,0 +1,31 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {createHash} from 'node:crypto';
+import {createSessionClient} from '../pages/session-client.js';
+import {initializePersonalFly} from '../pages/personal-fly.js';
+const hash=s=>createHash('sha256').update(s).digest('hex');
+const memory=()=>{const values=new Map();return {values,getItem:k=>values.get(k)||null,setItem:(k,v)=>values.set(k,v),removeItem:k=>values.delete(k)};};
+const manifest={manifest_hash:'a'.repeat(64),kernel_hash:'b'.repeat(64)};
+const fly=(storage,ownerId,apiOrigin,ownerToken)=>initializePersonalFly({storage,ownerId,apiOrigin,ownerToken,fetchManifest:async()=>manifest});
+test('validated guest owner retains legacy identity and checkpoint through registration and cookie login',async()=>{
+ const storage=memory(),origin='https://router-a.test',token='legacy-secret';storage.setItem(`defly.session:${origin}`,token);
+ const legacy=await fly(storage,undefined,undefined,token);
+ let user='alice';const client=createSessionClient({origin,storage,cookieMode:true,fetch:async url=>({ok:true,json:async()=>url.endsWith('/api/state')?{user:{id:user}}:{username:user}})});
+ await client.restore();const guest=await fly(storage,client.currentUser.id,origin,token);
+ assert.equal(guest.checkpointKey,hash(token));assert.equal(guest.identity.fly_id,legacy.identity.fly_id);
+ await client.account('register',{});await client.restore();const registered=await fly(storage,client.currentUser.id,origin);
+ assert.equal(registered.checkpointKey,guest.checkpointKey);assert.equal(registered.identity.fly_id,guest.identity.fly_id);
+ await client.account('logout');user='bob';await client.account('login');await client.restore();const other=await fly(storage,client.currentUser.id,origin);
+ assert.notEqual(other.checkpointKey,guest.checkpointKey);
+ user='alice';await client.account('login');await client.restore();assert.equal((await fly(storage,client.currentUser.id,origin)).checkpointKey,guest.checkpointKey);
+ assert.ok(!JSON.stringify([...storage.values]).includes(token),'no raw token in persistent mapping');
+});
+test('unvalidated state never binds legacy owner and routers are isolated even for reused token and owner id',async()=>{
+ const storage=memory(),token='same-token';
+ const establish=async(origin,ok=true)=>{storage.setItem(`defly.session:${origin}`,token);const c=createSessionClient({origin,storage,fetch:async()=>({ok,status:401,json:async()=>({user:{id:'alice'}})})});return c.restore();};
+ await assert.rejects(()=>establish('https://bad.test',false));
+ const unvalidated=await fly(storage,'alice','https://bad.test',token);assert.notEqual(unvalidated.checkpointKey,hash(token));
+ await establish('https://one.test');await establish('https://two.test');
+ const one=await fly(storage,'alice','https://one.test'),two=await fly(storage,'alice','https://two.test');
+ assert.equal(one.checkpointKey,hash(token));assert.notEqual(one.checkpointKey,two.checkpointKey);assert.notEqual(one.identity.fly_id,two.identity.fly_id);
+});

@@ -1,6 +1,15 @@
 import * as THREE from './vendor-three.js';
 
 const surface = (color, extra = {}) => new THREE.MeshStandardMaterial({ color, roughness: 1, metalness: 0, flatShading: true, ...extra });
+const palette=['#344747','#485b4d','#3d4c63','#553f4e','#4b5140','#3b5360'];
+const eyePalette=['#ae5369','#d06a52','#8b6ac2','#b28d45','#4aa19b'];
+const wingPalette=['#b5ccd1','#9fc8bd','#c7b6d5','#d4c3a4'];
+function seedOf(value){let h=2166136261;for(const c of String(value||'unknown')){h^=c.charCodeAt(0);h=Math.imul(h,16777619);}return h>>>0;}
+function pick(h,n){return (h>>>0)%n;}
+export function deriveAppearance(fly_id){
+  const h=seedOf(fly_id), h2=Math.imul(h^0x9e3779b9,2654435761)>>>0;
+  return { version:'defly-appearance-v1', fly_id:String(fly_id||'unknown'), body_color:palette[pick(h,palette.length)], eye_color:eyePalette[pick(h2,eyePalette.length)], wing_color:wingPalette[pick(h>>>7,wingPalette.length)], body_scale:[.92+(h%17)/100,.94+((h>>>5)%13)/100,.94+((h>>>9)%15)/100], marking:{kind:['stripe','spot','none'][pick(h>>>13,3)], color:['#d1b876','#77c6bd','#1a272d'][pick(h>>>17,3)], offset:(h>>>21)%5}, eye_gloss:.12+((h>>>25)%20)/100};
+}
 function ellipsoid(parent, name, radii, position, material, detail = 0) {
   const mesh = new THREE.Mesh(new THREE.IcosahedronGeometry(1, detail), material);
   mesh.name = name; mesh.userData.part = name;
@@ -16,10 +25,14 @@ function bone(parent, a, b, radius, material) {
 }
 
 // Original geometry. Local +Z is the fly's gaze; the workstation supplies world pose.
-export function createFlyModel() {
+export function createFlyModel(identityOrFlyId = null) {
   const fly = new THREE.Group(); fly.name = 'Compound eye fly';
-  const shell = surface('#344747'), seam = surface('#1a272d'), legs = surface('#899b9c', { roughness: .46 });
-  const eyeMaterial = surface('#ae5369', { roughness: .48, metalness: .16, flatShading: true });
+  const fly_id=typeof identityOrFlyId==='string'?identityOrFlyId:identityOrFlyId?.fly_id;
+  const appearance=identityOrFlyId?.appearance||deriveAppearance(fly_id||'default');
+  const shell = surface(appearance.body_color), seam = surface('#1a272d'), legs = surface('#899b9c', { roughness: .46 });
+  const eyeMaterial = surface(appearance.eye_color, { roughness: .48, metalness: .16, flatShading: true });
+  const wingMaterial = surface(appearance.wing_color, { transparent: true, opacity: .32, metalness: .08, roughness: .38, side: THREE.DoubleSide, depthWrite: false });
+  fly.userData.appearance=appearance;
   ellipsoid(fly, 'thorax', [.64, .57, .75], [0, .05, .05], shell);
   ellipsoid(fly, 'abdomen', [.49, .35, .81], [0, -.07, -.85], shell, 1);
   // Shallow continuous bands follow the abdomen instead of forming separate lobes.
@@ -51,7 +64,7 @@ export function createFlyModel() {
     shape.moveTo(0, 0); shape.bezierCurveTo(.36, .25, 1.61, .32, 1.82, -.12);
     shape.bezierCurveTo(2.01, -.64, .90, -1.50, .31, -.88);
     shape.quadraticCurveTo(.08, -.44, 0, 0);
-    const wing = new THREE.Mesh(new THREE.ShapeGeometry(shape, 3), surface('#b5ccd1', { transparent: true, opacity: .32, metalness: .08, roughness: .38, side: THREE.DoubleSide, depthWrite: false }));
+    const wing = new THREE.Mesh(new THREE.ShapeGeometry(shape, 3), wingMaterial);
     wing.userData.part = 'wing'; wing.name = `wing-${side}`;
     wing.rotation.x = Math.PI / 2; wing.scale.set(side * .82, 1.45, 1);
     wing.position.set(side * .27, .54, -.30); fly.add(wing);
@@ -62,6 +75,15 @@ export function createFlyModel() {
   }
   // Three subtle thoracic stripes emphasize the fly's forward direction.
   for (const x of [-.23, 0, .23]) ellipsoid(fly, 'thorax-stripe', [.035, .014, .43], [x, .595 - Math.abs(x) * .2, .05], seam, 1);
+  const marking = new THREE.Group(); marking.name = 'phenotype-marking'; marking.userData.part = 'marking'; fly.add(marking);
+  const markingMaterial = surface(appearance.marking.color, { roughness: .72 });
+  const markingMesh = ellipsoid(marking, 'marking-shape', [.22, .035, .42], [0, .585, -.25], markingMaterial, 1);
+  function applyAppearance(next) {
+    shell.color.set(next.body_color); eyeMaterial.color.set(next.eye_color); wingMaterial.color.set(next.wing_color);
+    markingMaterial.color.set(next.marking.color); markingMesh.visible = next.marking.kind !== 'none';
+    markingMesh.scale.set(.22 * (next.marking.kind === 'spot' ? 1.35 : .72), .035, .42 * (next.marking.kind === 'spot' ? .72 : 1));
+    markingMesh.position.x = (next.marking.offset - 2) * .12; fly.scale.set(...next.body_scale);
+  }
   const cosmetics = new THREE.Group(); cosmetics.name = 'cosmetic-mount'; cosmetics.userData.cosmetic = true; fly.add(cosmetics);
   const allowed = { head: ['head-cap', 'head-crown', 'head-beanie'], face: ['face-glasses', 'face-monocle', 'face-visor'], body: ['body-tie', 'body-bowtie', 'body-vest'], background: ['background-mint', 'background-rose', 'background-graphite'] };
   let current = { head: null, face: null, body: null, background: null };
@@ -76,7 +98,12 @@ export function createFlyModel() {
     }
     current = next; return { ...current };
   }
-  return { fly, setOutfit };
+  applyAppearance(appearance);
+  function setAppearance(next){
+    const resolved=typeof next==='string'?deriveAppearance(next):next?.version?next:deriveAppearance(next?.fly_id||fly_id||'default');
+    fly.userData.appearance=resolved; applyAppearance(resolved); return resolved;
+  }
+  return { fly, setOutfit, setAppearance, appearance };
 }
 
 function buildAccessory(group, id) {

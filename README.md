@@ -1,6 +1,8 @@
 # DeFly
 
-## FlyDesk integration branch
+> Project identity: **DeFly**. “FlyDesk” is the historical teaching/workbench module inside DeFly, not the project name.
+
+## DeFly — FlyDesk integration branch
 
 The default historical desk now uses `/api/flydesk` and **long-only BUY / SELL / HOLD**, with SKIP separate from a human label. Old `/api/raising` short/CLOSE sessions and models remain separate; fly profiles, earned points and cosmetics are shared.
 
@@ -90,3 +92,30 @@ node tests/raising-ui-live-probe.mjs
 Local database initialization: apply worker/schema.sql, then migrations/0004_raising.sql and 0005_raising_training.sql. Do not reapply 0003 to the consolidated schema (columns already exist). Never apply the full base schema destructively to production.
 
 API contracts: docs/raising-api.md, docs/raising-training-api.md, docs/raising-service-api.md.
+
+## Automatic fly decisions
+
+The product panel is English-only: consent once, Start/Pause, and optional Correct. Server tasks are distributed automatically; users no longer enter colony IDs, task IDs, quorum or deadlines. Corrections are recorded separately and do not overwrite signed decisions or imply training. Migration `0010_colony_auto.sql` is required. Browser visibility recovery and owner-scoped recovery of accepted ballots after lost responses are regression-tested.
+
+Demo (EN): Agree to public participation → Start → wait for the fly's decision → optionally Correct → Pause. No real orders.
+
+演示（中文文档，产品仍全英文）：首次同意公开参与 → Start → 果蝇自动领取并决策 → 可选 Correct → Pause。不执行真实订单。
+
+## Personal brain and colony verification / 个体脑与群体验证
+
+Local implementation (not a deployment claim): session-scoped identity and cosmetic phenotype; IndexedDB full-brain checkpoints; explicit colony enrollment; server-frozen task membership and market snapshot; owner-signed ballots and immutable D1 results. No full brain weights are uploaded or averaged. Ballots are owner-signed reports, not remote neural-execution attestation. Colony results are paper-only recommendations and do not execute trades.
+
+本地实现包括用户隔离身份与外观、完整脑 IndexedDB 存档、明确同意加入群体、冻结成员和行情快照、签名投票与不可变决策。群体建议不自动下单；不上传或平均完整脑权重，也不把签名等同于执行证明。
+
+Verification commands:
+```sh
+node scripts/verify-checkpoint-lifecycle.mjs
+node scripts/verify-colony-real-brain.mjs
+node scripts/verify-colony-multi-brain.mjs
+BROWSER_ENGINE=webkit node scripts/verify-colony-multi-brain.mjs
+```
+The colony scripts run real full-browser WASM, the production Worker entrypoint and disposable D1. Market HTTP is fixture-backed, NOT live market evidence. Multi-member checks use separate browser contexts and actual inference; they reject nonmembers, duplicate votes and premature finalization. Identical initial brains can naturally produce identical votes; this does not demonstrate independent learned diversity or improved intelligence. These scripts are client-chain verification, not whole-page button verification or physical-phone testing.
+
+群体脚本采用真实完整脑与临时数据库，但行情是测试数据。两个独立用户从相同初始脑出发可能得到相同结果，这不能证明群体智能提升。整页按钮操作已在 Chromium/WebKit 使用真实完整脑及临时 D1 验证，包含刷新恢复；部署回读仍需单独授权。验收边界与复现命令见 [personal-colony-acceptance.md](docs/personal-colony-acceptance.md)。
+
+Backend deployment requires reviewed migrations 0008 and 0009 before the new Worker/frontend. Do not apply them remotely without deployment authorization. API and bilingual demo: [docs/colony-api-v2.md](docs/colony-api-v2.md).
