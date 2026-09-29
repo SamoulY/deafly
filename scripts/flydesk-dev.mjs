@@ -12,7 +12,7 @@ export async function startDev({fixture=false,port=8876,apiPort=8787,persist=fal
  const mf=new Miniflare(convertV4MiniflareOptions({modules,port:apiPort,host:'127.0.0.1',compatibilityDate:'2026-08-18',bindings,d1Databases:['DB'],d1Persist:persist?'.wrangler/flydesk-d1':false,durableObjectsPersist:persist?'.wrangler/flydesk-live':false,durableObjects:{FLYDESK_LIVE:{className:'FlydeskLive',useSQLite:true}}}));
  const db=await mf.getD1Database('DB');
  await db.exec('CREATE TABLE IF NOT EXISTS local_schema_migrations (name TEXT PRIMARY KEY);');
- for(const file of ['worker/schema.sql',...['0004_raising.sql','0005_raising_training.sql','0006_browser_autonomy.sql','0007_market_source.sql','0008_federation.sql','0009_flydesk.sql','0010_flydesk_auth.sql','0011_flydesk_datasets.sql'].map(f=>'worker/migrations/'+f)]){
+ for(const file of ['worker/schema.sql',...['0004_raising.sql','0005_raising_training.sql','0006_browser_autonomy.sql','0007_market_source.sql','0008_federation.sql','0009_colony_tasks.sql','0010_colony_auto.sql','0009_flydesk.sql','0010_flydesk_auth.sql','0011_flydesk_datasets.sql'].map(f=>'worker/migrations/'+f)]){
    if(await db.prepare('SELECT name FROM local_schema_migrations WHERE name=?').bind(file).first())continue;
    const sql=(await readFile(file,'utf8')).replace(/^\s*--.*$/gm,'').replace(/\r?\n/g,' ');await db.exec(sql);await db.prepare('INSERT INTO local_schema_migrations VALUES (?)').bind(file).run();
  }

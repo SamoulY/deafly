@@ -37,3 +37,8 @@ test('RGB encoder preserves teaching identity with deterministic actual pixel ha
  assert.notEqual(a.frame_hash,c.frame_hash);
  await assert.rejects(encodeMarketObservation({bars:[{close:NaN}]},true));
 });
+test('checkpoint lifecycle APIs serialize control requests and expose status',async()=>{
+ const sent=[];const worker={postMessage:m=>sent.push(m),terminate(){}};const client=createBrowserBrainClient({workerFactory:()=>worker,timeoutMs:1000});client.start(['1'],'autonomy');worker.onmessage({data:{type:'READY'}});
+ const save=client.saveCheckpoint();assert.equal(sent.at(-1).type,'SAVE_CHECKPOINT');worker.onmessage({data:{type:'CHECKPOINT_SAVED',request_id:sent.at(-1).request_id,payload:{hash:'h',saved_at:1}}});assert.deepEqual(await save,{hash:'h',saved_at:1});
+ const status=client.checkpointStatus();assert.equal(sent.at(-1).type,'CHECKPOINT_STATUS');worker.onmessage({data:{type:'CHECKPOINT_STATUS',request_id:sent.at(-1).request_id,payload:{state:'saved'}}});assert.deepEqual(await status,{state:'saved'});client.cancel();
+});

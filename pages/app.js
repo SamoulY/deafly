@@ -4,15 +4,41 @@ import { init as initRaising } from "./raising-ui.js";
 import { UNAVAILABLE, verifyAnatomy } from "./neural-contract.js";
 import { createBrowserBrainClient, encodeMarketObservation } from "./browser-brain-client.js";
 import { routerRegistry, addRouter } from './router-registry.js';
-import { createFlyIdentity } from './fly-identity.js';
 import {createDeskChart} from './flydesk-chart.js';
 import {initLiveDesk} from './flydesk-live-ui.js';
 import {mountDeskAdmin} from './flydesk-admin.js';
+import { initializePersonalFly, checkpointLabel } from './personal-fly.js';
+import { checkpointStore } from './full-brain/checkpoint.mjs';
+import {createColonyClient} from './colony-client.js';
+import {mountColonyUI} from './colony-ui.js';
+let colonyBusy = false, colonyAutomatic = false, colonyUI = null;
+let personalFly = null;
+const personalStore = checkpointStore();
+function startPersonalBrain(ids = [], scope = 'observation') {
+  if (colonyBusy || colonyAutomatic || !personalFly) return;
+  browserBrain.start(ids, scope);
+}
+async function refreshCheckpoint() {
+  try {
+    if (!personalFly) throw Error('Session owner not initialized');
+    const saved = await personalStore.load(personalFly.checkpointKey);
+    $('#checkpointStatus').textContent = checkpointLabel(saved ? {state:'saved',hash:saved.hash,brain_ms:saved.meta.brain_ms} : {state:'empty'});
+  } catch(error) { $('#checkpointStatus').textContent = 'CHECKPOINT ERROR · ' + error.message; }
+}
 let state = null,
   lastAction = null,
   scenes = {},
   tradeMarkers = [];
 const $ = (s) => document.querySelector(s);
+$('#checkpointRefresh').onclick = refreshCheckpoint;
+$('#checkpointSave').onclick = async () => {
+  if (colonyBusy) return;
+  $('#checkpointSave').disabled = true;
+  try { const saved = await browserBrain.saveCheckpoint(); $('#checkpointStatus').textContent = checkpointLabel({state:'saved',...saved}); }
+  catch(error) { $('#checkpointStatus').textContent = 'SAVE FAILED · ' + error.message; }
+  finally { $('#checkpointSave').disabled = !browserBrain.ready || browserBrain.scope !== 'autonomy'; }
+};
+
 const API = resolveApiOrigin($("meta[name='defly-api-origin']")?.content, location.hostname);
 const sessionClient = createSessionClient({origin: API, storage: localStorage,cookieMode:true});
 const api = sessionClient.api;
@@ -30,13 +56,24 @@ let series = [], mode = "raising", raising = null, outfit = {}, booted = false;
 let anatomy = null, neuralSnapshot = null, neuralPayload = null, observationGeneration = 0;
 function renderBackend(state){const el=$("#activeBackend");if(!el)return;el.textContent=({ready:'FULL BROWSER WASM',loading:'FULL BROWSER WASM · LOADING',error:'FULL BROWSER WASM · ERROR',cancelled:'FULL BROWSER WASM · STOPPED'})[state] || 'BROWSER ACTIVITY UNAVAILABLE';}
 function initRouterControls(){if(!document.querySelector('#routerPeers'))return;renderRouters();$("#routerConnect")?.addEventListener('click',async()=>{const input=$("#routerUrl"),status=$("#routerStatus");try{status.textContent='CONNECTING...';await addRouter({base_url:input.value},routers);input.value='';renderRouters();status.textContent='CONNECTED';}catch(e){status.textContent=`FAILED · ${e.message}`;}});}
-function initRouterAndIdentity(){initRouterControls();if(document.querySelector('#flyIdentity'))createFlyIdentity(localStorage,{genesis_model_hash:'full-browser-model'}).then(identity=>{const el=$("#flyIdentity");if(el)el.textContent=identity.fly_id.slice(0,16)+'…';}).catch(error=>{const el=$("#flyIdentity");if(el)el.textContent='UNAVAILABLE';const s=$("#flyIdentityStatus");if(s)s.textContent=error.message;});}
+async function initPersonalIdentity() {
+  const ownerToken=localStorage.getItem(`defly.session:${API}`);
+  const ownerId=sessionClient.currentUser?.id;
+  personalFly = await initializePersonalFly({storage:localStorage,ownerToken,ownerId,apiOrigin:API});
+  browserBrain.setCheckpointKey(personalFly.checkpointKey);
+  $('#flyIdentity').textContent = personalFly.identity.fly_id;
+  $('#flyIdentityStatus').textContent = `SESSION-SCOPED OWNER · GENESIS ${personalFly.identity.genesis_model_hash}`;
+  scenes.fly?.setAppearance?.(personalFly.identity.fly_id);
+  await refreshCheckpoint();
+}
 const browserBrain = createBrowserBrainClient({
   onStatus(status) {
     renderBackend(status.state);
+    $('#checkpointSave').disabled = colonyBusy || status.state !== 'ready' || status.scope !== 'autonomy';
+    if(status.state === 'ready' && status.scope === 'autonomy') $('#checkpointStatus').textContent = status.checkpoint_restored ? 'RESTORED LOCAL CHECKPOINT' : 'NO SAVED CHECKPOINT · ORIGINAL MODEL';
     $("#brainRuntimeStatus").textContent = status.state === 'loading'
       ? `PREPARING FULL BROWSER BRAIN · ${status.loaded || 0} / ${status.total || '…'} bytes`
-      : status.state === 'ready' ? `FULL BROWSER BRAIN READY · ${status.scope === 'autonomy' ? 'AUTONOMOUS PAPER · FRESH SESSION WEIGHTS' : 'OBSERVATION ONLY'}` : `BROWSER BRAIN ${status.state.toUpperCase()} · ${status.message || ''}`;
+      : status.state === 'ready' ? `FULL BROWSER BRAIN READY · ${status.scope === 'autonomy' ? `AUTONOMOUS PAPER · ${status.checkpoint_restored ? 'RESTORED LOCAL CHECKPOINT' : 'ORIGINAL MODEL · NO SAVED CHECKPOINT'}` : 'OBSERVATION ONLY · PERSONAL CHECKPOINT UNCHANGED'}` : `BROWSER BRAIN ${status.state.toUpperCase()} · ${status.message || ''}`;
     $("#brainCancel").hidden = !['loading','ready'].includes(status.state);
     $("#brainRetry").hidden = ['loading','ready'].includes(status.state);
     if (['cancelled','error'].includes(status.state)) { neuralPayload = null; renderNeural(); }
@@ -47,7 +84,7 @@ const browserBrain = createBrowserBrainClient({
   },
 });
 async function observeBrowser(source, historical = false) {
-  if (browserBrain.scope === 'autonomy') return;
+  if (colonyBusy || colonyAutomatic || browserBrain.scope === 'autonomy') return;
   const generation = ++observationGeneration;
   neuralSnapshot = null; neuralPayload = null; renderNeural();
   try {
@@ -62,16 +99,17 @@ async function observeBrowser(source, historical = false) {
   } catch (error) { $("#brainRuntimeStatus").textContent = 'OBSERVATION UNAVAILABLE · ' + error.message; }
 }
 document.addEventListener('visibilitychange', () => {
+  if (colonyBusy || colonyAutomatic) return;
   if (document.hidden && autoRunning) stopAuto().catch(console.error);
   else if (!document.hidden) {
-    if (!browserBrain.ready && anatomy) browserBrain.start(anatomy.nodes.map(n => n.id), 'observation');
+    if (!browserBrain.ready && anatomy) startPersonalBrain(anatomy.nodes.map(n => n.id), 'observation');
     browserBrain.resume();
     if (mode === 'lab' && !autoRunning) refreshObservation();
     else if (mode === 'raising' && raising?.state.session) observeBrowser(raising.state.session, true);
   }
 });
 $("#brainCancel").onclick = () => { if(autoRunning) stopAuto().catch(console.error); else browserBrain.cancel(); };
-$("#brainRetry").onclick = () => { browserBrain.start(anatomy?.nodes.map(n => n.id) || []); if (neuralSnapshot) browserBrain.observe(neuralSnapshot); };
+$("#brainRetry").onclick = () => { startPersonalBrain(anatomy?.nodes.map(n => n.id) || []); if (neuralSnapshot) browserBrain.observe(neuralSnapshot); };
 function resizeScene() {
   for (const [k, c] of Object.entries({
     fly: $("#flyScene"),
@@ -99,7 +137,7 @@ function changeView(v) {
     try {
       scenes[v] =
         v === "fly"
-          ? startScene($("#flyScene"), series)
+          ? startScene($("#flyScene"), series, personalFly?.identity.fly_id)
           : v === "vision"
             ? startVisionScene($("#visionScene"), series)
             : startBrainScene($("#brainScene"), anatomy);
@@ -112,15 +150,27 @@ function changeView(v) {
   }
 }
 async function boot(reset = false) {
-  initRouterAndIdentity();
-  changeView("fly");
+  if (colonyBusy) return;
+  colonyUI?.dispose();
+  colonyUI = null;
+  personalFly = null;
+  browserBrain.cancel();
   const saved = reset ? await sessionClient.reset() : await sessionClient.restore();
   state = saved.portfolio;
-  const ownerToken=localStorage.getItem(`defly.session:${API}`);
-  browserBrain.setCheckpointKey(ownerToken ? await crypto.subtle.digest('SHA-256',new TextEncoder().encode(ownerToken)).then(b=>Array.from(new Uint8Array(b),v=>v.toString(16).padStart(2,'0')).join('')) : null);
+  await initPersonalIdentity();
+  colonyUI = await mountColonyUI($('#colonyRoot'), createColonyClient({api,identity:personalFly.identity,storage:localStorage,withBrain:withColonyBrain}), {
+    beforeStart:async () => {
+      if (modeBusy || colonyBusy) throw Error('BRAIN_BUSY');
+      colonyAutomatic = true;
+      observationGeneration++;
+      await stopAuto();
+    },
+    onRunning:running => { colonyAutomatic = running; },
+  });
+  changeView("fly");
   // A reopened historical desk must not leave an earlier server run unattended.
   await stopAuto();
-  if (anatomy) browserBrain.start(anatomy.nodes.map(n => n.id), 'observation');
+  if (anatomy) startPersonalBrain(anatomy.nodes.map(n => n.id), 'observation');
   $("#sessionRecovery").hidden = true;
   raising = await initRaising({api:deskApi,flydesk:true,beforeAction:()=>deskChart.flush(),
     onOutfit: loadout => { outfit = loadout; scenes.fly?.setOutfit?.(loadout); },
@@ -162,7 +212,7 @@ let observationRefreshInFlight = null;
 let observationRefreshAt = 0;
 const OBSERVATION_REFRESH_MS = 30000;
 async function refreshObservation(force = false) {
-  if (mode !== "lab" || autoRunning || autoInFlight) return;
+  if (colonyBusy || colonyAutomatic || mode !== "lab" || autoRunning || autoInFlight) return;
   if (!force && Date.now() - observationRefreshAt < OBSERVATION_REFRESH_MS) return;
   if (observationRefreshInFlight) return observationRefreshInFlight;
   observationRefreshInFlight = (async () => {
@@ -350,10 +400,12 @@ async function autoStep() {
   } finally { autoInFlight = false; }
 }
 async function startAuto(single = false) {
+  if (colonyBusy) return;
+  colonyUI?.pause('Paused — personal autonomy selected.');
   if (mode !== "lab") return;
   const epoch = ++autoEpoch;
-  browserBrain.start(anatomy?.nodes.map(n => n.id) || [], 'autonomy');
-  $("#learningEvidence").textContent = 'RESET TO ORIGINAL WEIGHTS · AUTONOMOUS SESSION ONLY';
+  startPersonalBrain(anatomy?.nodes.map(n => n.id) || [], 'autonomy');
+  $("#learningEvidence").textContent = 'LOADING PERSONAL CHECKPOINT · AUTONOMOUS PAPER ONLY';
   try {
     await browserBrain.waitReady();
   if (epoch !== autoEpoch || mode !== 'lab' || document.hidden) return;
@@ -391,11 +443,39 @@ async function stopAuto() {
   $("#autoStatus").classList.remove("running");
   $("#autoToggle").textContent = "START AUTONOMOUS FLY";
   if (anatomy && !document.hidden) {
-    browserBrain.start(anatomy.nodes.map(n => n.id), 'observation');
+    startPersonalBrain(anatomy.nodes.map(n => n.id), 'observation');
     if (mode === 'lab') await refreshObservation();
   }
 }
+async function withColonyBrain(operation) {
+  if (colonyBusy || modeBusy || !personalFly) throw Error('BRAIN_BUSY_OR_SESSION_UNAVAILABLE');
+  colonyBusy = true;
+  const controls = ['historicalMode','autonomousMode','autoToggle','autoStep','brainRetry','checkpointSave','retrySession','resetSession'];
+  controls.forEach(id => $('#'+id).disabled = true);
+  ++autoEpoch; autoRunning = false; observationGeneration++;
+  if (autoTimer) clearInterval(autoTimer); autoTimer = null;
+  try {
+    await api('/api/autonomy/stop', {method:'POST',body:{}});
+    const until = Date.now() + 65000;
+    while (autoInFlight) { if (Date.now() > until) throw Error('AUTONOMY_DRAIN_TIMEOUT'); await new Promise(r => setTimeout(r,50)); }
+    if (browserBrain.ready && browserBrain.scope === 'autonomy') await browserBrain.saveCheckpoint();
+    browserBrain.cancel();
+    browserBrain.start(anatomy?.nodes.map(n => n.id) || [], 'autonomy');
+    await browserBrain.waitReady();
+    return await operation(browserBrain);
+  } finally {
+    browserBrain.cancel(); colonyBusy = false;
+    controls.forEach(id => $('#'+id).disabled = false);
+    $('#checkpointSave').disabled = true;
+    $('#autoStatus').textContent = 'STOPPED · COLONY DOES NOT EXECUTE TRADES';
+    $('#autoStatus').classList.remove('running');
+    $('#autoToggle').textContent = 'START AUTONOMOUS FLY';
+    if (!document.hidden) startPersonalBrain(anatomy?.nodes.map(n => n.id) || [], 'observation');
+    await refreshCheckpoint();
+  }
+}
 async function runAutonomy(task) {
+  if (colonyBusy) return;
   if (modeBusy || mode !== "lab") return;
   modeBusy = true;
   for (const id of ['historicalMode','autonomousMode','autoToggle','autoStep']) $("#"+id).disabled = true;
@@ -540,7 +620,7 @@ async function loadAnatomy() {
     anatomy = await verifyAnatomy(await response.json());
     if (!anatomy) throw Error('asset integrity failed');
     scenes.brain?.setAnatomy(anatomy);
-    browserBrain.start(anatomy.nodes.map(n => n.id));
+    startPersonalBrain(anatomy.nodes.map(n => n.id));
     $("#neurons").textContent = (166700).toLocaleString();
     $("#anatomyStatus").textContent = `ANATOMY ONLY · ${anatomy.source} · ${anatomy.nodes.length.toLocaleString()} displayed nodes · no live activity`;
   } catch { $("#anatomyStatus").textContent = 'ANATOMY UNAVAILABLE'; }
@@ -622,7 +702,9 @@ const esc = (s) =>
       notation: "compact",
       maximumFractionDigits: 1,
     }).format(Number(n) || 0);
+initRouterControls();
 function bootError(error) {
+  if (!personalFly) { $("#flyIdentity").textContent = "UNAVAILABLE"; $("#flyIdentityStatus").textContent = error.message; }
   $("#notice").textContent = "RESTORE FAILED · " + error.message;
   $("#sessionRecovery").hidden = false;
   $("#resetSession").hidden = error.code !== "SESSION_RESET_REQUIRED";
@@ -652,13 +734,14 @@ async function exitLab() {
   renderMode();
 }
 async function switchMode(next) {
+  if (colonyBusy) return;
   if (modeBusy || next === mode || !raising) return;
   modeBusy = true;
   $("#historicalMode").disabled = $("#autonomousMode").disabled = true;
   try {
     if (next === "lab") {
       mode = "lab";
-      if (!browserBrain.ready || browserBrain.scope !== 'observation') browserBrain.start(anatomy?.nodes.map(n => n.id) || [], 'observation');
+      if (!browserBrain.ready || browserBrain.scope !== 'observation') startPersonalBrain(anatomy?.nodes.map(n => n.id) || [], 'observation');
       observationGeneration++; neuralSnapshot = null; neuralPayload = null; renderNeural();
       series = []; tradeMarkers = []; lastAction = null;
       renderMode(); drawMarket();

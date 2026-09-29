@@ -8,7 +8,7 @@ test('browser neural UI fails closed on desktop and mobile',async()=>{
   const path=new URL(req.url,'http://localhost').pathname;
   if(path.startsWith('/api/')){res.writeHead(503,{'Content-Type':'application/json'});return res.end(JSON.stringify({error:'TEST_OFFLINE'}));}
   if(path==='/neural-anatomy.json'){res.writeHead(404);return res.end();}
-  try{const file=path==='/'?'index.html':path.slice(1);res.setHeader('Content-Type',file.endsWith('.js')?'text/javascript':file.endsWith('.css')?'text/css':file.endsWith('.html')?'text/html':'application/octet-stream');res.end(await readFile(new URL('../pages/'+file,import.meta.url)));}catch{res.writeHead(404);res.end();}
+  try{const file=path==='/'?'index.html':path.slice(1);res.setHeader('Content-Type',(file.endsWith('.js')||file.endsWith('.mjs'))?'text/javascript':file.endsWith('.css')?'text/css':file.endsWith('.html')?'text/html':'application/octet-stream');res.end(await readFile(new URL('../pages/'+file,import.meta.url)));}catch{res.writeHead(404);res.end();}
  });
  await new Promise(r=>server.listen(0,'127.0.0.1',r));let browser;
  try{

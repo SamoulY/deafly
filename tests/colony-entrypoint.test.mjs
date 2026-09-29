@@ -1,0 +1,20 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+import {Miniflare,convertV4MiniflareOptions} from 'miniflare';
+import worker from '../worker/src/index.mjs';
+import {digest} from '../worker/src/federation.mjs';
+import {createFlyIdentity,signManifest} from '../pages/fly-identity.js';
+test('production Worker entrypoint authenticates, registers and creates a persisted colony with CORS',async t=>{
+ const mf=new Miniflare(convertV4MiniflareOptions({modules:true,script:'export default {fetch(){return new Response("ok")}}',compatibilityDate:'2026-01-01',d1Databases:['DB']}));t.after(()=>mf.dispose());const DB=await mf.getD1Database('DB');
+ for(const file of ['schema.sql','migrations/0008_federation.sql','migrations/0009_colony_tasks.sql'])await DB.exec((await readFile(new URL('../worker/'+file,import.meta.url),'utf8')).replace(/\n/g,' '));
+ const token='local-fixture-token';await DB.prepare('INSERT INTO users VALUES(?,?,?,?,?)').bind('alice',await digest(token),'Alice',1,1).run();
+ const call=(path,body,authenticated=true)=>worker.fetch(new Request('https://local'+path,{method:'POST',headers:{'content-type':'application/json',...(authenticated?{'X-Session-Token':token}:{})},body:JSON.stringify(body)}),{DB},{waitUntil(){}});
+ assert.equal((await call('/api/colony',{},false)).status,401);
+ const identity=await createFlyIdentity({getItem:()=>null,setItem(){}},{genesis_model_hash:'a'.repeat(64)});
+ const base={owner_user_id:'alice',checkpoint_hash:'b'.repeat(64),sequence:0};
+ assert.equal((await call('/api/federation/fly-manifest',await signManifest(identity,base))).status,201);
+ const response=await call('/api/colony',{quorum:0.75,proof:await signManifest(identity,{...base,purpose:'colony-create',quorum:0.75})});
+ assert.equal(response.status,201);assert.equal(response.headers.get('access-control-allow-origin'),'*');const body=await response.json();assert.ok(body.colony_id);
+ assert.equal((await DB.prepare('SELECT COUNT(*) AS n FROM colony_members').first()).n,1);
+});
