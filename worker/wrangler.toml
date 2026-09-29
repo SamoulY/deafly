@@ -13,7 +13,7 @@ crons = ["*/1 * * * *"]
 [vars]
 APP_ENV = "trial"
 PAPER_ONLY = "true"
-ALLOWED_ORIGIN = "*"
+ALLOWED_ORIGIN = "https://defly.99x.meme,https://flydesk-v2-trial.pages.dev"
 
 [[durable_objects.bindings]]
 name = "FLYDESK_LIVE"
