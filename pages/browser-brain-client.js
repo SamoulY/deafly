@@ -25,7 +25,7 @@ export async function encodeMarketObservation(source, historical = false) {
 }
 
 export function createBrowserBrainClient({workerFactory = () => new Worker('/full-brain/worker.mjs', {type:'module'}), onStatus = () => {}, onActivity = () => {}, isHidden = () => document.hidden, timeoutMs = 60000} = {}) {
-  let worker, ready = false, busy = false, latest = null, pending = null, sampleIds = [], serial = 0, scope = 'observation', readiness = [], checkpointKey = null;
+  let worker, ready = false, busy = false, latest = null, pending = null, sampleIds = [], serial = 0, scope = 'observation', readiness = [], checkpointKey = null, checkpointPersistence = 'normal';
   const trusted = new WeakSet();
   const commandQueue = [];
   const status = (state, detail = {}) => onStatus({state, scope, ...detail});
@@ -46,9 +46,9 @@ export function createBrowserBrainClient({workerFactory = () => new Worker('/ful
     }});pump();
   }); }
   function pump() { if(worker && ready && !busy && commandQueue.length){commandQueue.shift().run();return;} if (worker && ready && !busy && latest && !isHidden() && scope === 'observation') { const frame = latest; latest = null; send(frame); } }
-  function start(ids = sampleIds, nextScope = 'observation') {
+  function start(ids = sampleIds, nextScope = 'observation', options = {}) {
     const queued = nextScope === 'observation' && scope === 'observation' ? latest : null;
-    cancel(); latest = queued; sampleIds = ids; scope = nextScope; status('loading');
+    cancel(); latest = queued; sampleIds = ids; scope = nextScope; checkpointPersistence = options.checkpointPersistence === 'ephemeral' ? 'ephemeral' : 'normal'; status('loading');
     try {
       const active = worker = workerFactory();
       active.onerror = e => { if (worker !== active) return; cancel(); status('error', {message:e.message || 'Worker failed'}); };
@@ -65,7 +65,7 @@ export function createBrowserBrainClient({workerFactory = () => new Worker('/ful
           pump();
         }
       };
-      worker.postMessage({type:'INIT', sample_ids:sampleIds, scope, checkpoint_key:checkpointKey});
+      worker.postMessage({type:'INIT', sample_ids:sampleIds, scope, checkpoint_key:checkpointKey, checkpoint_persistence:checkpointPersistence});
     } catch (error) { cancel(); status('error', {message:error.message}); }
   }
   function request(frame, type, reward) { return new Promise((resolve,reject) => {

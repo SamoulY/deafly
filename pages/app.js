@@ -16,7 +16,7 @@ let personalFly = null;
 const personalStore = checkpointStore();
 function startPersonalBrain(ids = [], scope = 'observation') {
   if (colonyBusy || colonyAutomatic || !personalFly) return;
-  browserBrain.start(ids, scope);
+  browserBrain.start(ids, scope, scope === 'autonomy' ? {checkpointPersistence:'normal'} : {});
 }
 async function refreshCheckpoint() {
   try {
@@ -460,7 +460,7 @@ async function withColonyBrain(operation) {
     while (autoInFlight) { if (Date.now() > until) throw Error('AUTONOMY_DRAIN_TIMEOUT'); await new Promise(r => setTimeout(r,50)); }
     if (browserBrain.ready && browserBrain.scope === 'autonomy') await browserBrain.saveCheckpoint();
     browserBrain.cancel();
-    browserBrain.start(anatomy?.nodes.map(n => n.id) || [], 'autonomy');
+    browserBrain.start(anatomy?.nodes.map(n => n.id) || [], 'autonomy', {checkpointPersistence:'ephemeral'});
     await browserBrain.waitReady();
     return await operation(browserBrain);
   } finally {

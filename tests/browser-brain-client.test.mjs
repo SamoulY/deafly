@@ -42,3 +42,11 @@ test('checkpoint lifecycle APIs serialize control requests and expose status',as
  const save=client.saveCheckpoint();assert.equal(sent.at(-1).type,'SAVE_CHECKPOINT');worker.onmessage({data:{type:'CHECKPOINT_SAVED',request_id:sent.at(-1).request_id,payload:{hash:'h',saved_at:1}}});assert.deepEqual(await save,{hash:'h',saved_at:1});
  const status=client.checkpointStatus();assert.equal(sent.at(-1).type,'CHECKPOINT_STATUS');worker.onmessage({data:{type:'CHECKPOINT_STATUS',request_id:sent.at(-1).request_id,payload:{state:'saved'}}});assert.deepEqual(await status,{state:'saved'});client.cancel();
 });
+test('colony brain sends ephemeral persistence mode with the personal owner key',()=>{
+ const sent=[];const worker={postMessage:m=>sent.push(m),terminate(){}};
+ const client=createBrowserBrainClient({workerFactory:()=>worker});
+ client.setCheckpointKey('personal-owner');
+ client.start(['1'],'autonomy',{checkpointPersistence:'ephemeral'});
+ assert.deepEqual(sent.at(-1),{type:'INIT',sample_ids:['1'],scope:'autonomy',checkpoint_key:'personal-owner',checkpoint_persistence:'ephemeral'});
+ client.cancel();
+});
