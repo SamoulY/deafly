@@ -43,9 +43,9 @@ const API = resolveApiOrigin($("meta[name='defly-api-origin']")?.content, locati
 const sessionClient = createSessionClient({origin: API, storage: localStorage,cookieMode:true});
 const api = sessionClient.api;
 mountDeskAdmin(api);
-const accountBox=document.createElement('details');accountBox.className='account-login';accountBox.innerHTML='<summary>账号登录 / 保存当前果蝇</summary><form><label>用户名 <input name="username" autocomplete="username" required minlength="3" maxlength="40"></label><label>密码 <input name="password" type="password" autocomplete="current-password" required minlength="12" maxlength="256"></label><button name="login" type="submit">登录</button><button name="register" type="submit">注册并保存当前果蝇</button><button name="logout" type="button">退出</button><p role="status"></p></form>';
+const accountBox=document.createElement('details');accountBox.className='account-login';accountBox.innerHTML='<summary>Account login / Save current fly</summary><form><label>Username <input name="username" autocomplete="username" required minlength="3" maxlength="40"></label><label>Password <input name="password" type="password" autocomplete="current-password" required minlength="12" maxlength="256"></label><button name="login" type="submit">Log in</button><button name="register" type="submit">Register and save current fly</button><button name="logout" type="button">Log out</button><p role="status"></p></form>';
 document.querySelector('main').prepend(accountBox);
-accountBox.querySelector('form').onsubmit=async e=>{e.preventDefault();const f=e.currentTarget,status=f.querySelector('[role=status]');try{status.textContent='正在处理';await sessionClient.account(e.submitter.name,{username:f.username.value,password:f.password.value});f.password.value='';location.reload();}catch(error){status.textContent=error.message;}};
+accountBox.querySelector('form').onsubmit=async e=>{e.preventDefault();const f=e.currentTarget,status=f.querySelector('[role=status]');try{status.textContent='Processing';await sessionClient.account(e.submitter.name,{username:f.username.value,password:f.password.value});f.password.value='';location.reload();}catch(error){status.textContent=error.message;}};
 accountBox.querySelector('[name=logout]').onclick=async()=>{await sessionClient.account('logout');location.reload();};
 const deskApi=(path,options)=>api(path.replace('/api/raising/','/api/flydesk/'),options);
 let deskSession=null;
@@ -179,7 +179,7 @@ async function boot(reset = false) {
     onAction: (action, eventId) => scenes.fly?.playAction?.(action, eventId),
   });
   if (!raising.state.session) renderState();
-  if(!document.querySelector('.live-desk'))initLiveDesk({root:document.querySelector('#raisingTeach'),api,isVisible:()=>mode==='live',onSelect:async()=>{await stopAuto();mode='live';renderMode();document.querySelector('.teach-actions').hidden=true;},getAnalysis:()=>deskChart.getAnalysis(),onObservation:s=>{mode='live';applyRaisingObservation(s);document.querySelector('#chartSource').textContent='实时模拟 · COINBASE';}});
+  if(!document.querySelector('.live-desk'))initLiveDesk({root:document.querySelector('#raisingTeach'),api,isVisible:()=>mode==='live',onSelect:async()=>{await stopAuto();mode='live';renderMode();document.querySelector('.teach-actions').hidden=true;},getAnalysis:()=>deskChart.getAnalysis(),onObservation:s=>{mode='live';applyRaisingObservation(s);document.querySelector('#chartSource').textContent='Live paper · COINBASE';}});
   $("#notice").textContent = "RAISING DESK · PAPER ONLY";
   drawMarket();
   if (!booted) { setInterval(renderNeural, 1000); setInterval(refreshObservation, 10000); booted = true; }
@@ -237,7 +237,7 @@ async function applyObservation(o) {
   scenes.fly?.updateMarket?.(series);
   scenes.vision?.updateMarket?.(series);
   $("#price").textContent =
-    "$" + series.at(-1).toLocaleString(undefined, { maximumFractionDigits: 0 });
+    "$" + series.at(-1).toLocaleString('en-US', { maximumFractionDigits: 0 });
   // Market snapshot metadata is not the neural runtime backend.
   $("#neuralReason").textContent =
     `${o.truth_status} · snapshot ${o.snapshot_hash.slice(0, 10)}…`;
@@ -519,7 +519,7 @@ async function loadMarkets() {
     box.innerHTML = d.markets
       .map(
         (m) =>
-          `<article class="market"><h3>${esc(m.question)}</h3><div class="prob"><span>YES <b>${pct(m.yes)}</b></span><span>NO <b>${pct(m.no)}</b></span></div><div class="market-meta"><span>VOL $${compact(m.volume)}</span><span>${new Date(m.end_date).toLocaleDateString()}</span></div><div class="market-actions"><button data-predict="YES" data-id="${esc(m.id)}">YES</button><button data-predict="NO" data-id="${esc(m.id)}">NO</button></div></article>`,
+          `<article class="market"><h3>${esc(m.question)}</h3><div class="prob"><span>YES <b>${pct(m.yes)}</b></span><span>NO <b>${pct(m.no)}</b></span></div><div class="market-meta"><span>VOL $${compact(m.volume)}</span><span>${new Date(m.end_date).toLocaleDateString('en-US')}</span></div><div class="market-actions"><button data-predict="YES" data-id="${esc(m.id)}">YES</button><button data-predict="NO" data-id="${esc(m.id)}">NO</button></div></article>`,
       )
       .join("");
     box
@@ -586,7 +586,7 @@ function drawMarket() {
     x.fillText(buy ? "B" : "S", px + 9, py + (buy ? -9 : 18));
   });
   $("#price").textContent =
-    "$" + series.at(-1).toLocaleString(undefined, { maximumFractionDigits: 0 });
+    "$" + series.at(-1).toLocaleString('en-US', { maximumFractionDigits: 0 });
 }
 function renderNeural() {
   const result = browserBrain.validate(neuralPayload, {snapshot:neuralSnapshot, anatomy});
@@ -594,7 +594,7 @@ function renderNeural() {
   $("#neuralTruth").textContent = result.available ? `VERIFIED BROWSER WASM ACTIVITY · ${result.historical ? 'HISTORICAL TEACHING SNAPSHOT' : 'CURRENT MARKET SNAPSHOT'} · ${result.totalSpikes} sampled events` : UNAVAILABLE + ' · waiting for browser inference';
   // Runtime identity is separate from per-frame activity freshness.
   if (result.available) renderBackend('ready');
-  if (anatomy) $("#anatomyStatus").textContent = `${anatomy.source} · ${anatomy.nodes.length.toLocaleString()} displayed sample nodes · ${result.available ? 'verified browser activity' : 'anatomy only'}`;
+  if (anatomy) $("#anatomyStatus").textContent = `${anatomy.source} · ${anatomy.nodes.length.toLocaleString('en-US')} displayed sample nodes · ${result.available ? 'verified browser activity' : 'anatomy only'}`;
   $("#neuralTruth").dataset.reason = result.reason || 'verified';
   $("#spikes").textContent = result.available ? String(result.fullTotalSpikes ?? result.totalSpikes) : '—';
   $("#brainTime").textContent = result.available ? result.activity.simulated_ms + ' ms' : '—';
@@ -621,8 +621,8 @@ async function loadAnatomy() {
     if (!anatomy) throw Error('asset integrity failed');
     scenes.brain?.setAnatomy(anatomy);
     startPersonalBrain(anatomy.nodes.map(n => n.id));
-    $("#neurons").textContent = (166700).toLocaleString();
-    $("#anatomyStatus").textContent = `ANATOMY ONLY · ${anatomy.source} · ${anatomy.nodes.length.toLocaleString()} displayed nodes · no live activity`;
+    $("#neurons").textContent = (166700).toLocaleString('en-US');
+    $("#anatomyStatus").textContent = `ANATOMY ONLY · ${anatomy.source} · ${anatomy.nodes.length.toLocaleString('en-US')} displayed nodes · no live activity`;
   } catch { $("#anatomyStatus").textContent = 'ANATOMY UNAVAILABLE'; }
   renderNeural();
 }
@@ -722,7 +722,7 @@ function renderMode() {
   $("#raisingRoot").hidden = lab;
   $("#experimentalLab").hidden = !lab;
   $("#labControls").hidden = !lab;
-  $("#modeStatus").textContent = lab ? "LIVE PAPER · EXPLICIT START REQUIRED" : mode==="live"?"实时模拟 · 人类判断":"HISTORICAL · HUMAN DECISIONS";
+  $("#modeStatus").textContent = lab ? "LIVE PAPER · EXPLICIT START REQUIRED" : mode==="live"?"Live paper · Human decisions":"HISTORICAL · HUMAN DECISIONS";
   const terminal = $(".terminal");
   if (lab) $("#experimentalLab").prepend(terminal);
   else if ($("#raisingTeach")) $("#raisingTeach").insertBefore(terminal, $(".teach-actions"));

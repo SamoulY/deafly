@@ -17,7 +17,7 @@ export async function handleAccount(request,env,existingUser) {
  if(op==='logout'){const token=cookieToken(request);if(token)await db.prepare('DELETE FROM flydesk_auth_sessions WHERE token_hash=?').bind(await hash(token)).run();return json({logged_out:true},200,`flydesk_session=; Max-Age=0; ${suffix}`);}
  let b;try{b=await request.json();}catch{return json({error:'INVALID_JSON'},400);}
  const username=String(b?.username||'').trim().toLowerCase(),password=b?.password;
- if(!/^[a-z0-9_.-]{3,40}$/.test(username)||typeof password!=='string'||password.length<12||password.length>256)return json({error:'USERNAME_OR_PASSWORD_INVALID',message:'用户名 3–40 位字母数字；密码至少 12 位'},422);
+ if(!/^[a-z0-9_.-]{3,40}$/.test(username)||typeof password!=='string'||password.length<12||password.length>256)return json({error:'USERNAME_OR_PASSWORD_INVALID',message:'Username must be 3–40 letters, numbers, or _.-; password must be 12–256 characters'},422);
  const bucket=await hash({ip:request.headers.get('cf-connecting-ip')||'local',window:Math.floor(Date.now()/600000)});
  await db.prepare('INSERT INTO flydesk_auth_limits VALUES (?,1,?) ON CONFLICT(bucket) DO UPDATE SET count=count+1').bind(bucket,Date.now()+600000).run();
  if((await db.prepare('SELECT count FROM flydesk_auth_limits WHERE bucket=?').bind(bucket).first()).count>20)return json({error:'RATE_LIMITED'},429);

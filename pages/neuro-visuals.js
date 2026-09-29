@@ -8,7 +8,7 @@ export function buildFlyVision(series,width=320,height=180){
 }
 function hashNoise(i,t){const x=Math.sin(i*12.9898+t*78.233)*43758.5453;return x-Math.floor(x)}
 export function buildBrainActivity({trend=0,volatility=0,action='HOLD',tick=0}={}){
- const regions=[{id:'visual',label:'视觉通路',start:0,end:54,color:'#63d6ff'},{id:'memory',label:'蘑菇体 / 记忆',start:54,end:112,color:'#9a8cff'},{id:'dopamine',label:'多巴胺调制',start:112,end:132,color:'#ffc85f'},{id:'descending',label:'下行决策',start:132,end:166,color:'#6ee7a8'}];
+ const regions=[{id:'visual',label:'Visual pathway',start:0,end:54,color:'#63d6ff'},{id:'memory',label:'Mushroom body / memory',start:54,end:112,color:'#9a8cff'},{id:'dopamine',label:'Dopamine modulation',start:112,end:132,color:'#ffc85f'},{id:'descending',label:'Descending decision',start:132,end:166,color:'#6ee7a8'}];
  const actionBias=action==='BUY'?.13:action==='SELL'?.08:0;
  const nodes=Array.from({length:166},(_,i)=>{const region=regions.find(r=>i>=r.start&&i<r.end);let base=.12+hashNoise(i,tick)*.18;if(region.id==='visual')base+=Math.min(.45,Math.abs(trend)*14+volatility*3);if(region.id==='memory')base+=Math.min(.3,Math.abs(trend)*8);if(region.id==='dopamine')base+=actionBias;if(region.id==='descending')base+=Math.min(.4,Math.abs(trend)*18);return {id:i,x:hashNoise(i,4)*.9+.05,y:hashNoise(i,9)*.82+.09,activity:clamp(base),region:region.id,color:region.color}});
  const leftHz=Math.max(0,7-trend*160+hashNoise(3,tick)*2),rightHz=Math.max(0,7+trend*160+hashNoise(7,tick)*2);

@@ -8,7 +8,6 @@ The default historical desk now uses `/api/flydesk` and **long-only BUY / SELL /
 
 New functionality includes an exact 8-decimal paper broker, recoverable committed intents, candlesticks and server-calculated indicators, chart annotations and per-decision review, Argon2id account registration/login with HttpOnly sessions, historical dataset import, JSONL replay export, and a separate three-output personal baseline with matching five-minute evaluation rules. The browser brain observes with frozen plastic weights; its activity is not yet an input to the personal training head.
 
-The new Coinbase WebSocket/Durable Object live desk is an explicitly labelled beta. It supports post-submission quotes, latency, expiry, timeouts and stale-feed invalidation. Live rewards/training admission and a full real-feed round remain unverified. **This branch does not claim FlyDesk G0/G1 acceptance.** See [implementation status](docs/FlyDesk_整合实现状态.md).
 
 Local setup (Node 22+):
 
@@ -39,11 +38,8 @@ The importer paginates Coinbase public candles, rejects gaps and saves a local J
 
 The sections below describe the earlier DeFly direction and legacy experimental domain. They are not a claim that every FlyDesk v1 requirement is finished.
 
-## 中文
 
-DeFly｜浏览器里的数字果蝇与去中心化蝇群智能
 
-无需安装，即可在浏览器本地运行完整的果蝇大脑神经模型。通过养成与演化，在你的教学下，成长为最适合你的数字员工。而且你并不孤单，我们正在构建联邦宇宙中的去中心化蝇群智能，让你一键加入或建立蝇群，在 Avalanche C-Chain 上，与伙伴共建独属于你们的经济模型世界！
 
 Project URL: https://defly.99x.meme
 GitHub: https://github.com/SamoulY/deafly
@@ -59,7 +55,6 @@ GitHub: https://github.com/SamoulY/deafly
 
 ---
 
-## Technical documentation / 技术文档
 
 # DeFly raising trial
 
@@ -99,13 +94,10 @@ The product panel is English-only: consent once, Start/Pause, and optional Corre
 
 Demo (EN): Agree to public participation → Start → wait for the fly's decision → optionally Correct → Pause. No real orders.
 
-演示（中文文档，产品仍全英文）：首次同意公开参与 → Start → 果蝇自动领取并决策 → 可选 Correct → Pause。不执行真实订单。
 
-## Personal brain and colony verification / 个体脑与群体验证
 
 Local implementation (not a deployment claim): session-scoped identity and cosmetic phenotype; IndexedDB full-brain checkpoints; explicit colony enrollment; server-frozen task membership and market snapshot; owner-signed ballots and immutable D1 results. No full brain weights are uploaded or averaged. Ballots are owner-signed reports, not remote neural-execution attestation. Colony results are paper-only recommendations and do not execute trades.
 
-本地实现包括用户隔离身份与外观、完整脑 IndexedDB 存档、明确同意加入群体、冻结成员和行情快照、签名投票与不可变决策。群体建议不自动下单；不上传或平均完整脑权重，也不把签名等同于执行证明。
 
 Verification commands:
 ```sh
@@ -116,6 +108,5 @@ BROWSER_ENGINE=webkit node scripts/verify-colony-multi-brain.mjs
 ```
 The colony scripts run real full-browser WASM, the production Worker entrypoint and disposable D1. Market HTTP is fixture-backed, NOT live market evidence. Multi-member checks use separate browser contexts and actual inference; they reject nonmembers, duplicate votes and premature finalization. Identical initial brains can naturally produce identical votes; this does not demonstrate independent learned diversity or improved intelligence. These scripts are client-chain verification, not whole-page button verification or physical-phone testing.
 
-群体脚本采用真实完整脑与临时数据库，但行情是测试数据。两个独立用户从相同初始脑出发可能得到相同结果，这不能证明群体智能提升。整页按钮操作已在 Chromium/WebKit 使用真实完整脑及临时 D1 验证，包含刷新恢复；部署回读仍需单独授权。验收边界与复现命令见 [personal-colony-acceptance.md](docs/personal-colony-acceptance.md)。
 
 Backend deployment requires reviewed migrations 0008 and 0009 before the new Worker/frontend. Do not apply them remotely without deployment authorization. API and bilingual demo: [docs/colony-api-v2.md](docs/colony-api-v2.md).

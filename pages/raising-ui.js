@@ -4,7 +4,7 @@ const percent = value => value != null && Number.isFinite(Number(value)) ? (Numb
 export function renderEvaluation(e) {
   const result=e.result;
   const rows=[['cash','CASH BASELINE'],['buy_hold','BUY & HOLD'],['buy_hold_full','FULL BUDGET BUY & HOLD'],['pre','PRE-TRAINING'],['post','POST-TRAINING']];
-  return `<article class="training-card"><strong>${escapeHtml(result?.status || e.status)}</strong><p>${escapeHtml(e.error || 'Frozen held-out evaluation · no updates or intervention')}</p>${result ? `<p>${result.evaluator_scope==='FLYDESK_SPOT_FIVE_MINUTE'?'统一现货撮合 · 五分钟决策 · 现金 / 一档持有 / 全额持有 / 训练前后':'REFERENCE ENGINE · NEXT MINUTE · NOT CORE FIVE-MINUTE'}</p><div class="review-scroll"><table><thead><tr><th>MODEL</th><th>NET PNL</th><th>MAX DRAWDOWN</th><th>DIRECTION ACCURACY</th><th>FORCED RATE</th><th>VOLUNTARY RATE</th></tr></thead><tbody>${rows.map(([key,label])=>{ const m=result.results?.[key]; return m ? `<tr><th>${escapeHtml(label)}</th><td>${money(m.net_pnl)}</td><td>${percent(m.max_drawdown)}</td><td>${percent(m.direction_accuracy)}</td><td>${percent(m.forced_trade_rate)}</td><td>${percent(m.voluntary_trade_rate)}</td></tr>` : ''; }).join('')}</tbody></table></div><p>${escapeHtml(result.reason || '')}</p>` : ''}</article>`;
+  return `<article class="training-card"><strong>${escapeHtml(result?.status || e.status)}</strong><p>${escapeHtml(e.error || 'Frozen held-out evaluation · no updates or intervention')}</p>${result ? `<p>${result.evaluator_scope==='FLYDESK_SPOT_FIVE_MINUTE'?'Unified spot fills · five-minute decisions · cash / one-tier holding / full-budget holding / pre/post training':'REFERENCE ENGINE · NEXT MINUTE · NOT CORE FIVE-MINUTE'}</p><div class="review-scroll"><table><thead><tr><th>MODEL</th><th>NET PNL</th><th>MAX DRAWDOWN</th><th>DIRECTION ACCURACY</th><th>FORCED RATE</th><th>VOLUNTARY RATE</th></tr></thead><tbody>${rows.map(([key,label])=>{ const m=result.results?.[key]; return m ? `<tr><th>${escapeHtml(label)}</th><td>${money(m.net_pnl)}</td><td>${percent(m.max_drawdown)}</td><td>${percent(m.direction_accuracy)}</td><td>${percent(m.forced_trade_rate)}</td><td>${percent(m.voluntary_trade_rate)}</td></tr>` : ''; }).join('')}</tbody></table></div><p>${escapeHtml(result.reason || '')}</p>` : ''}</article>`;
 }
 export async function init(options) {
   const root = options.root || document.querySelector('#raisingRoot');
@@ -22,9 +22,9 @@ export async function init(options) {
     <p id="raisingStatus" role="status" aria-live="polite">RESTORING FLY...</p>
     <section id="wardrobe" hidden aria-label="Wardrobe"><header><h2>WARDROBE</h2><button id="wardrobeClose" title="Close wardrobe" aria-label="Close wardrobe">×</button></header><p class="muted">COSMETIC ONLY</p><p id="previewStatus" hidden></p><button id="cancelPreview" hidden>Cancel preview</button><div id="wardrobeItems"></div></section>`;
   if(modern){
-    const controls=root.querySelector('.teach-actions');controls.innerHTML='<button data-teach="BUY">买一档</button><button data-teach="SELL">卖一档</button><button data-teach="HOLD">不动</button><button data-teach="SKIP" class="secondary">跳过</button>';
-    const bar=root.querySelector('.round-toolbar');bar.insertAdjacentHTML('beforeend','<label>历史数据集 <select id="deskDataset"><option value="">最近行情</option></select></label><label>UTC 时点 <input id="deskAsOf" type="datetime-local" aria-label="历史时点 UTC"></label><button id="deskAbort">结束练习</button>');
-    root.querySelector('#raisingTeach').insertAdjacentHTML('beforeend','<p class="desk-rules">纯模拟 · 不做空 · 买入最多扣款 1,000 SIM USD（含费用） · 卖出已有持仓 · 跳过不计示范</p><p id="deskTime"></p><button id="deskExport" hidden>导出本轮 JSONL</button>');
+    const controls=root.querySelector('.teach-actions');controls.innerHTML='<button data-teach="BUY">Buy one lot</button><button data-teach="SELL">Sell one lot</button><button data-teach="HOLD">Hold</button><button data-teach="SKIP" class="secondary">Skip</button>';
+    const bar=root.querySelector('.round-toolbar');bar.insertAdjacentHTML('beforeend','<label>Historical dataset <select id="deskDataset"><option value="">Latest market</option></select></label><label>UTC time <input id="deskAsOf" type="datetime-local" aria-label="Historical time UTC"></label><button id="deskAbort">End practice</button>');
+    root.querySelector('#raisingTeach').insertAdjacentHTML('beforeend','<p class="desk-rules">Paper only · no short selling · each buy costs at most 1,000 SIM USD including fees · sell existing holdings only · skips are not demonstrations</p><p id="deskTime"></p><button id="deskExport" hidden>Export round JSONL</button>');
   }
   const $ = selector => root.querySelector(selector);
   // Keep the actual market canvas next to the actions at every viewport size.
@@ -67,8 +67,8 @@ export async function init(options) {
       $('#reviewRound').hidden = s.status !== 'COMPLETED';
     }
     if(modern&&s){
-      $('#teachAvailability').textContent=reason||(unavailable.includes('SELL')?'没有足够可卖持仓':unavailable.includes('BUY')?'模拟余额不足':'每次提交后推进五分钟行情');
-      $('#deskTime').textContent=new Date(s.as_of*1000).toISOString()+' · 本地 '+new Date(s.as_of*1000).toLocaleString();
+      $('#teachAvailability').textContent=reason||(unavailable.includes('SELL')?'No sellable position':unavailable.includes('BUY')?'Insufficient paper balance':'Each submission advances the market five minutes');
+      $('#deskTime').textContent=new Date(s.as_of*1000).toISOString()+'  · Local '+new Date(s.as_of*1000).toLocaleString('en-US');
       $('#deskExport').hidden=s.status==='ACTIVE';
       $('#deskAbort').disabled=busy||s.status!=='ACTIVE';
     }
@@ -104,7 +104,7 @@ export async function init(options) {
   });
   async function history() {
     const data=await api('/api/raising/sessions');
-    $('#historyResults').innerHTML = (data.sessions || []).map(s=>`<div class="history-row"><span>${escapeHtml(s.symbol)}<small>${new Date(s.created_at).toLocaleDateString()} · ${escapeHtml(s.status)}</small></span><span>${s.step}/12</span><button data-open-round="${escapeHtml(s.id)}" title="Open round" aria-label="Open round">→</button></div>`).join('') || '<p class="empty-state">NO COMPLETED ROUNDS YET</p>';
+    $('#historyResults').innerHTML = (data.sessions || []).map(s=>`<div class="history-row"><span>${escapeHtml(s.symbol)}<small>${new Date(s.created_at).toLocaleDateString('en-US')} · ${escapeHtml(s.status)}</small></span><span>${s.step}/12</span><button data-open-round="${escapeHtml(s.id)}" title="Open round" aria-label="Open round">→</button></div>`).join('') || '<p class="empty-state">NO COMPLETED ROUNDS YET</p>';
   }
   async function training() {
     const data=await api('/api/raising/training');
@@ -124,11 +124,11 @@ export async function init(options) {
     const data=await api(`/api/raising/sessions/${encodeURIComponent(ui.state.session.id)}/review`);
     reviewData=data;
     $('#roundReview').hidden=false;
-    $('#roundReview').innerHTML=`<h3>DECISION REVIEW</h3><div class="review-scroll"><table><thead><tr><th>STEP</th><th>HUMAN</th><th>EQUITY</th><th>FEES</th></tr></thead><tbody>${(data.demonstrations || []).map(d=>`<tr><td>${modern?`<button data-review-step="${d.step}">查看第 ${d.step+1} 步</button>`:d.step+1}</td><td>${escapeHtml(d.human_action||d.source)}</td><td>${money(d.equity_after)}</td><td>${money(d.fees)}</td></tr>`).join('')}</tbody></table></div><p class="muted">${(data.system_actions || []).length} SYSTEM SETTLEMENT ACTIONS</p>`;
+    $('#roundReview').innerHTML=`<h3>DECISION REVIEW</h3><div class="review-scroll"><table><thead><tr><th>STEP</th><th>HUMAN</th><th>EQUITY</th><th>FEES</th></tr></thead><tbody>${(data.demonstrations || []).map(d=>`<tr><td>${modern?`<button data-review-step="${d.step}">View step ${d.step+1} steps</button>`:d.step+1}</td><td>${escapeHtml(d.human_action||d.source)}</td><td>${money(d.equity_after)}</td><td>${money(d.fees)}</td></tr>`).join('')}</tbody></table></div><p class="muted">${(data.system_actions || []).length} SYSTEM SETTLEMENT ACTIONS</p>`;
   },'REVIEW LOADED');
   if(modern){
-    $('#deskAbort').onclick=()=>run(async()=>{await api('/api/raising/sessions/'+ui.state.session.id+'/abort',{method:'POST',body:{}});await ui.open(ui.state.session.id);},'练习已结束');
-    $('#deskExport').onclick=()=>run(async()=>{const data=await api('/api/raising/sessions/'+ui.state.session.id+'/review');const text=[{type:'manifest',session:data.session},...(data.demonstrations||[]).map(d=>({type:'decision',...d})),...(data.system_actions||[]).map(d=>({type:'system',...d}))].map(x=>JSON.stringify(x)).join('\n');const a=document.createElement('a'),url=URL.createObjectURL(new Blob([text],{type:'application/x-ndjson'}));a.href=url;a.download='flydesk-'+ui.state.session.id+'.jsonl';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);},'导出完成');
+    $('#deskAbort').onclick=()=>run(async()=>{await api('/api/raising/sessions/'+ui.state.session.id+'/abort',{method:'POST',body:{}});await ui.open(ui.state.session.id);},'Practice ended');
+    $('#deskExport').onclick=()=>run(async()=>{const data=await api('/api/raising/sessions/'+ui.state.session.id+'/review');const text=[{type:'manifest',session:data.session},...(data.demonstrations||[]).map(d=>({type:'decision',...d})),...(data.system_actions||[]).map(d=>({type:'system',...d}))].map(x=>JSON.stringify(x)).join('\n');const a=document.createElement('a'),url=URL.createObjectURL(new Blob([text],{type:'application/x-ndjson'}));a.href=url;a.download='flydesk-'+ui.state.session.id+'.jsonl';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);},'Export complete');
     api('/api/raising/datasets').then(data=>{for(const d of data.datasets||[]){const o=document.createElement('option');o.value=d.id;o.textContent=d.symbol+' · '+d.id.slice(0,8);$('#deskDataset').append(o);}}).catch(()=>{});
   }
   await run(()=>ui.load(),'FLY RESTORED');
