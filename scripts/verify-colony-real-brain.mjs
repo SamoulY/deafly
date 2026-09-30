@@ -1,6 +1,6 @@
 import {createServer} from 'node:http';
 import {readFile,mkdir,writeFile} from 'node:fs/promises';
-import {resolve,extname} from 'node:path';
+import {resolve,extname,sep} from 'node:path';
 import {chromium,webkit} from 'playwright';
 import {Miniflare,convertV4MiniflareOptions} from 'miniflare';
 import worker from '../worker/src/index.mjs';
@@ -22,7 +22,7 @@ const root=resolve('pages');server=createServer(async(req,res)=>{try{
 const url=new URL(req.url,'http://localhost');
 if(url.pathname.startsWith('/api/')){let body='';for await(const chunk of req)body+=chunk;const response=await worker.fetch(new Request(url,{method:req.method,headers:req.headers,...(body?{body}:{})}),{DB},{waitUntil(){}});res.writeHead(response.status,Object.fromEntries(response.headers));res.end(Buffer.from(await response.arrayBuffer()));return;}
 if(url.pathname==='/verify'){res.setHeader('Content-Type','text/html');res.end('<html><title>Real brain colony verification</title></html>');return;}
-const p=resolve(root,'.'+url.pathname);if(!p.startsWith(root+'/'))throw Error('Invalid path');res.setHeader('Content-Type',({'.js':'text/javascript','.mjs':'text/javascript','.wasm':'application/wasm','.json':'application/json'})[extname(p)]||'application/octet-stream');res.end(await readFile(p));
+const p=resolve(root,'.'+url.pathname);if(!p.startsWith(root+sep))throw Error('Invalid path');res.setHeader('Content-Type',({'.js':'text/javascript','.mjs':'text/javascript','.wasm':'application/wasm','.json':'application/json'})[extname(p)]||'application/octet-stream');res.end(await readFile(p));
 }catch(e){res.statusCode=500;res.end(String(e));}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));browser=await ({chromium,webkit}[engineName]).launch({headless:true});const page=await browser.newPage();await page.goto(`http://127.0.0.1:${server.address().port}/verify`);
 const result=await page.evaluate(async token=>{

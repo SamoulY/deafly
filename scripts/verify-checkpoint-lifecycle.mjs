@@ -1,11 +1,11 @@
 import {createServer} from 'node:http';
 import {readFile} from 'node:fs/promises';
-import {resolve,extname} from 'node:path';
+import {resolve,extname,sep} from 'node:path';
 import {chromium,webkit} from 'playwright';
 const engineName=process.env.BROWSER_ENGINE||'chromium';
 if(!['chromium','webkit'].includes(engineName))throw Error('Unsupported browser engine');
 const engine=engineName==='webkit'?webkit:chromium;
-const root=resolve('pages');const server=createServer(async(req,res)=>{try{if(req.url==='/verify'){res.setHeader('Content-Type','text/html');return res.end('<html></html>');}const p=resolve(root,'.'+new URL(req.url,'http://localhost').pathname);if(!p.startsWith(root+'/'))throw Error('path');res.setHeader('Content-Type',({'.js':'text/javascript','.mjs':'text/javascript','.wasm':'application/wasm','.json':'application/json'})[extname(p)]||'application/octet-stream');res.end(await readFile(p));}catch{res.statusCode=404;res.end();}});
+const root=resolve('pages');const server=createServer(async(req,res)=>{try{if(req.url==='/verify'){res.setHeader('Content-Type','text/html');return res.end('<html></html>');}const p=resolve(root,'.'+new URL(req.url,'http://localhost').pathname);if(!p.startsWith(root+sep))throw Error('path');res.setHeader('Content-Type',({'.js':'text/javascript','.mjs':'text/javascript','.wasm':'application/wasm','.json':'application/json'})[extname(p)]||'application/octet-stream');res.end(await readFile(p));}catch{res.statusCode=404;res.end();}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));let browser;
 try{browser=await engine.launch({headless:true});const page=await browser.newPage();await page.goto(`http://127.0.0.1:${server.address().port}/verify`);
 const result=await page.evaluate(async()=>{

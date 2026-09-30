@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
 import {startDev} from '../scripts/flydesk-dev.mjs';
 test('observation is frozen for 500ms; autonomy remains mutable and saves checkpoints',async()=>{
- const source=readFileSync(new URL('../pages/full-brain/worker.mjs',import.meta.url),'utf8').replace(/^import .*;\n/gm,'');
+ const source=readFileSync(new URL('../pages/full-brain/worker.mjs',import.meta.url),'utf8').replace(/^import .*;\r?\n/gm,'');
  for(const scope of ['observation','autonomy']){
   const messages=[];let frozen,duration,saves=0;
   const brain={arrays:{ids:[],plastic_weight:new Float32Array(1)},m:{manifest_hash:'manifest'},heapBytes:1,observe:(rgb,w,h,ms)=>{duration=ms;return {counts:new Int32Array(1),simulated_ms:ms};}};
