@@ -1,0 +1,62 @@
+{
+  "verified_at_utc": "2026-09-30T02:53:44.8178794Z",
+  "release_commit": "47ffc04044f2488acc2844b661cc1dc283979906",
+  "production_url": "https://defly.99x.meme",
+  "pages_deployment": {
+    "commit": "47ffc04044f2488acc2844b661cc1dc283979906",
+    "id": "c5fdadde-f617-4b75-b71f-dcd47ed00ca5",
+    "created_on": "2026-09-30T02:53:15.319024Z",
+    "status": "success",
+    "trigger": "ad_hoc",
+    "url": "https://c5fdadde.flydesk-v2-trial.pages.dev"
+  },
+  "worker_changed": false,
+  "worker_version": "811383bd-6caa-41d0-a4ce-220c572662d1",
+  "database_migrations_applied": false,
+  "asset_and_cors_checks": [
+    {
+      "url": "https://defly.99x.meme/index.html",
+      "status": 200,
+      "matches_local": true
+    },
+    {
+      "url": "https://defly.99x.meme/full-brain/checkpoint.mjs",
+      "status": 200,
+      "matches_local": true
+    },
+    {
+      "url": "https://defly.99x.meme/full-brain/worker.mjs",
+      "status": 200,
+      "matches_local": true
+    },
+    {
+      "url": "https://flydesk-v2-trial.pages.dev/index.html",
+      "status": 200,
+      "matches_local": true
+    },
+    {
+      "url": "https://flydesk-v2-trial.pages.dev/full-brain/checkpoint.mjs",
+      "status": 200,
+      "matches_local": true
+    },
+    {
+      "url": "https://flydesk-v2-trial.pages.dev/full-brain/worker.mjs",
+      "status": 200,
+      "matches_local": true
+    },
+    {
+      "api": "https://flydesk-v2-trial-worker.testcf-195.workers.dev/api/state",
+      "status": 401,
+      "cors": "https://defly.99x.meme",
+      "credentials": "true"
+    }
+  ],
+  "browser_smoke": {
+    "title": "DEFLY // RAISING DESK",
+    "backend": "FULL BROWSER WASM",
+    "checkpoint": "NO SAVED CHECKPOINT · ORIGINAL MODEL ON NEXT AUTONOMOUS START",
+    "consent": true,
+    "notice": "RAISING DESK · PAPER ONLY",
+    "page_errors": []
+  }
+}

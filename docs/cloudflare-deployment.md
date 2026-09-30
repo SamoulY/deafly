@@ -2,6 +2,12 @@
 
 核验日期：2026-09-29（America/New_York）。本次只检查连接、配置和数据库结构，没有发布代码、修改 DNS 或执行数据库迁移。可复核快照见 [资源清单](cloudflare-inventory-2026-09-29.json)。JSON 时间使用 UTC。
 
+## 后续正式发布记录
+
+2026-09-29（America/New_York），在用户授权后，将 `main` 提交 `47ffc04044f2488acc2844b661cc1dc283979906` 发布到 Pages 生产环境，部署 ID 为 `c5fdadde-f617-4b75-b71f-dcd47ed00ca5`。该提交的代码树与通过 285 项测试的 `fb924c9` 一致。本次只更新前端；Worker 源码无变化，保留原版本，没有执行数据库迁移。
+
+发布后确认两个域名上的首页、检查点模块、浏览器 Worker 文件与本地逐字节一致；API 未认证访问返回预期的 401，正式域名的 CORS 和 credentials 响应正确。独立 Chromium 会话可初始化匿名身份并加载完整浏览器 WASM，页面无 JavaScript 异常。此检查没有执行 Colony 投票或完整交易回合。详细证据见 [发布回执](cloudflare-release-2026-09-29.json)。以下资源表保留首次盘点时的快照值，当前 Pages 提交以发布回执为准。
+
 ## 已确认的结构
 
 ```text
