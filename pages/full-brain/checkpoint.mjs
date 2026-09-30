@@ -25,6 +25,24 @@ export async function restoreCheckpoint(brain,checkpoint,scope){
  return hash;
 }
 export function checkpointStore(indexedDB=globalThis.indexedDB){
- async function run(key,value,write){if(!key||typeof key!=='string')throw Error('Checkpoint owner required');if(!indexedDB)throw Error('Checkpoint storage unavailable');const db=await new Promise((resolve,reject)=>{const r=indexedDB.open('defly-full-brain',1);r.onupgradeneeded=()=>r.result.createObjectStore('checkpoints');r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);});try{return await new Promise((resolve,reject)=>{const tx=db.transaction('checkpoints',write?'readwrite':'readonly'),s=tx.objectStore('checkpoints'),r=write?s.put(value,key):s.get(key);tx.oncomplete=()=>resolve(r.result);tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error||Error('Checkpoint save aborted'));});}finally{db.close();}}
- return {load:key=>run(key,null,false),save:(key,value)=>run(key,value,true)};
+ async function run(key,value,write,expectedHash){
+  if(!key||typeof key!=='string')throw Error('Checkpoint owner required');
+  if(write&&expectedHash!==null&&(typeof expectedHash!=='string'||!expectedHash))throw Error('Expected checkpoint hash required');
+  if(!indexedDB)throw Error('Checkpoint storage unavailable');
+  const db=await new Promise((resolve,reject)=>{const r=indexedDB.open('defly-full-brain',1);r.onupgradeneeded=()=>r.result.createObjectStore('checkpoints');r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);});
+  try{return await new Promise((resolve,reject)=>{
+   const tx=db.transaction('checkpoints',write?'readwrite':'readonly'),s=tx.objectStore('checkpoints'),r=s.get(key);let result,error;
+   r.onsuccess=()=>{
+    if(!write){result=r.result;return;}
+    // Read and compare inside the SAME readwrite transaction. IndexedDB serializes
+    // these transactions across tabs, so a stale runtime cannot replace new state.
+    if((r.result?.hash??null)!==expectedHash){error=Error('Checkpoint changed in another tab; restart the brain to restore the latest saved state');tx.abort();return;}
+    s.put(value,key);
+   };
+   tx.oncomplete=()=>resolve(result);
+   tx.onerror=()=>reject(error||tx.error);
+   tx.onabort=()=>reject(error||tx.error||Error('Checkpoint save aborted'));
+  });}finally{db.close();}
+ }
+ return {load:key=>run(key,null,false),save:(key,value,expectedHash)=>run(key,value,true,expectedHash)};
 }

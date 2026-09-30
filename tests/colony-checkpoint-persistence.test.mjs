@@ -9,19 +9,19 @@ import {execFileSync} from 'node:child_process';
 const source=(process.env.CHECKPOINT_BASELINE
   ?execFileSync('git',['show','c5466e6:pages/full-brain/worker.mjs'],{encoding:'utf8'})
   :readFileSync(new URL('../pages/full-brain/worker.mjs',import.meta.url),'utf8'))
-  .replace(/^import .*;\n/gm,'');
-function runtime(initial=null) {
-  let persisted=initial?structuredClone(initial):null,writes=0,brain;
+  .replace(/^import .*;\r?\n/gm,'');
+function runtime(initial=null,shared={persisted:initial?structuredClone(initial):null}) {
+  let writes=0,brain;
   const messages=[];
   const context={self:{},postMessage:m=>messages.push(m),
-    checkpointStore:()=>({load:async()=>persisted?structuredClone(persisted):null,save:async(key,value)=>{assert.equal(key,'owner');writes++;persisted=structuredClone(value);}}),
+    checkpointStore:()=>({load:async()=>shared.persisted?structuredClone(shared.persisted):null,save:async(key,value,expectedHash)=>{assert.equal(key,'owner');if((shared.persisted?.hash??null)!==expectedHash)throw Error('Checkpoint changed in another tab');writes++;shared.persisted=structuredClone(value);}}),
     createBrain:async()=>brain={arrays:{ids:[],plastic_weight:new Float32Array([1])},heapBytes:4,m:{manifest_hash:'manifest',reinforcement:{reward:[1]}},learning:{},sensory:{},time:0,
       observe(){this.time+=100;return {counts:[],brain_ms:this.time,compute_ms:1,simulated_ms:100,decoder:{proposed_action:'HOLD'}};}},
     hash:async()=> 'frame',createStateHasher:()=>({checkpointHash:async()=>`state-${brain.time}`}),
     captureCheckpoint:async b=>({hash:`checkpoint-${b.time}`,meta:{brain_ms:b.time,manifest_hash:'manifest'}}),
     restoreCheckpoint:async(b,s)=>{b.time=s.meta.brain_ms;}};
   vm.runInNewContext(source,context);
-  return {async send(data){await context.self.onmessage({data});return messages.at(-1);},get writes(){return writes;},get saved(){return persisted;}};
+  return {async send(data){await context.self.onmessage({data});return messages.at(-1);},get writes(){return writes;},get saved(){return shared.persisted;}};
 }
 const seed={hash:'checkpoint-700',meta:{brain_ms:700,manifest_hash:'manifest'}};
 const init=mode=>({type:'INIT',scope:'autonomy',sample_ids:[],checkpoint_key:'owner',checkpoint_persistence:mode});
@@ -51,4 +51,15 @@ test('invalid ephemeral input errors without altering personal storage',async()=
  const r=runtime(seed);await r.send(init('ephemeral'));
  const result=await r.send({...observe,frame_hash:'invalid'});
  assert.equal(result.type,'ERROR');assert.equal(r.writes,0);assert.deepEqual(r.saved,seed);
+});
+
+for(const initial of [null,seed])test(`stale runtimes cannot overwrite checkpoints; restart recovers (${initial?'existing':'empty'} store)`,async()=>{
+ const shared={persisted:initial},a=runtime(null,shared),b=runtime(null,shared);
+ await a.send(init('normal'));await b.send(init('normal'));
+ await a.send(observe);await a.send(observe);const latest=structuredClone(a.saved);
+ assert.equal((await b.send({type:'SAVE_CHECKPOINT',request_id:2})).type,'ERROR');
+ assert.deepEqual(shared.persisted,latest);
+ assert.equal((await b.send(observe)).type,'ERROR');assert.deepEqual(shared.persisted,latest);
+ await b.send(init('normal'));assert.equal((await b.send(observe)).type,'ACTIVITY');
+ assert.equal(shared.persisted.meta.brain_ms,latest.meta.brain_ms+100);
 });

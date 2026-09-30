@@ -1,12 +1,12 @@
 import {createServer} from 'node:http';
 import {readFile,writeFile} from 'node:fs/promises';
-import {resolve,extname} from 'node:path';
+import {resolve,extname,sep} from 'node:path';
 import {execFileSync} from 'node:child_process';
 import {chromium,webkit} from 'playwright';
 const engine=process.env.BROWSER_ENGINE||'chromium';
 const root=resolve('pages');
 const baseline=Object.fromEntries(['brain.mjs','sensory.mjs'].map(name=>[name,execFileSync('git',['show',`HEAD:pages/full-brain/${name}`])]));
-const server=createServer(async(req,res)=>{try{const url=new URL(req.url,'http://localhost');if(url.pathname==='/verify'){res.setHeader('Content-Type','text/html');res.end('<html></html>');return;}let name=url.pathname.split('/').at(-1);const reference=url.pathname.startsWith('/reference/');const p=resolve(root,'.'+url.pathname.replace('/reference/','/full-brain/'));if(!p.startsWith(root+'/'))throw Error('path');res.setHeader('Content-Type',({'.mjs':'text/javascript','.wasm':'application/wasm','.json':'application/json'})[extname(p)]||'application/octet-stream');res.end(reference&&baseline[name]?baseline[name]:await readFile(p));}catch(e){res.statusCode=404;res.end(String(e));}});
+const server=createServer(async(req,res)=>{try{const url=new URL(req.url,'http://localhost');if(url.pathname==='/verify'){res.setHeader('Content-Type','text/html');res.end('<html></html>');return;}let name=url.pathname.split('/').at(-1);const reference=url.pathname.startsWith('/reference/');const p=resolve(root,'.'+url.pathname.replace('/reference/','/full-brain/'));if(!p.startsWith(root+sep))throw Error('path');res.setHeader('Content-Type',({'.mjs':'text/javascript','.wasm':'application/wasm','.json':'application/json'})[extname(p)]||'application/octet-stream');res.end(reference&&baseline[name]?baseline[name]:await readFile(p));}catch(e){res.statusCode=404;res.end(String(e));}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));let browser;
 try{browser=await ({chromium,webkit}[engine]).launch({headless:true});const results=[];
 for(const variant of ['reference','full-brain']){const page=await browser.newPage();await page.goto(`http://127.0.0.1:${server.address().port}/verify`);results.push(await page.evaluate(async variant=>{

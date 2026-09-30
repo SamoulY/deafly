@@ -13,7 +13,7 @@ Local setup (Node 22+):
 
 ```powershell
 npm ci
-npx playwright install chromium
+npx playwright install chromium webkit
 npm run dev
 ```
 
@@ -109,4 +109,6 @@ BROWSER_ENGINE=webkit node scripts/verify-colony-multi-brain.mjs
 The colony scripts run real full-browser WASM, the production Worker entrypoint and disposable D1. Market HTTP is fixture-backed, NOT live market evidence. Multi-member checks use separate browser contexts and actual inference; they reject nonmembers, duplicate votes and premature finalization. Identical initial brains can naturally produce identical votes; this does not demonstrate independent learned diversity or improved intelligence. These scripts are client-chain verification, not whole-page button verification or physical-phone testing.
 
 
-Backend deployment requires reviewed migrations 0008 and 0009 before the new Worker/frontend. Do not apply them remotely without deployment authorization. API and bilingual demo: [docs/colony-api-v2.md](docs/colony-api-v2.md).
+Colony deployment requires `0008_federation.sql`, `0009_colony_tasks.sql`, and `0010_colony_auto.sql`, in addition to the FlyDesk migrations described above. Check the actual production schema before applying anything: the recorded deployment has existing tables but no D1 migration history. See the [deployment runbook](docs/cloudflare-deployment.md) and [Colony API and English demo](docs/colony-api-v2.md).
+
+Personal checkpoints use an atomic comparison against the last loaded/saved hash. If another tab has saved a newer branch of brain state, the stale tab is rejected; restart its brain to restore the latest checkpoint. Colony's ephemeral inference continues to leave personal checkpoints unchanged. This protects storage across tabs without changing the checkpoint file format.

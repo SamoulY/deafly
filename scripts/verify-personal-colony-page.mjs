@@ -3,7 +3,7 @@
 import assert from 'node:assert/strict';
 import {createServer} from 'node:http';
 import {readFile,readdir,mkdir,writeFile} from 'node:fs/promises';
-import {resolve,extname} from 'node:path';
+import {resolve,extname,sep} from 'node:path';
 import {chromium,webkit} from 'playwright';
 import {Miniflare,convertV4MiniflareOptions} from 'miniflare';
 import worker from '../worker/src/index.mjs';
@@ -23,7 +23,7 @@ try {
  globalThis.fetch=async(input,init)=>{const url=String(input?.url||input);if(url.includes('api.kraken.com')){const end=Math.floor(Date.now()/60000)*60-60;return Response.json({error:[],result:{XBTUSD:Array.from({length:120},(_,i)=>[end-(119-i)*60,'100','102','99',String(100+i/1000),'100',10,1])}});}throw Error('Unexpected external backend fetch: '+url);};
  const root=resolve('pages');
  server=createServer(async(req,res)=>{try{const url=new URL(req.url,`http://${req.headers.host}`);if(url.pathname.startsWith('/api/')){let body='';for await(const chunk of req)body+=chunk;const response=await worker.fetch(new Request(url,{method:req.method,headers:req.headers,...(body?{body}:{})}),{DB},{waitUntil(p){p?.catch(e=>evidence.errors.push(String(e)));}});evidence.api.push({method:req.method,path:url.pathname,status:response.status});res.writeHead(response.status,Object.fromEntries(response.headers));res.end(Buffer.from(await response.arrayBuffer()));return;}
- const p=resolve(root,'.'+(url.pathname==='/'?'/index.html':url.pathname));assert.ok(p.startsWith(root+'/'));let data=await readFile(p);if(p.endsWith('/index.html'))data=Buffer.from(data.toString().replace('name="defly-api-origin" content=""',`name="defly-api-origin" content="${url.origin}"`));res.setHeader('Content-Type',({'.html':'text/html','.css':'text/css','.js':'text/javascript','.mjs':'text/javascript','.wasm':'application/wasm','.json':'application/json'})[extname(p)]||'application/octet-stream');res.end(data);}catch(e){evidence.errors.push(String(e));res.statusCode=500;res.end(String(e));}});
+ const p=resolve(root,'.'+(url.pathname==='/'?'/index.html':url.pathname));assert.ok(p.startsWith(root+sep));let data=await readFile(p);if(p.endsWith(sep+'index.html'))data=Buffer.from(data.toString().replace('name="defly-api-origin" content=""',`name="defly-api-origin" content="${url.origin}"`));res.setHeader('Content-Type',({'.html':'text/html','.css':'text/css','.js':'text/javascript','.mjs':'text/javascript','.wasm':'application/wasm','.json':'application/json'})[extname(p)]||'application/octet-stream');res.end(data);}catch(e){evidence.errors.push(String(e));res.statusCode=500;res.end(String(e));}});
  await new Promise(r=>server.listen(0,'127.0.0.1',r));
  browser=await ({chromium,webkit}[engine]).launch({headless:true});page=await browser.newPage({viewport:{width:1440,height:1000}});page.setDefaultTimeout(180000);
  page.on('pageerror',e=>evidence.errors.push(String(e)));

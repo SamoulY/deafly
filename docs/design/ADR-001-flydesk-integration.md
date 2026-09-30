@@ -6,4 +6,4 @@ Keep Cloudflare Pages/Workers/D1, the original 3D fly, cosmetics and browser neu
 
 Use integer decimal arithmetic in the authoritative paper broker instead of Python Decimal/PostgreSQL NUMERIC. Persist decimal strings. New teaching and evaluation must use the same broker and five-minute decision cadence. Browser neural activity is not server-attested and must not be silently substituted for the G1 native training requirement.
 
-The imported design files are the source specification, not evidence of completion. Implementation status and executed verification belong in the integration report. Existing experimental autonomy remains separately labelled and never supplies human demonstration labels or teaching rewards.
+The original imported design files are preserved in commit `e744781` (see the versioned links in `docs/colony-api-v2.md`); they are the source specification, not evidence of completion. Current behavior and verification are described in the README, Colony API document and tests. Existing experimental autonomy remains separately labelled and never supplies human demonstration labels or teaching rewards.

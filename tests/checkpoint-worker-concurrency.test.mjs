@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
 
 test('rejected overlapping worker controls cannot release the active initialization lock',async()=>{
- const source=readFileSync(new URL('../pages/full-brain/worker.mjs',import.meta.url),'utf8').replace(/^import .*;\n/gm,'');
+ const source=readFileSync(new URL('../pages/full-brain/worker.mjs',import.meta.url),'utf8').replace(/^import .*;\r?\n/gm,'');
  const messages=[];let finish;
  const context={self:{},postMessage:m=>messages.push(m),createBrain:()=>new Promise(r=>finish=r),checkpointStore:()=>({load:async()=>null}),createStateHasher:()=>({}),hash:()=>{},captureCheckpoint:()=>{},restoreCheckpoint:()=>{}};
  vm.runInNewContext(source,context);
