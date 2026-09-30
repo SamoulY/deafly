@@ -1,0 +1,162 @@
+{
+  "observed_at_utc": "2026-09-30T01:24:40.0042502Z",
+  "account": {
+    "token_status": "active",
+    "name": "testcf",
+    "id": "195eca5460da6b1ff32998d01587182d"
+  },
+  "pages": {
+    "source_owner": null,
+    "source_repo": null,
+    "id": "5fc93ee9-9b6d-4bb0-b1ef-0a9009df0da9",
+    "source_type": null,
+    "domains": [
+      "flydesk-v2-trial.pages.dev",
+      "defly.99x.meme"
+    ],
+    "production_branch": "main",
+    "deployment": {
+      "status": "success",
+      "trigger": "ad_hoc",
+      "id": "850bf6ea-6ba6-4f58-9212-6ce682345716",
+      "created_on": "2026-09-29T10:10:31.129323Z",
+      "url": "https://850bf6ea.flydesk-v2-trial.pages.dev",
+      "commit": "26dc9ac7042909dd05430addb2eb555d8249937f"
+    },
+    "name": "flydesk-v2-trial",
+    "uses_functions": false
+  },
+  "worker": {
+    "subdomain": {
+      "subdomain": "testcf-195"
+    },
+    "schedules": {
+      "schedules": [
+        {
+          "cron": "*/1 * * * *",
+          "created_on": "2026-09-15T06:10:16.722249Z",
+          "modified_on": "2026-09-29T10:10:24.111668Z"
+        }
+      ]
+    },
+    "compatibility_date": "2026-08-18",
+    "name": "flydesk-v2-trial-worker",
+    "deployment": {
+      "id": "1c640fdd-3854-4173-a9b6-f9a8dfb2e42d",
+      "source": "wrangler",
+      "created_on": "2026-09-29T10:10:21.809903Z",
+      "versions": [
+        {
+          "version_id": "811383bd-6caa-41d0-a4ce-220c572662d1",
+          "percentage": 100
+        }
+      ]
+    },
+    "bindings": [
+      {
+        "value": "https://defly.99x.meme,https://flydesk-v2-trial.pages.dev",
+        "name": "ALLOWED_ORIGIN",
+        "type": "plain_text"
+      },
+      {
+        "value": "trial",
+        "name": "APP_ENV",
+        "type": "plain_text"
+      },
+      {
+        "id": "fb0490a9-6615-47d6-b3c0-2ab66b79b08b",
+        "name": "DB",
+        "type": "d1"
+      },
+      {
+        "class_name": "FlydeskLive",
+        "namespace_id": "c21cf6b034774d97b25aa75ccbe8f68d",
+        "name": "FLYDESK_LIVE",
+        "type": "durable_object_namespace"
+      },
+      {
+        "value": "true",
+        "name": "PAPER_ONLY",
+        "type": "plain_text"
+      }
+    ]
+  },
+  "d1": {
+    "tables": [
+      "_cf_KV",
+      "autonomous_runs",
+      "autonomy_step_claims",
+      "browser_autonomy_challenges",
+      "browser_autonomy_receipts",
+      "browser_autonomy_runs",
+      "colonies",
+      "colony_auto_dispatch",
+      "colony_human_corrections",
+      "colony_members",
+      "colony_task_claims",
+      "colony_tasks",
+      "colony_votes",
+      "d1_migrations",
+      "decisions",
+      "federation_fly_manifests",
+      "federation_peers",
+      "federation_router",
+      "federation_submissions",
+      "flydesk_active_versions",
+      "flydesk_analysis",
+      "flydesk_auth_limits",
+      "flydesk_auth_sessions",
+      "flydesk_credentials",
+      "flydesk_dataset_chunks",
+      "flydesk_datasets",
+      "flydesk_demonstrations",
+      "flydesk_evaluations",
+      "flydesk_intents",
+      "flydesk_interval_claims",
+      "flydesk_observation_assignments",
+      "flydesk_reservations",
+      "flydesk_sessions",
+      "flydesk_split_registry",
+      "flydesk_system_actions",
+      "flydesk_training_jobs",
+      "flydesk_versions",
+      "learning_events",
+      "model_states",
+      "portfolios",
+      "prediction_feedback",
+      "prediction_markets",
+      "prediction_positions",
+      "published_observations",
+      "raising_active_versions",
+      "raising_catalog",
+      "raising_demonstrations",
+      "raising_evaluations",
+      "raising_interval_claims",
+      "raising_observation_assignments",
+      "raising_ownership",
+      "raising_points",
+      "raising_profiles",
+      "raising_reservations",
+      "raising_sessions",
+      "raising_split_registry",
+      "raising_system_actions",
+      "raising_training_jobs",
+      "raising_versions",
+      "sqlite_sequence",
+      "users"
+    ],
+    "file_size": 16371712,
+    "migration_history": [],
+    "name": "flydesk-v2-trial-db",
+    "id": "fb0490a9-6615-47d6-b3c0-2ab66b79b08b"
+  },
+  "durable_objects": [
+    {
+      "id": "c21cf6b034774d97b25aa75ccbe8f68d",
+      "name": "flydesk-v2-trial-worker_FlydeskLive",
+      "script": "flydesk-v2-trial-worker",
+      "class": "FlydeskLive",
+      "use_sqlite": true
+    }
+  ]
+}
