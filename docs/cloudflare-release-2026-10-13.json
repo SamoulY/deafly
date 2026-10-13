@@ -1,0 +1,117 @@
+{
+  "verified_at_utc": "2026-10-13T16:21:11.043Z",
+  "release_commit": "18c6209e24ae70cfcad46419effdd835cb07e9fc",
+  "pull_request": "https://github.com/SamoulY/deafly/pull/4",
+  "production_url": "https://defly.99x.meme",
+  "pages_deployment": {
+    "commit": "18c6209e24ae70cfcad46419effdd835cb07e9fc",
+    "trigger": "ad_hoc",
+    "url": "https://c3e39d68.flydesk-v2-trial.pages.dev",
+    "created_on": "2026-10-13T16:19:45.220701Z",
+    "status": "success",
+    "id": "c3e39d68-78d6-4090-8fa5-6f7381370373"
+  },
+  "previous_pages_deployment": {
+    "status": "success",
+    "url": "https://5948a144.flydesk-v2-trial.pages.dev",
+    "created_on": "2026-10-03T18:13:29.962551Z",
+    "id": "5948a144-4b12-4761-960b-18fb58c01808",
+    "trigger": "ad_hoc",
+    "commit": "3bab143ac5b9ec0be248f771e7b2e32a24b4a1f5"
+  },
+  "worker_version": "5b764de5-eac1-4bf6-924b-d063a94d17ea",
+  "previous_worker_version": "9e12fe0a-976b-4db9-898f-dfe7edfc7afd",
+  "database_migrations_applied": [
+    "0012_companion_teaching.sql"
+  ],
+  "database_backup": {
+    "sha256": "A7326CDEE833696F57EDB0EEDB8AFA7CA026C3E42045D60AFE827F82CEEC798A",
+    "bytes": 17125079,
+    "file": "flydesk-v2-trial-before-observer-2026-10-13.sql",
+    "location": "Local machine only; outside repository"
+  },
+  "asset_checks": [
+    {
+      "url": "https://defly.99x.meme/index.html",
+      "status": 200,
+      "matches_local": true,
+      "sha256": "9c4071950ea876072a91a8bd7d002c0c5353d33205b818c944e1d244db80e11c"
+    },
+    {
+      "url": "https://defly.99x.meme/app.js",
+      "status": 200,
+      "matches_local": true,
+      "sha256": "974142c297805de4b13977541e5b0150d37545f7fd170c8dfbd393f5d61f9c8a"
+    },
+    {
+      "url": "https://defly.99x.meme/companion.js",
+      "status": 200,
+      "matches_local": true,
+      "sha256": "a103964083c85cb8f5a6c166214241739ef29e9c1524803b166bd744f468f6aa"
+    },
+    {
+      "url": "https://defly.99x.meme/companion.css",
+      "status": 200,
+      "matches_local": true,
+      "sha256": "636ec949f41862653228cd6819df5434545c70332cf9264b550f2ad15d3042ab"
+    },
+    {
+      "url": "https://defly.99x.meme/scene.js",
+      "status": 200,
+      "matches_local": true,
+      "sha256": "312eec906545761541d7e3212ed454be2c4f9b98223f6f0f75671007582c3727"
+    },
+    {
+      "url": "https://flydesk-v2-trial.pages.dev/index.html",
+      "status": 200,
+      "matches_local": true,
+      "sha256": "9c4071950ea876072a91a8bd7d002c0c5353d33205b818c944e1d244db80e11c"
+    },
+    {
+      "url": "https://flydesk-v2-trial.pages.dev/app.js",
+      "status": 200,
+      "matches_local": true,
+      "sha256": "974142c297805de4b13977541e5b0150d37545f7fd170c8dfbd393f5d61f9c8a"
+    },
+    {
+      "url": "https://flydesk-v2-trial.pages.dev/companion.js",
+      "status": 200,
+      "matches_local": true,
+      "sha256": "a103964083c85cb8f5a6c166214241739ef29e9c1524803b166bd744f468f6aa"
+    },
+    {
+      "url": "https://flydesk-v2-trial.pages.dev/companion.css",
+      "status": 200,
+      "matches_local": true,
+      "sha256": "636ec949f41862653228cd6819df5434545c70332cf9264b550f2ad15d3042ab"
+    },
+    {
+      "url": "https://flydesk-v2-trial.pages.dev/scene.js",
+      "status": 200,
+      "matches_local": true,
+      "sha256": "312eec906545761541d7e3212ed454be2c4f9b98223f6f0f75671007582c3727"
+    }
+  ],
+  "api_checks": {
+    "authentication_required": true,
+    "credentialed_cors": true,
+    "server_market_source": "kraken-public",
+    "server_symbol": "BTCUSD",
+    "teaching_saved": true,
+    "retry_same_receipt": true,
+    "portfolio_unchanged": true,
+    "decisions_unchanged": true,
+    "training_applied": false,
+    "test_identity": "new isolated anonymous release-check session",
+    "test_examples": 1
+  },
+  "browser_checks": {
+    "verified_at_utc": "2026-10-13T16:28:42.5110535Z",
+    "viewport": "390x844",
+    "original_fly_visible": true,
+    "teaching_preview_and_cancel": true,
+    "more_and_colony_navigation": true,
+    "console_warnings_or_errors": 0,
+    "screenshot": "Local runtime/reports/observer-live-home.jpg"
+  }
+}
