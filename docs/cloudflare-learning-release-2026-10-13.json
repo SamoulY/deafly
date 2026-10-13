@@ -1,0 +1,143 @@
+{
+  "verified_at_utc": "2026-10-13T17:23:33.953Z",
+  "release_commit": "28049ff1ef4243ebbb80f112e56d64685a24f6cf",
+  "worker_release_commit": "58b92f7e338bc7905a94a520db98c302b50f869e",
+  "pull_request": "https://github.com/SamoulY/deafly/pull/5",
+  "production_url": "https://defly.99x.meme",
+  "pages_deployment": {
+    "id": "d954e312-56a4-45d2-b329-44dd7369cacc",
+    "trigger": "ad_hoc",
+    "commit": "28049ff1ef4243ebbb80f112e56d64685a24f6cf",
+    "status": "success",
+    "created_on": "2026-10-13T17:23:00.400703Z",
+    "url": "https://d954e312.flydesk-v2-trial.pages.dev"
+  },
+  "previous_pages_deployment": {
+    "commit": "18c6209e24ae70cfcad46419effdd835cb07e9fc",
+    "status": "success",
+    "created_on": "2026-10-13T16:19:45.220701Z",
+    "id": "c3e39d68-78d6-4090-8fa5-6f7381370373",
+    "trigger": "ad_hoc",
+    "url": "https://c3e39d68.flydesk-v2-trial.pages.dev"
+  },
+  "worker_version": "a933b543-03af-404a-92ad-bbaad8e11204",
+  "previous_worker_version": "5b764de5-eac1-4bf6-924b-d063a94d17ea",
+  "database_migrations_applied": [
+    "0013_companion_learning.sql"
+  ],
+  "database_backup": {
+    "file": "flydesk-v2-trial-before-learning-2026-10-13-171707.sql",
+    "bytes": 17212132,
+    "sha256": "9D07DD83FFFD1A8D1D3663BBC9453C8FA767B3458A74BFBD9E660C1D87B96F3F",
+    "location": "Local machine only; outside repository"
+  },
+  "tests": {
+    "full_regression_passed": 294,
+    "full_regression_failed": 0,
+    "final_companion_checks_passed": 10,
+    "final_companion_checks_failed": 0,
+    "syntax_modules": 43,
+    "worker_build": "passed",
+    "wrangler_dry_run": "passed",
+    "real_wasm_integration": {
+      "input": "fixed local market fixture, real full WASM kernel",
+      "neural_direction": "HOLD",
+      "neural_gate_spikes": 4,
+      "untrained_action": "HOLD",
+      "trained_action": "BUY",
+      "model_version": 3,
+      "training_itself_placed_no_order": true
+    }
+  },
+  "asset_checks": [
+    {
+      "url": "https://defly.99x.meme/index.html",
+      "status": 200,
+      "matches_local": true,
+      "sha256": "b9fc0476c2d4be576f18d85c450877261a78b5781eda46ef2e63da41bb722efc"
+    },
+    {
+      "url": "https://defly.99x.meme/app.js",
+      "status": 200,
+      "matches_local": true,
+      "sha256": "62c5aafabaee65b9c848a276ff769e3cdd1e159f8dfad6fa4bb91062bf63f274"
+    },
+    {
+      "url": "https://defly.99x.meme/companion.js",
+      "status": 200,
+      "matches_local": true,
+      "sha256": "a224b49d6ee50076b2cbed622dcc38a2a007d785dd407d67eff47d28cdc19434"
+    },
+    {
+      "url": "https://defly.99x.meme/app.js?v=6",
+      "status": 200,
+      "matches_local": true,
+      "sha256": "62c5aafabaee65b9c848a276ff769e3cdd1e159f8dfad6fa4bb91062bf63f274"
+    },
+    {
+      "url": "https://defly.99x.meme/companion.js?v=2",
+      "status": 200,
+      "matches_local": true,
+      "sha256": "a224b49d6ee50076b2cbed622dcc38a2a007d785dd407d67eff47d28cdc19434"
+    },
+    {
+      "url": "https://flydesk-v2-trial.pages.dev/index.html",
+      "status": 200,
+      "matches_local": true,
+      "sha256": "b9fc0476c2d4be576f18d85c450877261a78b5781eda46ef2e63da41bb722efc"
+    },
+    {
+      "url": "https://flydesk-v2-trial.pages.dev/app.js",
+      "status": 200,
+      "matches_local": true,
+      "sha256": "62c5aafabaee65b9c848a276ff769e3cdd1e159f8dfad6fa4bb91062bf63f274"
+    },
+    {
+      "url": "https://flydesk-v2-trial.pages.dev/companion.js",
+      "status": 200,
+      "matches_local": true,
+      "sha256": "a224b49d6ee50076b2cbed622dcc38a2a007d785dd407d67eff47d28cdc19434"
+    },
+    {
+      "url": "https://flydesk-v2-trial.pages.dev/app.js?v=6",
+      "status": 200,
+      "matches_local": true,
+      "sha256": "62c5aafabaee65b9c848a276ff769e3cdd1e159f8dfad6fa4bb91062bf63f274"
+    },
+    {
+      "url": "https://flydesk-v2-trial.pages.dev/companion.js?v=2",
+      "status": 200,
+      "matches_local": true,
+      "sha256": "a224b49d6ee50076b2cbed622dcc38a2a007d785dd407d67eff47d28cdc19434"
+    }
+  ],
+  "api_checks": {
+    "authentication_required": true,
+    "credentialed_cors": true,
+    "teaching_trains": true,
+    "retry_trains_exactly_once": true,
+    "training_probability_before": 0.3333333333333333,
+    "training_probability_after": 0.6436211121245913,
+    "model_version": 1,
+    "model_hash": "f9a30a060cd0ea28558744f3f8aa56a00e3c463761bd7f984b464bfb8c00b5fd",
+    "portfolio_unchanged_by_teaching": true,
+    "no_decision_created_by_teaching": true,
+    "owner_isolation": true,
+    "autonomous_prepare_uses_persisted_model": true,
+    "check_run_stopped": true,
+    "test_identity": "two new isolated anonymous release-check sessions",
+    "test_examples": 1,
+    "executed_paper_orders": 0
+  },
+  "browser_checks": {
+    "viewport": "390x844",
+    "prior_session_reloaded_new_entry": "app.js?v=6",
+    "teaching_module": "companion.js?v=2",
+    "updated_learning_copy_visible": true,
+    "horizontal_overflow": false,
+    "console_errors_or_warnings": 0,
+    "preview_cancelled": true,
+    "screenshot": "Local runtime/reports/companion-learning-live.jpg"
+  },
+  "training_scope": "Account-private supervised decision head; base WASM connectome unchanged. Label probabilities are not trading-return estimates."
+}
