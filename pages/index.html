@@ -6,12 +6,14 @@
       name="viewport"
       content="width=device-width,initial-scale=1,viewport-fit=cover"
     />
-    <meta name="theme-color" content="#060709" />
+    <meta name="theme-color" content="#ffffff" />
     <meta name="defly-api-origin" content="" />
-    <title>DEFLY // RAISING DESK</title>
+    <title>DeFly</title>
     <link rel="stylesheet" href="style.css?v=5" />
+    <link rel="stylesheet" href="companion.css?v=1" />
   </head>
-  <body>
+  <body class="observer-app">
+    <noscript>Enable JavaScript to open your fly.</noscript>
     <header class="top">
       <div class="wordmark">
         <span class="pixel-fly">▛▜</span><strong>DE<span>FLY</span></strong>
@@ -20,7 +22,7 @@
         <i></i>99x.meme Labs · PAPER ONLY · NO REAL ORDERS
       </div>
     </header>
-    <main>
+    <main id="legacyWorkspace" hidden>
       <section class="router-panel" aria-label="Federated routers">
         <details><summary>FEDERATED ROUTERS <small id="routerStatus">LOCAL ROUTER</small></summary>
           <div class="router-controls"><input id="routerUrl" type="url" placeholder="https://router.example" aria-label="Router URL"><button id="routerConnect">CONNECT</button></div>
@@ -86,7 +88,7 @@
             NEURAL ACTIVITY UNAVAILABLE · waiting for browser inference
           </p>
         </div>
-        <details class="brain-detail" open>
+        <details class="brain-detail">
           <summary>NEURAL TELEMETRY / VIEW ACTIVITY DETAILS <b>＋</b></summary>
           <div class="brain-inside">
             <p>MODEL INPUT · deterministic market image · sensory adapter, not subjective vision</p>

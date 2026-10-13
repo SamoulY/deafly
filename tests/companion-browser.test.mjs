@@ -1,0 +1,106 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {chromium} from 'playwright';
+import {mkdir} from 'node:fs/promises';
+import {startDev} from '../scripts/flydesk-dev.mjs';
+
+test('mobile observer separates teaching from execution, restores retries, and routes specialist tools',async t=>{
+  const dev=await startDev({fixture:true,port:8898,apiPort:8787});t.after(()=>dev.close());
+  const browser=await chromium.launch({headless:true});t.after(()=>browser.close());
+  const page=await browser.newPage({viewport:{width:390,height:844}}),errors=[],posts=[];
+  page.on('pageerror',error=>errors.push(error.message));
+  page.on('request',request=>{if(request.method()==='POST')posts.push(new URL(request.url()).pathname);});
+  await page.route('**/full-brain/**',route=>/\.(?:bin\.gz|wasm)$/.test(new URL(route.request().url()).pathname)?route.abort():route.continue());
+  const now=Math.floor(Date.now()/60000)*60;
+  const market={symbol:'BTCUSD',source:'browser-test',truth_status:'market_input_only',snapshot_hash:'a'.repeat(64),observed_at:now,candles:Array.from({length:40},(_,i)=>({time:now-(40-i)*60,open:100+i,high:102+i,low:99+i,close:101+i,volume:10}))};
+  let quoteUnavailable=false;
+  await page.route('**/api/observation',route=>route.fulfill(quoteUnavailable?{status:503,json:{error:'MARKET_UNAVAILABLE'}}:{json:market}));
+  await page.route('**/api/companion/contexts',async route=>{
+    const portfolio=await dev.db.prepare('SELECT * FROM portfolios LIMIT 1').first();
+    const context={id:crypto.randomUUID(),symbol:'BTCUSD',market,portfolio,created_at:now,expires_at:now+600};
+    await dev.db.prepare('INSERT INTO companion_contexts VALUES (?,?,?,?,?)').bind(context.id,portfolio.user_id,JSON.stringify(context),now,now+600).run();
+    await route.fulfill({status:201,json:context});
+  });
+  await page.goto(dev.url);
+  await page.locator('[data-demonstrate="BUY"]').waitFor();
+  await page.waitForFunction(()=>!document.querySelector('[data-demonstrate="BUY"]').disabled);
+  assert.equal(await page.locator('#homeEquity').textContent(),'$10,000.00');
+  assert.equal(await page.locator('#flyScene').isVisible(),true);
+  assert.equal(await page.locator('#raisingRoot').isVisible(),false);
+  assert.equal(posts.includes('/api/autonomy/start'),false);
+  const before=await dev.db.prepare('SELECT * FROM portfolios LIMIT 1').first();
+  const decision=await page.locator('#flyDecision').textContent();
+  await page.locator('[data-demonstrate="BUY"]').click();
+  await page.waitForFunction(()=>!document.querySelector('#saveLesson').disabled);
+  await page.locator('[data-cancel-lesson]').last().click();
+  assert.equal((await dev.db.prepare('SELECT COUNT(*) AS n FROM companion_lessons').first()).n,0);
+  await page.locator('[data-demonstrate="SELL"]').click();
+  await page.waitForFunction(()=>!document.querySelector('#saveLesson').disabled);
+  // Lose a response after the server commits: the user must retry the same receipt, even after reload.
+  await page.route('**/api/companion/lessons',async route=>{await route.fetch();await route.abort();},{times:1});
+  await page.locator('#saveLesson').click();
+  await page.waitForFunction(()=>document.querySelector('#lessonResult').textContent.includes('Save not confirmed'));
+  assert.equal(await page.locator('[data-demonstrate="BUY"]').isDisabled(),true);
+  await page.reload();await page.waitForFunction(()=>!document.querySelector('#saveLesson').disabled);
+  assert.equal(await page.locator('#saveLesson').textContent(),'Retry saving');
+  await page.locator('#saveLesson').click();
+  await page.waitForFunction(()=>document.querySelector('#lessonResult').textContent.includes('Example saved'));
+  assert.equal((await dev.db.prepare('SELECT COUNT(*) AS n FROM companion_lessons').first()).n,1);
+  assert.deepEqual(await dev.db.prepare('SELECT * FROM portfolios LIMIT 1').first(),before);
+  assert.equal(await page.locator('#flyDecision').textContent(),decision);
+  assert.equal(posts.some(path=>path==='/api/decision'||path==='/api/correct'||path.endsWith('/actions')),false);
+  const motionEvent=await page.locator('#flyScene').getAttribute('data-action-event');
+  await page.locator('#greetFly').click();
+  assert.equal(await page.locator('#flyScene').getAttribute('data-action-event'),motionEvent,'greeting does not press a trading key');
+  await page.locator('.bottom-nav [data-go="records"]').click();
+  await page.locator('[data-filter="teaching"]').click();
+  assert.match(await page.locator('#recordList').textContent(),/You showed: sell/);
+  assert.doesNotMatch(await page.locator('#recordList').textContent(),/You said hello/);
+  await page.locator('.bottom-nav [data-go="more"]').click();
+  await page.locator('[data-page="more"] [data-go="practice"]').click();
+  await page.locator('#raisingRoot').waitFor({state:'visible'});
+  assert.equal(await page.locator('#raisingRoot').isVisible(),true);
+  await page.locator('[data-teach="BUY"]').click();
+  await page.waitForFunction(()=>document.querySelector('#roundProgress').textContent==='1 / 12');
+  await page.locator('.bottom-nav [data-go="home"]').click();
+  await page.locator('#flyScene').waitFor({state:'visible'});
+  assert.equal(await page.locator('#homeEquity').textContent(),'$10,000.00');
+  assert.equal(await page.locator('#flyScene').isVisible(),true);
+  await page.locator('#flyToolsToggle').click();await page.locator('#companionRename input').fill('Little Fly');await page.locator('#companionRename button').click();
+  await page.waitForFunction(()=>document.querySelector('#companionName').textContent==='Little Fly');
+  await page.locator('#flyToolsToggle').click();
+  await mkdir('runtime/reports',{recursive:true});
+  await page.screenshot({path:'runtime/reports/companion-mobile.png',fullPage:true});
+  // Restore an existing autonomous position: the home chart must use its real decision snapshots.
+  await dev.db.prepare("UPDATE portfolios SET cash=9500,quantity=5,avg_cost=100,position_side='LONG',position_qty=5,entry_price=100 WHERE user_id=?").bind(before.user_id).run();
+  const position=await dev.db.prepare('SELECT * FROM portfolios WHERE user_id=?').bind(before.user_id).first();
+  for(const [action,price,at] of [['BUY',100,now-120],['HOLD',130,now-60]])await dev.db.prepare('INSERT INTO decisions VALUES (?,?,?,?,?,?,?,?,?,?,?)').bind(crypto.randomUUID(),before.user_id,'TRADE',action,'BTCUSD',null,price,0,JSON.stringify({...position,source:'BROWSER_NEURAL'}),crypto.randomUUID(),at).run();
+  await page.reload();await page.waitForFunction(()=>document.querySelector('#homeEquity').textContent==='$10,200.00');
+  assert.equal(await page.locator('#homeHolding').textContent(),'$700.00');
+  assert.equal(await page.locator('#flyDecision').textContent(),'Waiting');
+  assert.equal(await page.locator('#equityLine polyline').count(),1);
+  await page.screenshot({path:'runtime/reports/companion-mobile-funded.png',fullPage:true});
+  quoteUnavailable=true;await page.reload();await page.waitForFunction(()=>!document.querySelector('[data-demonstrate="BUY"]').disabled);
+  assert.equal(await page.locator('#homeEquity').textContent(),'—');
+  assert.equal(await page.locator('#homeHolding').textContent(),'—');
+  assert.match(await page.locator('#companionStatus').textContent(),/Live price unavailable/);
+  quoteUnavailable=false;await page.reload();await page.waitForFunction(()=>document.querySelector('#homeEquity').textContent==='$10,200.00');
+  for(const width of [320,390,1440]){
+    await page.setViewportSize({width,height:844});
+    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,`no home overflow at ${width}`);
+  }
+  await page.setViewportSize({width:320,height:844});
+  for(const target of ['analysis','vision','colony','account','technical','experiments','practice']){
+    await page.locator('.bottom-nav [data-go="more"]').click();
+    if(['technical','experiments'].includes(target)&&!await page.locator(`[data-page="more"] [data-go="${target}"]`).isVisible())await page.locator('[data-page="more"] summary').click();
+    await page.locator(`[data-page="more"] [data-go="${target}"]`).click();
+    await page.locator(`[data-page="${target}"]`).waitFor({state:'visible'});
+    assert.equal(await page.locator(`[data-page="${target}"]`).isVisible(),true);
+    const content={analysis:'#chart',vision:'#visionScene',colony:'#colonyRoot',account:'.account-login',technical:'.brain-bar',experiments:'[aria-label="Federated routers"]',practice:'#raisingRoot'};
+    assert.equal(await page.locator(`[data-page="${target}"] ${content[target]}`).isVisible(),true,`${target} contains its actual workspace`);
+    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,`no ${target} overflow at 320`);
+    if(['colony','practice','account'].includes(target))await page.screenshot({path:`runtime/reports/companion-${target}.png`});
+  }
+  assert.equal(await page.evaluate(()=>{const ids=[...document.querySelectorAll('[id]')].map(el=>el.id);return ids.length===new Set(ids).size;}),true);
+  assert.deepEqual(errors,[]);
+});

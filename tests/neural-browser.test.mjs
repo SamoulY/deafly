@@ -16,10 +16,14 @@ test('browser neural UI fails closed on desktop and mobile',async()=>{
   for(const [name,width,height] of [['desktop',1440,900],['mobile',390,844]]){
    const page=await browser.newPage({viewport:{width,height}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
    await page.goto(`http://127.0.0.1:${server.address().port}`);
-   await page.locator('[data-view="brain"]').click();
+   await page.locator('.bottom-nav [data-go="more"]').click();
+   await page.locator('[data-page="more"] summary').click();
+   await page.locator('[data-page="more"] [data-go="technical"]').click();
    await page.waitForFunction(()=>document.querySelector('#brainScene').dataset.nodeCount==='0');
    assert.match(await page.locator('#neuralTruth').textContent(),/NEURAL ACTIVITY UNAVAILABLE/);
    assert.match(await page.locator('#anatomyStatus').textContent(),/ANATOMY UNAVAILABLE/);
+   assert.equal(await page.locator('.brain-detail').getAttribute('open'),null);
+   await page.locator('.brain-detail summary').click();
    assert.equal(await page.locator('.brain-detail').getAttribute('open'),'');
    for(const id of ['spikes','brainTime','leftHz','rightHz','diffHz'])assert.equal(await page.locator('#'+id).textContent(),'—');
    await page.screenshot({path:`/tmp/defly-neural-unavailable-${name}.png`,fullPage:true});

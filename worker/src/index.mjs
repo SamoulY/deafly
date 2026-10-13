@@ -1,4 +1,5 @@
 import {cookieUser,handleAccount,allowedOrigin} from './flydesk-auth.mjs';
+import {handleCompanion} from './companion.mjs';
 export {FlydeskLive} from './flydesk-live.mjs';
 import { BROWSER_BACKEND, PINNED_MANIFEST, browserRun, prepareBrowser, stepBrowser } from "./browser-autonomy.mjs";
 import { fetchMarket, canonicalSymbol, marketSource } from "./market.mjs";
@@ -688,6 +689,12 @@ const application = {
       if (u.pathname === "/api/router/info" && r.method === "GET") return federation(r,e,null,u.pathname);
       const user = (r.headers.get("cookie")?.includes("flydesk_session=")?await cookieUser(r,e):null)||await auth(r, e);
       if (!user) return json({ error: "UNAUTHORIZED" }, 401);
+      if (u.pathname === '/api/companion' || u.pathname.startsWith('/api/companion/')) {
+        const response = await handleCompanion(r,e,user,{observation});
+        const headers = new Headers(response.headers);
+        for (const [key,value] of Object.entries(CORS)) headers.set(key,value);
+        return new Response(response.body,{status:response.status,headers});
+      }
       if(u.pathname.startsWith('/api/flydesk/')) {
         if(u.pathname.startsWith('/api/flydesk/live/')) {
           if(!e.FLYDESK_LIVE)return json({error:'LIVE_SERVICE_NOT_CONFIGURED'},503);

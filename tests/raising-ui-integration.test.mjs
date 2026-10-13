@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-test('workstation boots raising without auto-start or synthetic seed; live refresh is mode guarded',async()=>{
+test('observer initializes the practice module without auto-start or synthetic seed; live refresh is mode guarded',async()=>{
  const app=await readFile(new URL('../pages/app.js',import.meta.url),'utf8');
  const html=await readFile(new URL('../pages/index.html',import.meta.url),'utf8');
  assert.match(html,/id="raisingRoot"/);
