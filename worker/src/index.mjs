@@ -1,5 +1,6 @@
 import {cookieUser,handleAccount,allowedOrigin} from './flydesk-auth.mjs';
 import {handleCompanion} from './companion.mjs';
+import {initialBitcoin} from './initial-bitcoin.mjs';
 export {FlydeskLive} from './flydesk-live.mjs';
 import { BROWSER_BACKEND, PINNED_MANIFEST, browserRun, prepareBrowser, stepBrowser } from "./browser-autonomy.mjs";
 import { fetchMarket, canonicalSymbol, marketSource } from "./market.mjs";
@@ -661,6 +662,8 @@ const application = {
           t = now(),
           p = defaultPolicy(),
           h = await policyHash(p);
+        // No account is created if a fresh server quote cannot be obtained.
+        const opening=initialBitcoin(await observation(e));
         await e.DB.batch([
           e.DB.prepare("INSERT INTO users VALUES (?,?,?,?,?)").bind(
             uid,
@@ -670,8 +673,9 @@ const application = {
             t,
           ),
           e.DB.prepare(
-            "INSERT INTO portfolios (user_id,cash,quantity,avg_cost,revision) VALUES (?,?,?,?,?)",
-          ).bind(uid, 10000, 0, 0, 0),
+            "INSERT INTO portfolios (user_id,cash,quantity,avg_cost,revision,position_side,position_qty,entry_price) VALUES (?,?,?,?,?,?,?,?)",
+          ).bind(uid,opening.cash,opening.quantity,opening.avg_cost,opening.revision,opening.position_side,opening.position_qty,opening.entry_price),
+          e.DB.prepare('INSERT INTO decisions VALUES (?,?,?,?,?,?,?,?,?,?,?)').bind(id(),uid,'TRADE','BUY','BTCUSD',null,opening.mark,opening.fee,JSON.stringify(opening),'initial-bitcoin',t),
           e.DB.prepare("INSERT INTO model_states VALUES (?,?,?,?,?)").bind(
             uid,
             JSON.stringify(p),

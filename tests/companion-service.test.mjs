@@ -25,6 +25,14 @@ test('examples freeze server context, isolate owners, train once on retries and 
   const call=async(path,body,owner='alice')=>{const response=await handleCompanion(new Request('https://local/api/companion'+path,{method:body===undefined?'GET':'POST',...(body===undefined?{}:{body:JSON.stringify(body)})}),{DB},{id:owner},{observation:async()=>structuredClone(market)});return {status:response.status,data:await response.json()};};
   const before=(await call('')).data.portfolio;
   const context=await call('/contexts',{});assert.equal(context.status,201);
+  market.candles.push({time:160,close:900});
+  const selected=await call('/contexts',{candle_time:100,price:9999});
+  assert.equal(selected.status,201);assert.equal(selected.data.market.candles.length,2);
+  assert.equal(selected.data.market.candles.at(-1).close,200,'server owns the price and excludes future bars');
+  assert.notEqual(selected.data.market.snapshot_hash,market.snapshot_hash);
+  assert.equal((await call('/contexts',{candle_time:40})).status,409);
+  assert.equal((await call('/contexts',{candle_time:999})).status,409);
+  assert.equal((await call('/contexts',{candle_time:'100'})).status,422);
   // Cancelling a prepared context creates no teaching record.
   assert.equal((await call('')).data.lessons.length,0);
   const example={context_id:context.data.id,action:'BUY',idempotency_key:'example_1234567890',price:999};
@@ -43,6 +51,7 @@ test('examples freeze server context, isolate owners, train once on retries and 
   assert.deepEqual(after.portfolio,before);assert.equal(after.lessons.length,1);assert.equal(after.lessons[0].context.market.candles[0].close,200);
   assert.equal(after.decisions.length,0);assert.equal((await call('',undefined,'bob')).data.lessons.length,0);
   assert.equal(after.learning.version,1);assert.equal(after.lessons[0].training_applied,true);
+  assert.ok(after.lessons[0].probability_after>after.lessons[0].probability_before);
   assert.equal((await call('',undefined,'bob')).data.learning.version,0);
   assert.equal((await DB.prepare('SELECT COUNT(*) AS n FROM learning_events').first()).n,0);
   const expired=await call('/contexts',{});await DB.prepare('UPDATE companion_contexts SET expires_at=0 WHERE id=?').bind(expired.data.id).run();
