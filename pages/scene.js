@@ -147,17 +147,22 @@ export function startScene(canvas, series = [], flyId = 'default') {
   const fill = new THREE.DirectionalLight('#ffddd6', .7); fill.position.set(3, 2, 5); scene.add(fill);
   const keys=buildDesk(root);canvas.dataset.keyCount=String(keys.length); const monitor = buildTerminal(root, series); const { fly, setOutfit, setAppearance } = buildFly(root, flyId); const move = orbit(canvas, root);
   const motion=createMotion(fly,keys,canvas);
-  let paused = false;
+  let paused = false, greetingUntil = 0;
   const loop = t => {
     if (!paused) {
       move();
       motion.update(t);
+      if (t < greetingUntil) {
+        // A greeting is a wing flutter, never a press of a trading key.
+        for (const wing of fly.children.filter(part=>part.userData.part==='wing')) wing.rotation.x += Math.sin(t*.055)*.18;
+      }
     }
     canvas.setAttribute('data-lit-frame', String(t)); renderer.render(scene, camera);
   };
   const run = scheduler(canvas, loop);
   return {
     playAction: motion.playAction,
+    greet: () => { greetingUntil = performance.now() + 1200; },
     setPaused: v => { paused = v; }, isPaused: () => paused, setVisible: run.setVisible,
     setOutfit(loadout) {
       const normalized = setOutfit(loadout);

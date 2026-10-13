@@ -2,9 +2,23 @@
 
 > Project identity: **DeFly**. “FlyDesk” is the historical teaching/workbench module inside DeFly, not the project name.
 
-## DeFly — FlyDesk integration branch
+## Mobile observer
 
-The default historical desk now uses `/api/flydesk` and **long-only BUY / SELL / HOLD**, with SKIP separate from a human label. Old `/api/raising` short/CLOSE sessions and models remain separate; fly profiles, earned points and cosmetics are shared.
+DeFly opens on a compact, mobile-first observer: the original 3D fly, its autonomous paper account, a line chart of actual decision snapshots, holdings, and **Show buy / Show sell / Show wait** examples. The fly alone chooses trades. Use the fly's settings menu to explicitly start or pause it; opening the site never starts trading. It pauses when the tab is hidden. Runtime UI remains English-only.
+
+Home examples freeze a server-sourced market snapshot and save an owner-scoped, idempotent record under `/api/companion`. They do not mutate a portfolio, execute an order, update the last fly decision, or train either model. They are review records, not yet inputs to the historical decision-head trainer. An unconfirmed save retains its receipt across reloads in the same tab. Greetings are local to this browser and account; examples and fly decisions are stored on the server.
+
+Records separates fly decisions from human teaching. More contains price analysis, historical practice, fly vision, colony, and account/checkpoint controls; brain telemetry, routers and experiments are behind Advanced tools. Home always reads the autonomous account, never the separate historical practice balance. The equity chart uses up to 100 real decision snapshots and a current mark, not reconstructed or fabricated daily returns; missing history and unavailable prices have explicit empty states. Shorts are identified as shorts and retain the existing accounting semantics.
+
+For this UI update, apply **only `worker/migrations/0012_companion_teaching.sql`** to an existing database that already has the prior schema, before deploying the Worker and Pages together. It adds two tables and does not modify balances, prior decisions or models. Do not replay all migrations against the production database; its recorded migration history is incomplete (see `docs/cloudflare-deployment.md`).
+
+```powershell
+node --test --test-concurrency=1 tests/companion-service.test.mjs tests/companion-browser.test.mjs
+```
+
+## FlyDesk historical workbench
+
+The historical practice page uses `/api/flydesk` and **long-only BUY / SELL / HOLD**, with SKIP separate from a human label. Old `/api/raising` short/CLOSE sessions and models remain separate; fly profiles, earned points and cosmetics are shared.
 
 New functionality includes an exact 8-decimal paper broker, recoverable committed intents, candlesticks and server-calculated indicators, chart annotations and per-decision review, Argon2id account registration/login with HttpOnly sessions, historical dataset import, JSONL replay export, and a separate three-output personal baseline with matching five-minute evaluation rules. The browser brain observes with frozen plastic weights; its activity is not yet an input to the personal training head.
 

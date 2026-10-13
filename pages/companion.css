@@ -1,0 +1,142 @@
+/* The compact observer is the default; specialist workspaces retain their tools. */
+.observer-app { --bg:#fff;--panel:#f7f9f8;--line:#e4e9e6;--muted:#68756e;--ink:#18271f;--acid:#188957;--red:#bd4744;--blue:#376759;background:#f2f5f3;color:var(--ink);font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+.observer-app > .top,.observer-app > footer { display:none; }
+#companion { display:block;grid-template-areas:none;width:100%;max-width:440px;margin:0 auto;padding:0 0 calc(76px + env(safe-area-inset-bottom));min-height:100dvh;background:var(--bg); }
+#companion * { min-width:0; }
+#companion button,#companion input,#companion select { font:inherit; }
+#companion button { min-height:44px;padding:8px 12px;border:0;border-radius:9px;box-shadow:none;line-height:1.35; }
+#companion button:hover { background:#edf5f0; }
+#companion button:disabled { opacity:.42; }
+#companion :focus-visible { outline:2px solid var(--acid);outline-offset:3px; }
+#companion h1,#companion h2,#companion h3 { font-family:inherit;font-weight:600;letter-spacing:-.025em; }
+#companion h1 { font-size:22px; }
+#companion h2 { font-size:16px; }
+#companion h3 { font-size:14px;margin:0; }
+#companion p { line-height:1.65; }
+#companion .small { font-size:12px; }
+#companion .muted { color:var(--muted); }
+#companion .positive { color:var(--acid); }
+#companion .negative { color:var(--red); }
+#companion .companion-header { display:flex;align-items:center;justify-content:space-between;padding:16px 22px 12px; }
+#companion .companion-header a { color:var(--ink);font-size:18px;font-weight:800;letter-spacing:.11em;text-decoration:none; }
+#companion .paper-badge { border:1px solid var(--line);border-radius:5px;font-size:10px;padding:2px 8px;color:var(--muted); }
+#companion .overview { padding:9px 22px 10px; }
+#companion .overview>.muted { font-size:13px; }
+#companion .big-number { font-size:38px;line-height:1.35;letter-spacing:-.055em;font-weight:500;font-variant-numeric:tabular-nums; }
+#equityChange:empty { display:none; }
+#companion .line-chart { height:125px; }
+#companion #equityLine { height:85px; }
+#companion #equityLine:has(.chart-empty) { height:70px; }
+#companion .line-chart svg { display:block;width:100%;height:100%;overflow:visible; }
+#companion .line-chart polyline { stroke:var(--acid);stroke-width:2.3;fill:none;stroke-linejoin:round;stroke-linecap:round;vector-effect:non-scaling-stroke; }
+#companion .line-chart circle { fill:var(--acid); }
+#companion .chart-baseline { fill:none;stroke:var(--line);stroke-width:1; }
+#companion .chart-empty { display:grid;place-items:center;min-height:100%;font-size:12px;color:var(--muted);text-align:center;background:linear-gradient(transparent 99%,var(--line) 99%); }
+#companion .range-bar { display:flex;align-items:center;gap:4px; }
+#companion .range-bar button { min-width:44px;font-size:12px;padding:5px 10px; }
+#companion .range-bar>span { margin-left:auto;font-size:10px; }
+#companion [aria-pressed=true] { color:var(--acid);background:#edf5f0; }
+#companion .fly-card { margin:0 12px;position:relative;overflow:hidden;border-radius:12px;background:#060709;color:#e9f2ed; }
+#companion .fly-heading { display:flex;align-items:center;justify-content:space-between;gap:12px;position:absolute;z-index:1;inset:10px 12px auto;pointer-events:none;font-size:12px; }
+#companion .fly-heading b { overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:48%; }
+#companion #flyDecision { font-size:11px;color:#adbbb2;text-align:right; }
+#companion .scene-wrap { height:190px;border:0; }
+#companion .scene-caption { display:none; }
+#companion #greeting { position:absolute;bottom:8px;left:12px;right:12px;text-align:center;font-size:12px;background:#15271eee;padding:8px;border-radius:8px; }
+#companion .fly-actions { display:flex;justify-content:space-between;padding:0 12px 4px; }
+#companion #greetFly { color:var(--muted);font-size:12px; }
+#companion #greetFly span { margin-left:9px; }
+#companion #flyTools { margin:0 22px 18px;padding:12px;background:var(--panel);border-radius:9px; }
+#companion #companionRename { display:flex;gap:8px; }
+#companion input { width:100%;border:1px solid var(--line);border-radius:7px;padding:10px;background:var(--bg);color:var(--ink); }
+#companion .tool-row { display:flex;flex-wrap:wrap;gap:4px;margin-top:8px; }
+#companion .tool-row button { font-size:12px;border:1px solid var(--line); }
+#companion .home-body { padding:0 22px; }
+#companion .home-body>section { border-top:1px solid var(--line);padding:12px 0; }
+#companion .asset-row { display:flex;align-items:center;gap:10px;width:100%;padding:10px 0;text-align:left; }
+#companion .coin { display:grid;place-items:center;width:34px;height:34px;border:1px solid var(--line);border-radius:50%;font-size:19px;flex-shrink:0; }
+#companion .asset-title { flex:1; }
+#companion .asset-title small { display:block;font-size:11px;color:var(--muted); }
+#companion .asset-row>b { font-size:14px;font-weight:500;font-variant-numeric:tabular-nums; }
+#companion .cash-row { display:flex;align-items:baseline;justify-content:space-between;gap:16px;border-top:1px solid var(--line);font-size:13px; }
+#companion .cash-row details { border:0;flex:1; }
+#companion .cash-row summary { padding:7px 0;min-height:36px;font-size:13px;font-weight:400;color:var(--muted); }
+#companion .cash-row summary::after { display:none; }
+#companion .cash-row>span { white-space:nowrap;font-variant-numeric:tabular-nums; }
+#companion .teaching-choices { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:12px; }
+#companion .teaching-choices button { border:1px solid var(--line);font-size:12px;padding:9px 2px; }
+#companion .teaching>p { margin:8px 0 0;font-size:11px; }
+#companion #lessonPanel { padding:12px;margin:12px 0;background:var(--panel);border:1px solid var(--line);border-radius:10px; }
+#companion .section-row { display:flex;align-items:center;justify-content:space-between;gap:12px; }
+#companion .section-row button { font-size:12px;color:var(--muted);padding-right:0; }
+#companion .lesson-actions { display:flex;justify-content:space-between;gap:12px; }
+#companion .primary { background:var(--acid);color:#fff;padding-left:20px;padding-right:20px; }
+#companion .primary:hover { background:#126c44; }
+#companion #lessonResult { color:var(--acid); }
+#companion #lessonResult:empty,#companionStatus:empty,#flyRunMessage:empty { display:none; }
+#companion .recent-link { display:flex;justify-content:space-between;gap:8px;width:100%;padding:8px 0;text-align:left;font-size:12px; }
+#companion time { color:var(--muted);font-size:10px;font-weight:400;white-space:nowrap; }
+#companion .bottom-nav { position:fixed;z-index:10;bottom:0;left:50%;transform:translateX(-50%);display:grid;grid-template-columns:repeat(3,1fr);width:min(100%,440px);background:#fffffff5;backdrop-filter:blur(12px);border-top:1px solid var(--line);padding:5px 12px calc(7px + env(safe-area-inset-bottom)); }
+#companion .bottom-nav button { display:grid;justify-items:center;gap:1px;color:var(--muted);font-size:10px; }
+#companion .bottom-nav button>span { font-size:23px;line-height:24px; }
+#companion .bottom-nav [aria-current=page] { color:var(--acid); }
+#companion [data-page]:not([data-page=home]) { padding:10px 22px 25px;min-height:65vh; }
+#companion .page-heading { display:flex;align-items:center;gap:8px;margin:0 0 22px -10px; }
+#companion .page-heading button { font-size:28px;min-width:40px; }
+#companion .menu-row { display:flex;justify-content:space-between;align-items:center;gap:12px;text-align:left;width:100%;border-bottom:1px solid var(--line);border-radius:0;padding:17px 0; }
+#companion details { border-bottom:1px solid var(--line); }
+#companion summary { display:flex;align-items:center;justify-content:space-between;gap:12px;list-style:none;cursor:pointer;min-height:52px;padding:10px 0;font-size:14px; }
+#companion summary::-webkit-details-marker { display:none; }
+#companion summary::after { content:'›';color:var(--muted); }
+#companion details[open]>summary::after { transform:rotate(90deg); }
+#companion details p { font-size:12px;color:var(--muted); }
+#companion dl { margin:10px 0 20px; }
+#companion dl>div { display:flex;justify-content:space-between;gap:16px;padding:10px 0;font-size:13px; }
+#companion dt { color:var(--muted); }
+#companion dd { margin:0;font-variant-numeric:tabular-nums; }
+#companion .full-width { width:100%;margin:22px 0 8px; }
+#companion .filter-bar { display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px; }
+#companion .filter-bar button { font-size:12px;border:1px solid var(--line); }
+#companion .record summary { font-size:14px; }
+#companion .record summary small { display:block;font-size:10px;color:var(--muted);padding:3px 0; }
+#companion .record summary::after { display:none; }
+#companion .empty-message { color:var(--muted);padding:30px 0;text-align:center; }
+#companionStatus { padding:8px 22px;color:var(--red); }
+/* Existing advanced controls stay reachable on their own pages. */
+#companion .account { border:0;padding:0;box-shadow:none;background:transparent; }
+#companion .account-login,#companion .fly-identity-panel { margin:0 0 18px;border:0;padding:0;background:transparent; }
+#companion .account-login form { display:grid;grid-template-columns:minmax(0,1fr);gap:10px;padding-bottom:20px; }
+#companion .account-login button { border:1px solid var(--line); }
+#companion .brain-runtime { margin:22px 0;overflow-wrap:anywhere; }
+#companion .brain-runtime button { border:1px solid var(--line);margin:3px 0; }
+#companion .brain-runtime-actions { flex-wrap:wrap; }
+#companion .fly-identity-panel>strong { font-size:12px; }
+#companion .fly-identity-panel>small { font-size:11px;line-height:1.7; }
+#companion .router-panel { width:auto;grid-column:auto; }
+#companion .router-panel,#companion #wardrobe,#companion .round-facts,#companion .terminal-head,#companion .arena-join,#companion .join99x { background:var(--panel);color:var(--ink);border-color:var(--line);font-family:inherit; }
+#companion .router-panel summary,#companion .live-desk summary { color:var(--ink);letter-spacing:normal; }
+#companion #raisingRoot button,#companion #sessionRecovery button,#companion #colonyRoot button { background:var(--panel);border:1px solid var(--line); }
+#companion #raisingRoot button[aria-pressed=true] { background:#edf5f0;color:var(--acid); }
+#companion #raisingRoot input,#companion #raisingRoot select,#companion select { background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:6px; }
+#companion .desk-rules,#companion #deskTime,#companion .desk-chart-toolbar span { color:var(--muted); }
+#companion input[type=checkbox] { width:20px;height:20px;min-height:20px;accent-color:var(--acid);vertical-align:middle; }
+#companion #colonyConsentLabel { display:block;font-size:12px;line-height:1.7; }
+#companion #colonyRoot { border:0;padding:0;background:transparent; }
+#companion .terminal { margin:0 0 15px; }
+#companion .terminal canvas { width:100%; }
+#companion .terminal-head { flex-wrap:wrap;gap:7px; }
+#companion #labControls .auto-controls,#companion #labControls .auto-head { display:none; }
+#companion .fly-profile { flex-wrap:wrap; }
+#companion .fly-profile input { width:100%; }
+#companion .raising-tabs { gap:2px; }
+#companion .round-toolbar { flex-wrap:wrap; }
+#companion .round-toolbar input,#companion .round-toolbar select { max-width:100%; }
+#companion .brain-bar,#companion .decision,#companion .brain-inside,#companion .decoder label { background:var(--panel); }
+#companion .decision>div { flex-wrap:wrap;gap:10px; }
+#companion .decision small { color:var(--muted); }
+#companion #technicalSlot,#companion #experimentsSlot { overflow-wrap:anywhere; }
+#companion .stats { grid-template-columns:repeat(2,minmax(0,1fr)); }
+#companion #recoverySlot { padding:0 22px; }
+@media(min-width:760px) { #companion[data-active-page=practice],#companion[data-active-page=technical],#companion[data-active-page=analysis] { max-width:900px; } }
+@media(max-width:359px) { #companion .home-body,#companion .overview { padding-left:16px;padding-right:16px; }#companion .big-number { font-size:34px; }#companion .fly-heading { font-size:11px; }#companion #flyDecision { font-size:10px; }#companion [data-page]:not([data-page=home]) { padding-left:16px;padding-right:16px; } }
+@media(prefers-reduced-motion:reduce) { #companion * { scroll-behavior:auto;transition:none!important; } }

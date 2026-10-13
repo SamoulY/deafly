@@ -11,6 +11,8 @@ import { initializePersonalFly, checkpointLabel } from './personal-fly.js';
 import { checkpointStore } from './full-brain/checkpoint.mjs';
 import {createColonyClient} from './colony-client.js';
 import {mountColonyUI} from './colony-ui.js';
+import {mountCompanion} from './companion.js';
+let companion = null;
 let colonyBusy = false, colonyAutomatic = false, colonyUI = null;
 let personalFly = null;
 const personalStore = checkpointStore();
@@ -183,6 +185,7 @@ async function boot(reset = false) {
   $("#notice").textContent = "RAISING DESK · PAPER ONLY";
   drawMarket();
   if (!booted) { setInterval(renderNeural, 1000); setInterval(refreshObservation, 10000); booted = true; }
+  await companion?.ready(sessionClient.currentUser.id);
 }
 function applyRaisingObservation(s) {
   deskSession=s;
@@ -244,6 +247,7 @@ async function applyObservation(o) {
 }
 function renderState() {
   if (!state) return;
+  companion?.refresh(true);
   $("#cash").textContent = "$" + Number(state.cash).toFixed(2);
   $("#qty").textContent =
     Number(state.position_qty ?? state.quantity ?? 0).toFixed(6) + " BTC";
@@ -704,6 +708,7 @@ const esc = (s) =>
     }).format(Number(n) || 0);
 initRouterControls();
 function bootError(error) {
+  companion?.error('Could not restore your fly. Use Account & saves to log in, or retry below.');
   if (!personalFly) { $("#flyIdentity").textContent = "UNAVAILABLE"; $("#flyIdentityStatus").textContent = error.message; }
   $("#notice").textContent = "RESTORE FAILED · " + error.message;
   $("#sessionRecovery").hidden = false;
@@ -714,6 +719,14 @@ $("#resetSession").onclick = () => {
   if (confirm("Start a new fly? The saved session token will be replaced on this browser.")) boot(true).catch(bootError);
 };
 let modeBusy = false;
+async function runCompanion() {
+  if (colonyBusy || modeBusy) throw Error('Your fly is busy. Try again shortly.');
+  if (autoRunning) return stopAuto();
+  await switchMode('lab');
+  if (mode !== 'lab') throw Error('Autonomy is not ready yet.');
+  await runAutonomy(() => startAuto());
+  if (!autoRunning) throw Error($('#notice').textContent || 'Could not start the fly.');
+}
 function renderMode() {
   const lab = mode === "lab";
   if(document.querySelector(".teach-actions"))document.querySelector(".teach-actions").hidden=mode==="live";
@@ -745,7 +758,7 @@ async function switchMode(next) {
       observationGeneration++; neuralSnapshot = null; neuralPayload = null; renderNeural();
       series = []; tradeMarkers = []; lastAction = null;
       renderMode(); drawMarket();
-      $("#chartSymbol").textContent = "BTCUSDT";
+      $("#chartSymbol").textContent = "BTCUSD";
       $("#chartSource").textContent = "LIVE · LOADING";
       $("#neuralOrder").textContent = "AUTONOMY STOPPED";
       await refreshObservation();
@@ -763,6 +776,25 @@ async function switchMode(next) {
 }
 $("#historicalMode").onclick = () => switchMode("raising");
 $("#autonomousMode").onclick = () => switchMode("lab");
+companion = mountCompanion({
+  api,origin:API,
+  onPage:async next => {
+    if (!raising) return;
+    const nextMode = next === 'practice' ? 'raising' : 'lab';
+    if ((modeBusy || colonyBusy) && nextMode !== mode) throw Error('Your fly is busy. Try opening this page again shortly.');
+    await switchMode(nextMode);
+    if (mode !== nextMode) throw Error('Could not open this workspace. Please try again.');
+  },
+  onRun:runCompanion,
+  onGreet:()=>scenes.fly?.greet?.(),
+  onRename:async name=>{
+    if (!raising) throw Error('Your fly is still loading.');
+    await raising.rename(name);
+    $('#flyName').value=raising.state.profile.profile.name;
+  },
+  onView:changeView,
+  getName:()=>raising?.state.profile?.profile.name,
+});
 renderNeural();
 loadAnatomy();
 boot().catch(bootError);

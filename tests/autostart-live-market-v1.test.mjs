@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 const app = readFileSync(new URL('../pages/app.js', import.meta.url), 'utf8');
 const html = readFileSync(new URL('../pages/index.html', import.meta.url), 'utf8');
 
-test('boot defaults to raising; legacy autonomy requires explicit lab opt-in', () => {
+test('observer initializes practice without starting autonomy; running the fly requires explicit opt-in', () => {
   assert.match(app, /\bmode\s*=\s*["']raising["']/);
   const boot = app.match(/async\s+function\s+boot\s*\([^]*?(?=function\s+applyRaisingObservation)/)?.[0];
   assert.ok(boot, 'boot function exists');
