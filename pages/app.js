@@ -1,17 +1,18 @@
+import {locale,translate} from './i18n.js?v=1';
 import { startScene, startVisionScene, startBrainScene } from "./scene.js?v=4";
 import { createSessionClient, resolveApiOrigin } from "./session-client.js";
-import { init as initRaising } from "./raising-ui.js";
+import { init as initRaising } from "./raising-ui.js?v=2";
 import { UNAVAILABLE, verifyAnatomy } from "./neural-contract.js";
 import { createBrowserBrainClient, encodeMarketObservation } from "./browser-brain-client.js";
 import { routerRegistry, addRouter } from './router-registry.js';
-import {createDeskChart} from './flydesk-chart.js?v=2';
-import {initLiveDesk} from './flydesk-live-ui.js';
+import {createDeskChart} from './flydesk-chart.js?v=3';
+import {initLiveDesk} from './flydesk-live-ui.js?v=2';
 import {mountDeskAdmin} from './flydesk-admin.js';
 import { initializePersonalFly, checkpointLabel } from './personal-fly.js';
 import { checkpointStore } from './full-brain/checkpoint.mjs';
 import {createColonyClient} from './colony-client.js';
 import {mountColonyUI} from './colony-ui.js';
-import {mountCompanion} from './companion.js?v=3';
+import {mountCompanion} from './companion.js?v=4';
 let companion = null;
 let colonyBusy = false, colonyAutomatic = false, colonyUI = null;
 let personalFly = null;
@@ -240,7 +241,7 @@ async function applyObservation(o) {
   scenes.fly?.updateMarket?.(series);
   scenes.vision?.updateMarket?.(series);
   $("#price").textContent =
-    "$" + series.at(-1).toLocaleString('en-US', { maximumFractionDigits: 0 });
+    "$" + series.at(-1).toLocaleString(locale(), { maximumFractionDigits: 0 });
   // Market snapshot metadata is not the neural runtime backend.
   $("#neuralReason").textContent =
     `${o.truth_status} · snapshot ${o.snapshot_hash.slice(0, 10)}…`;
@@ -523,7 +524,7 @@ async function loadMarkets() {
     box.innerHTML = d.markets
       .map(
         (m) =>
-          `<article class="market"><h3>${esc(m.question)}</h3><div class="prob"><span>YES <b>${pct(m.yes)}</b></span><span>NO <b>${pct(m.no)}</b></span></div><div class="market-meta"><span>VOL $${compact(m.volume)}</span><span>${new Date(m.end_date).toLocaleDateString('en-US')}</span></div><div class="market-actions"><button data-predict="YES" data-id="${esc(m.id)}">YES</button><button data-predict="NO" data-id="${esc(m.id)}">NO</button></div></article>`,
+          `<article class="market"><h3>${esc(m.question)}</h3><div class="prob"><span>YES <b>${pct(m.yes)}</b></span><span>NO <b>${pct(m.no)}</b></span></div><div class="market-meta"><span>VOL $${compact(m.volume)}</span><span>${new Date(m.end_date).toLocaleDateString(locale())}</span></div><div class="market-actions"><button data-predict="YES" data-id="${esc(m.id)}">YES</button><button data-predict="NO" data-id="${esc(m.id)}">NO</button></div></article>`,
       )
       .join("");
     box
@@ -541,7 +542,7 @@ async function predict(market_id, action) {
     headers: { "Idempotency-Key": crypto.randomUUID() },
     body: { market_id, action },
   });
-  alert(`SIMULATED PREDICTION ${action} RECORDED. AWAITING PUBLIC RESOLUTION.`);
+  alert(translate(`SIMULATED PREDICTION ${action} RECORDED. AWAITING PUBLIC RESOLUTION.`));
 }
 function drawMarket() {
   if(mode==='live'||(mode==='raising'&&raising?.state.session?.views)){deskChart.setVisible(true);deskChart.render();return;}
@@ -552,16 +553,17 @@ function drawMarket() {
     h = c.height,
     mn = Math.min(...series),
     mx = Math.max(...series);
-  x.fillStyle = "#101213";
+  const chartColors=getComputedStyle(c),color=name=>chartColors.getPropertyValue(name).trim();
+  x.fillStyle = color('--bg');
   x.fillRect(0, 0, w, h);
   if (!series.length) {
-    x.fillStyle = "#989aaa";
+    x.fillStyle = color('--muted');
     x.font = "12px Mono,monospace";
-    x.fillText("AWAITING HISTORICAL MARKET DATA", 20, h / 2);
+    x.fillText(translate("AWAITING HISTORICAL MARKET DATA"), 20, h / 2);
     $("#price").textContent = "—";
     return;
   }
-  x.strokeStyle = "#303536";
+  x.strokeStyle = color('--line');
   for (let i = 1; i < 6; i++) {
     x.beginPath();
     x.moveTo(0, (h * i) / 6);
@@ -574,15 +576,15 @@ function drawMarket() {
       py = h - 20 - ((v - mn) / (mx - mn || 1)) * (h - 40);
     i ? x.lineTo(px, py) : x.moveTo(px, py);
   });
-  x.strokeStyle = "#bdff32";
+  x.strokeStyle = color('--acid');
   x.lineWidth = 3;
   x.stroke();
   tradeMarkers.slice(-24).forEach((m) => {
     const i = Math.max(0, Math.min(series.length - 1, m.index)),
       px = (i * w) / Math.max(1, series.length - 1),
-      py = h - 20 - ((series[i] - mn) / (mx - mn)) * (h - 40),
+      py = h - 20 - ((series[i] - mn) / (mx - mn || 1)) * (h - 40),
       buy = m.action === "BUY";
-    x.fillStyle = buy ? "#63d6ff" : "#ff4b78";
+    x.fillStyle = buy ? color('--acid') : color('--red');
     x.beginPath();
     x.arc(px, py, 7, 0, Math.PI * 2);
     x.fill();
@@ -590,15 +592,17 @@ function drawMarket() {
     x.fillText(buy ? "B" : "S", px + 9, py + (buy ? -9 : 18));
   });
   $("#price").textContent =
-    "$" + series.at(-1).toLocaleString('en-US', { maximumFractionDigits: 0 });
+    "$" + series.at(-1).toLocaleString(locale(), { maximumFractionDigits: 0 });
 }
+document.addEventListener('defly-language-change',drawMarket);
+document.addEventListener('defly-theme-change',drawMarket);
 function renderNeural() {
   const result = browserBrain.validate(neuralPayload, {snapshot:neuralSnapshot, anatomy});
   scenes.brain?.update(result.available ? result.activity : null);
   $("#neuralTruth").textContent = result.available ? `VERIFIED BROWSER WASM ACTIVITY · ${result.historical ? 'HISTORICAL TEACHING SNAPSHOT' : 'CURRENT MARKET SNAPSHOT'} · ${result.totalSpikes} sampled events` : UNAVAILABLE + ' · waiting for browser inference';
   // Runtime identity is separate from per-frame activity freshness.
   if (result.available) renderBackend('ready');
-  if (anatomy) $("#anatomyStatus").textContent = `${anatomy.source} · ${anatomy.nodes.length.toLocaleString('en-US')} displayed sample nodes · ${result.available ? 'verified browser activity' : 'anatomy only'}`;
+  if (anatomy) $("#anatomyStatus").textContent = `${anatomy.source} · ${anatomy.nodes.length.toLocaleString(locale())} displayed sample nodes · ${result.available ? 'verified browser activity' : 'anatomy only'}`;
   $("#neuralTruth").dataset.reason = result.reason || 'verified';
   $("#spikes").textContent = result.available ? String(result.fullTotalSpikes ?? result.totalSpikes) : '—';
   $("#brainTime").textContent = result.available ? result.activity.simulated_ms + ' ms' : '—';
@@ -625,8 +629,8 @@ async function loadAnatomy() {
     if (!anatomy) throw Error('asset integrity failed');
     scenes.brain?.setAnatomy(anatomy);
     startPersonalBrain(anatomy.nodes.map(n => n.id));
-    $("#neurons").textContent = (166700).toLocaleString('en-US');
-    $("#anatomyStatus").textContent = `ANATOMY ONLY · ${anatomy.source} · ${anatomy.nodes.length.toLocaleString('en-US')} displayed nodes · no live activity`;
+    $("#neurons").textContent = (166700).toLocaleString(locale());
+    $("#anatomyStatus").textContent = `ANATOMY ONLY · ${anatomy.source} · ${anatomy.nodes.length.toLocaleString(locale())} displayed nodes · no live activity`;
   } catch { $("#anatomyStatus").textContent = 'ANATOMY UNAVAILABLE'; }
   renderNeural();
 }
@@ -718,7 +722,7 @@ function bootError(error) {
 }
 $("#retrySession").onclick = () => boot().catch(bootError);
 $("#resetSession").onclick = () => {
-  if (confirm("Start a new fly? The saved session token will be replaced on this browser.")) boot(true).catch(bootError);
+  if (confirm(translate("Start a new fly? The saved session token will be replaced on this browser."))) boot(true).catch(bootError);
 };
 let modeBusy = false;
 async function runCompanion() {

@@ -1,7 +1,9 @@
-import {renderRecord} from './companion-records.js?v=1';
+import {renderRecord} from './companion-records.js?v=2';
+import {locale,mountLanguage,sourceText} from './i18n.js?v=1';
+import {defaultChartSettings,normalizeChartSettings,groupCandles,chartSelection,marketChart} from './companion-market.js?v=1';
 const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const money = value => Number.isFinite(value) ? new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(value) : '—';
-const date = seconds => new Date(seconds*1000).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
+const money = value => Number.isFinite(value) ? new Intl.NumberFormat(locale(),{style:'currency',currency:'USD'}).format(value) : '—';
+const date = seconds => new Date(seconds*1000).toLocaleString(locale(),{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
 const labels = {BUY:'Buy',SELL:'Sell',HOLD:'Wait'};
 export function accountValue(portfolio, mark) {
   if (!portfolio) return null;
@@ -29,7 +31,7 @@ export function mountCompanion({api,origin,onPage,onRun,onGreet,onRename,onView,
   const root = document.createElement('main');
   root.id = 'companion';
   root.innerHTML = `
-    <header class="companion-header"><a href="#home" aria-label="DeFly home">DEFLY</a><span class="paper-badge">Paper</span></header>
+    <header class="companion-header"><a href="#home" aria-label="DeFly home">DEFLY</a><span class="paper-badge">Paper</span><label class="language-control"><span class="language-icon" aria-hidden="true">◎</span><select data-language-choice aria-label="Language"><option value="en" lang="en">English</option><option value="zh-CN" lang="zh-CN">简体中文</option></select></label></header>
     <section data-page="home">
       <div id="recoverySlot"></div>
       <div class="overview"><span class="muted">Total value</span><div id="homeEquity" class="big-number">—</div></div>
@@ -55,6 +57,32 @@ export function mountCompanion({api,origin,onPage,onRun,onGreet,onRename,onView,
   legacy.before(root);
   document.body.classList.add('observer-app');
   const $ = selector => root.querySelector(selector);
+  $('.market-teaching>.section-row').append(Object.assign(document.createElement('button'),{id:'mobileChartToggle',className:'mobile-chart-toggle',textContent:'⋯'}));
+  $('#mobileChartToggle').setAttribute('aria-label','Chart settings');$('#mobileChartToggle').setAttribute('aria-expanded','false');
+  $('#mobileChartToggle').onclick=()=>{const open=$('.market-teaching').classList.toggle('show-chart-tools');$('#mobileChartToggle').setAttribute('aria-expanded',String(open));};
+  $('#teachChart').before(Object.assign(document.createElement('div'),{className:'market-toolbar',innerHTML:`<div class="chart-style" role="group" aria-label="Chart style"><button data-chart-style="line" aria-pressed="true">Line</button><button data-chart-style="candles" aria-pressed="false">Candles</button></div><select id="marketTimeframe" aria-label="Chart timeframe"><option value="60">1 minute</option><option value="300">5 minutes</option></select><button id="chartSettingsToggle" aria-expanded="false" aria-controls="marketSettings">Chart settings</button>`}));
+  $('#teachChart').before(Object.assign(document.createElement('div'),{id:'marketSettings',hidden:true,innerHTML:`<label><input type="checkbox" data-chart-setting="average"> Moving average (20)</label><label><input type="checkbox" data-chart-setting="volume"> Volume</label><label><input type="checkbox" data-chart-setting="markers" checked> Teaching markers</label><button id="resetChart">Reset chart</button>`}));
+  $('#teachChart').before(Object.assign(document.createElement('div'),{id:'marketOHLC',className:'market-ohlc'}));
+  $('.chart-caption').after(Object.assign(document.createElement('p'),{id:'averageNotice',className:'small muted',hidden:true}));
+  $('.market-teaching').append(Object.assign(document.createElement('div'),{className:'market-foot',innerHTML:`<span class="small muted">Recent 40 minutes</span><button data-go="practice">Explore historical charts <span aria-hidden="true">↗</span></button><details><summary>Chart guide</summary><p>Each candle shows the open, high, low and close. Green rises; red falls.</p><p>The average follows the last 20 displayed bars. Volume shows how much Bitcoin traded.</p><p>Choose a point to teach. Chart settings only change the view.</p></details>`}));
+  let chartSettings=defaultChartSettings();
+  try{chartSettings=normalizeChartSettings(JSON.parse(localStorage.getItem('defly.chart')||'{}'));}catch{/* Invalid optional preferences fall back to a line. */}
+  // Mobile stays a simple line until its user chooses a different view on mobile.
+  const compactChart=matchMedia('(max-width:999px)');
+  let mobileChartSettings=defaultChartSettings();
+  try{mobileChartSettings=normalizeChartSettings(JSON.parse(localStorage.getItem('defly.chart.mobile')||'{}'));}catch{/* Optional preferences. */}
+  const currentChartSettings=()=>compactChart.matches?mobileChartSettings:chartSettings;
+  function updateChartSettings(update){
+    const next=normalizeChartSettings({...currentChartSettings(),...update});
+    if(compactChart.matches)mobileChartSettings=next;else chartSettings=next;
+    try{localStorage.setItem(compactChart.matches?'defly.chart.mobile':'defly.chart',JSON.stringify(next));}catch{/* The current view still works without storage. */}
+    renderMarket();
+  }
+  root.querySelectorAll('[data-chart-style]').forEach(button=>button.onclick=()=>updateChartSettings({style:button.dataset.chartStyle}));
+  $('#marketTimeframe').onchange=event=>updateChartSettings({timeframe:Number(event.target.value)});
+  root.querySelectorAll('[data-chart-setting]').forEach(input=>input.onchange=()=>updateChartSettings({[input.dataset.chartSetting]:input.checked}));
+  $('#resetChart').onclick=()=>updateChartSettings(defaultChartSettings());
+  $('#chartSettingsToggle').onclick=()=>{const open=$('#marketSettings').hidden;$('#marketSettings').hidden=!open;$('#chartSettingsToggle').setAttribute('aria-expanded',String(open));};
   const appearance=document.createElement('label');appearance.className='appearance-control';appearance.innerHTML='<span>Appearance</span><select data-theme-choice aria-label="Appearance"><option value="system">Follow system</option><option value="light">Day</option><option value="dark">Night</option></select>';
   $('[data-page="more"] .page-heading').after(appearance);
   appearance.querySelector('select').value=document.documentElement.dataset.themePreference||'system';
@@ -81,6 +109,7 @@ export function mountCompanion({api,origin,onPage,onRun,onGreet,onRename,onView,
   const scene=document.querySelector('.scene-wrap');
   const flyCompanion=document.createElement('div');flyCompanion.className='fly-companion';$('.fly-card').before(flyCompanion);
   for(const selector of ['.fly-card','.fly-actions','#flyTools'])flyCompanion.append($(selector));
+  const sidebar=document.createElement('aside');sidebar.className='home-sidebar';flyCompanion.before(sidebar);sidebar.append(flyCompanion,$('.home-body'));
   let page='home',owner=null,data={portfolio:null,decisions:[],lessons:[]},market=null,range=1,filter='all',greetings=[],pending=null,lastLessonId=null,busy=false,ready=false,epoch=0,refreshing=null,navigation=Promise.resolve(),scrubIndex=null;
   const storageKey = kind => `defly.companion:${origin}:${owner}:${kind}`;
   const say = message => { $('#companionStatus').textContent=message; };
@@ -172,22 +201,25 @@ export function mountCompanion({api,origin,onPage,onRun,onGreet,onRename,onView,
   }
   function renderMarket(){
     const bars=pending?.bars||market?.candles||[],selected=scrubIndex??(pending?bars.findIndex(c=>c.time===pending.candle_time):-1);
-    $('#teachChart').innerHTML=lineChart(bars.map(c=>({time:c.time,value:c.close})),'Bitcoin closed one-minute prices. Use the slider or tap a point to teach your fly.');
-    const svg=$('#teachChart svg');
-    if(svg&&bars.length>1){
-      const values=bars.map(c=>c.close),low=Math.min(...values),span=Math.max(...values)-low||Math.max(1,Math.max(...values)*.01);
-      const xy=i=>[10+i/(bars.length-1)*340,105-(bars[i].close-low)/span*85];
-      for(const lesson of data.lessons){
-        const i=bars.findIndex(c=>c.time===lesson.context?.market?.candles?.at(-1)?.time);if(i<0)continue;
-        const [x,y]=xy(i);svg.insertAdjacentHTML('beforeend',`<circle class="lesson-marker marker-${lesson.action}" cx="${x}" cy="${y}" r="4"><title>${escape(labels[lesson.action])} example at ${escape(date(bars[i].time))}</title></circle>`);
-      }
-      if(selected>=0){const [x,y]=xy(selected);svg.insertAdjacentHTML('beforeend',`<path class="chart-cursor" d="M${x} 5V120"/><circle class="selected-point" cx="${x}" cy="${y}" r="5"/>`);}
-    }
+    const settings={...currentChartSettings(),timeframe:pending?.timeframe||currentChartSettings().timeframe},bounds=$('#teachChart').getBoundingClientRect();
+    $('#teachChart').innerHTML=marketChart(bars,settings,{width:Math.max(250,bounds.width),height:Math.max(150,bounds.height),selectedTime:bars[selected]?.time,lessons:data.lessons});
+    root.querySelectorAll('[data-chart-style]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.chartStyle===settings.style)));
+    root.querySelectorAll('[data-chart-setting]').forEach(input=>input.checked=settings[input.dataset.chartSetting]);
+    $('#marketTimeframe').value=settings.timeframe;
+    $('#marketTimeframe').disabled=Boolean(pending)||busy;
+    const groups=groupCandles(bars,settings.timeframe),group=selected>=0?groups.find(bar=>bar.startTime<=bars[selected].time&&bar.time>=bars[selected].time):groups.at(-1);
+    $('#marketOHLC').hidden=settings.style!=='candles'||!group;
+    $('#marketOHLC').innerHTML=group?['Open','High','Low','Close'].map(key=>`<span>${key} <b>${money(group[key.toLowerCase()])}</b></span>`).join('')+(group.count<settings.timeframe/60?`<span class="partial-note">Partial group · ${group.count}/5 closed minutes</span>`:''):'';
+    $('#averageNotice').hidden=!settings.average||groups.length>=20;
+    $('#averageNotice').textContent='Not enough bars for MA20 at this timeframe.';
     const chosen=bars[selected>=0?selected:bars.length-1];
     $('#marketPrice').textContent=money(chosen?.close);
     $('#chartTime').textContent=chosen?`${selected>=0?'Selected · ':''}${date(chosen.time)}`:'Price unavailable';
-    $('#chartPoint').max=Math.max(1,bars.length-1);
-    $('#chartPoint').value=selected>=1?selected:Math.max(1,bars.length-1);
+    const groupIndex=groups.indexOf(group);
+    $('#chartPoint').min=groups[0]?.sourceIndex>=1?0:1;
+    $('#chartPoint').max=Math.max(1,groups.length-1);
+    $('#chartPoint').value=groupIndex>=0?groupIndex:Math.max(1,groups.length-1);
+    $('.chart-caption>span:last-child').textContent=compactChart.matches?'Tap the chart to teach':'Click the chart to teach';
     $('#chartPoint').setAttribute('aria-valuetext',chosen?`${date(chosen.time)}, ${money(chosen.close)}`:'Price unavailable');
     lessonControls();
   }
@@ -205,7 +237,7 @@ export function mountCompanion({api,origin,onPage,onRun,onGreet,onRename,onView,
     const bars=pending?.bars||market?.candles||[];
     index=Math.max(1,Math.min(bars.length-1,index));if(!bars[index])return;
     const generation=epoch;
-    busy=true; pending={candle_time:bars[index].time,bars,idempotency_key:crypto.randomUUID()}; renderLesson();
+    busy=true; pending={candle_time:bars[index].time,bars,timeframe:pending?.timeframe||currentChartSettings().timeframe,idempotency_key:crypto.randomUUID()}; renderLesson();
     lastLessonId=null;
     $('#lessonResult').textContent='';
     try { const context=await api('/api/companion/contexts',{method:'POST',body:{candle_time:pending.candle_time}}); if(generation===epoch){pending.context=context;pending.bars=bars.map(bar=>context.market.candles.find(c=>c.time===bar.time)||bar);} }
@@ -240,12 +272,12 @@ export function mountCompanion({api,origin,onPage,onRun,onGreet,onRename,onView,
     if(button.dataset.demonstrate&&pending&&!pending.submitted){pending.action=button.dataset.demonstrate;renderLesson();}
     if(button.hasAttribute('data-cancel-lesson')&&!busy&&!pending?.submitted){pending=null;renderLesson();$('#chartPoint').focus();}
   });
-  const pointAt=event=>{const bounds=$('#teachChart').getBoundingClientRect(),bars=pending?.bars||market?.candles||[];return Math.max(1,Math.min(bars.length-1,Math.round(((event.clientX-bounds.left)/bounds.width*360-10)/340*(bars.length-1))));};
+  const pointAt=event=>chartSelection(event.clientX,$('#teachChart').getBoundingClientRect(),pending?.bars||market?.candles||[],pending?.timeframe||currentChartSettings().timeframe);
   $('#teachChart').onpointerdown=event=>{if(!ready||busy||pending?.submitted||!market?.candles?.length)return;$('#teachChart').setPointerCapture(event.pointerId);scrubIndex=pointAt(event);renderMarket();};
   $('#teachChart').onpointermove=event=>{if(scrubIndex!==null){scrubIndex=pointAt(event);renderMarket();}};
   $('#teachChart').onpointerup=()=>{if(scrubIndex===null)return;const index=scrubIndex;scrubIndex=null;choosePoint(index);};
   $('#teachChart').onpointercancel=()=>{scrubIndex=null;renderMarket();};
-  $('#chartPoint').onchange=event=>choosePoint(Number(event.target.value));
+  $('#chartPoint').onchange=event=>{const groups=groupCandles(pending?.bars||market?.candles||[],pending?.timeframe||currentChartSettings().timeframe);choosePoint(groups[Number(event.target.value)]?.sourceIndex??1);};
   $('#saveLesson').onclick=saveLesson;
   $('#flyToolsToggle').onclick=()=>{const open=$('#flyTools').hidden;$('#flyTools').hidden=!open;$('#flyToolsToggle').setAttribute('aria-expanded',String(open));};
   $('#greetFly').onclick=()=>{
@@ -253,15 +285,19 @@ export function mountCompanion({api,origin,onPage,onRun,onGreet,onRename,onView,
     setTimeout(()=>$('#greeting').hidden=true,3500);
     if(owner){greetings=[{kind:'greeting',title:'You said hello',detail:'A shared moment at the desk. Saved on this device.',created_at:Math.floor(Date.now()/1000)},...greetings].slice(0,20);localStorage.setItem(storageKey('greetings'),JSON.stringify(greetings));renderRecords();}
   };
-  $('#pauseMotion').onclick=()=>{document.querySelector('#motion').click();$('#pauseMotion').textContent=document.querySelector('#motion').textContent.startsWith('RESUME')?'Resume motion':'Pause motion';};
+  $('#pauseMotion').onclick=()=>{document.querySelector('#motion').click();$('#pauseMotion').textContent=sourceText(document.querySelector('#motion')).startsWith('RESUME')?'Resume motion':'Pause motion';};
   $('#companionRename').onsubmit=async e=>{e.preventDefault();try{await onRename($('#companionRename input').value.trim());render();}catch(error){say(error.message);}};
   $('#runFly').onclick=async()=>{const b=$('#runFly');b.disabled=true;$('#flyRunMessage').textContent='Preparing…';try{await onRun();$('#flyRunMessage').textContent='';}catch(error){$('#flyRunMessage').textContent=error.message;}finally{b.disabled=false;updateRun();await refresh();}};
-  function updateRun(){const status=document.querySelector('#autoStatus'),running=status.classList.contains('running')&&status.textContent.startsWith('RUNNING');$('#runFly').textContent=running?'Pause fly':'Start fly';}
+  function updateRun(){const status=document.querySelector('#autoStatus'),running=status.classList.contains('running')&&sourceText(status).startsWith('RUNNING');$('#runFly').textContent=running?'Pause fly':'Start fly';}
   new MutationObserver(updateRun).observe(document.querySelector('#autoStatus'),{attributes:true,childList:true});
   window.addEventListener('popstate',()=>navigate(location.hash.slice(1)||'home'));
   root.querySelector('.companion-header a').onclick=e=>{e.preventDefault();navigate('home');};
   setInterval(()=>{if(['home','holding','records'].includes(page))refresh();},30000);
+  new ResizeObserver(()=>{if(page==='home')renderMarket();}).observe($('#teachChart'));
+  compactChart.addEventListener('change',()=>renderMarket());
+  document.addEventListener('defly-language-change',()=>{render();renderLesson();updateRun();});
   render();
+  mountLanguage(root);
   return {
     async ready(userId){
       epoch++;refreshing=null;owner=userId;ready=false;busy=false;data={portfolio:null,decisions:[],lessons:[]};market=null;pending=null;lastLessonId=null;greetings=[];

@@ -1,7 +1,7 @@
 /* The compact observer is the default; specialist workspaces retain their tools. */
 :root { color-scheme:light;--bg:#fff;--panel:#f5f8f6;--line:#dce5df;--muted:#5f7066;--ink:#18271f;--acid:#137c4e;--red:#b43d3e;--blue:#356897;--hover:#eaf4ee;--primary-ink:#fff;--outer:#f0f4f1; }
 :root[data-theme=dark] { color-scheme:dark;--bg:#101a16;--panel:#18251e;--line:#31453a;--muted:#a4b9ac;--ink:#ebf4ed;--acid:#6ce1a5;--red:#ff9291;--blue:#8db8eb;--hover:#233a2d;--primary-ink:#0c2418;--outer:#0b120e; }
-.observer-app { background:var(--outer);color:var(--ink);font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+.observer-app { background:var(--outer);color:var(--ink);font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei","Noto Sans SC",sans-serif; }
 .observer-app > .top,.observer-app > footer { display:none; }
 #companion { display:block;grid-template-areas:none;width:100%;max-width:440px;margin:0 auto;padding:0 0 calc(76px + env(safe-area-inset-bottom));min-height:100dvh;background:var(--bg); }
 #companion * { min-width:0; }
@@ -22,6 +22,10 @@
 #companion .companion-header { display:flex;align-items:center;justify-content:space-between;padding:16px 22px 12px; }
 #companion .companion-header a { color:var(--ink);font-size:18px;font-weight:800;letter-spacing:.11em;text-decoration:none; }
 #companion .paper-badge { border:1px solid var(--line);border-radius:5px;font-size:10px;padding:2px 8px;color:var(--muted); }
+#companion .companion-header { gap:12px; }
+#companion .language-control { display:flex;align-items:center;gap:6px;margin-left:auto;font-size:12px; }
+#companion .language-control select { min-height:40px;max-width:120px;border:0;padding:5px;background:transparent; }
+#companion .language-icon { color:var(--muted);font-size:19px; }
 #companion .overview { padding:9px 22px 10px; }
 #companion .overview>.muted { font-size:13px; }
 #companion .big-number { font-size:38px;line-height:1.35;letter-spacing:-.055em;font-weight:500;font-variant-numeric:tabular-nums; }
@@ -167,31 +171,70 @@
 #companion .record-note { font-size:11px; }
 #companion .appearance-control { display:flex;align-items:center;justify-content:space-between;gap:16px;border-bottom:1px solid var(--line);padding:12px 0 20px; }
 #companion .appearance-control select { min-height:44px;padding:8px 12px; }
+#companion .market-toolbar { display:none;align-items:center;flex-wrap:wrap;gap:10px;margin-top:20px; }
+#companion .show-chart-tools .market-toolbar { display:flex; }
+#companion .chart-style { display:flex;gap:3px;padding:3px;border:1px solid var(--line);border-radius:9px; }
+#companion .market-toolbar button { min-height:36px;font-size:12px;padding:7px 12px; }
+#companion .market-toolbar select { min-height:44px;padding:6px 10px;font-size:12px; }
+#companion #chartSettingsToggle { margin-left:auto;color:var(--muted); }
+#companion .mobile-chart-toggle { font-size:20px;min-width:44px; }
+#companion #marketPrice { margin-left:auto; }
+#companion #marketSettings { display:flex;flex-wrap:wrap;align-items:center;gap:10px 20px;background:var(--panel);padding:14px;border-radius:10px;margin-top:12px;font-size:12px; }
+#companion #marketSettings label { display:flex;align-items:center;gap:7px;min-height:36px; }
+#companion #marketSettings button { color:var(--muted);font-size:12px;margin-left:auto; }
+#companion .market-ohlc { display:flex;gap:8px 18px;flex-wrap:wrap;color:var(--muted);font-size:11px;padding-top:16px;font-variant-numeric:tabular-nums; }
+#companion .market-ohlc b { color:var(--ink);font-weight:400;margin-left:4px; }
+#companion .partial-note { font-size:10px; }
+#companion .chart-grid { stroke:var(--line);stroke-width:1;opacity:.6;fill:none; }
+#companion .chart-axis { fill:var(--muted);font:11px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+#companion .market-candle.rising { color:var(--acid); }
+#companion .market-candle.falling { color:var(--red); }
+#companion .market-candle path { stroke:currentColor;stroke-width:1; }
+#companion .market-candle rect { fill:currentColor;stroke:currentColor;stroke-width:1; }
+#companion .market-candle.partial rect { fill:var(--bg);stroke-dasharray:2 2; }
+#companion .volume-bar { opacity:.25;fill:var(--acid); }
+#companion .volume-bar.falling { fill:var(--red); }
+#companion .line-chart .moving-average { stroke:var(--blue);stroke-width:1.5; }
+#companion .market-foot { display:none;border-top:1px solid var(--line);margin-top:24px;padding-top:12px; }
+#companion .market-foot>button { font-size:12px;color:var(--muted); }
+#companion .market-foot details { flex-basis:100%;border:0; }
+#companion .market-foot summary { font-size:12px;min-height:40px; }
+@media(max-width:999px) { #companion .market-teaching:not(.show-chart-tools) #marketSettings { display:none; } }
 #companion .round-review,#companion .round-details,#companion .round-actions,#companion .desk-chart-toolbar,#companion .memory-strip,#companion .workspace-panel,#companion .brain-detail { background:var(--panel);color:var(--ink);border-color:var(--line); }
 #companion [hidden] { display:none!important; }
 @media(min-width:600px) { #companion { max-width:720px; }#companion .bottom-nav { width:min(100%,720px); }#companion .scene-wrap { height:250px; } }
 @media(min-width:1000px) {
-  #companion { position:relative;max-width:1160px;padding:0 32px 40px;margin:24px auto;min-height:calc(100dvh - 48px);border:1px solid var(--line);border-radius:18px; }
-  #companion .companion-header { padding:24px 0 30px;justify-content:flex-start;gap:16px; }
-  #companion .bottom-nav { position:absolute;inset:14px 24px auto auto;transform:none;width:300px;border:0;padding:0;background:transparent; }
+  #companion { position:relative;width:calc(100% - 48px);max-width:1440px;padding:0 32px 40px;margin:24px auto;min-height:calc(100dvh - 48px);border:1px solid var(--line);border-radius:18px; }
+  #companion .companion-header { padding:22px 0;margin-bottom:32px;justify-content:flex-start;gap:16px;border-bottom:1px solid var(--line); }
+  #companion .bottom-nav { position:absolute;inset:22px auto auto 50%;transform:translateX(-50%);width:320px;border:0;padding:0;background:transparent; }
   #companion .bottom-nav button { display:flex;justify-content:center;align-items:center;gap:8px;font-size:13px; }
   #companion .bottom-nav [aria-current=page] { background:var(--hover); }
-  #companion [data-page=home] { display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);grid-template-areas:'recovery recovery' 'value fly' 'market fly' 'holdings recent';gap:0 36px;align-items:start; }
+  #companion [data-page=home] { display:grid;grid-template-columns:minmax(0,1fr) 300px;grid-template-rows:auto auto 1fr;grid-template-areas:'recovery recovery' 'value sidebar' 'market sidebar';gap:0 36px;align-items:start; }
   #companion #recoverySlot { grid-area:recovery;padding:0; }
-  #companion .overview { grid-area:value;padding:0 0 16px; }
+  #companion .overview { grid-area:value;padding:0 0 30px; }
   #companion .big-number { font-size:46px; }
-  #companion .market-teaching { grid-area:market;margin:0 0 24px; }
-  #companion #teachChart { height:190px; }
-  #companion .fly-companion { grid-area:fly; }
+  #companion .market-teaching { grid-area:market;margin:0;padding-top:0; }
+  #companion .market-teaching h2 { font-size:20px; }
+  #companion #marketPrice { font-size:20px; }
+  #companion .market-toolbar { display:flex; }
+  #companion .mobile-chart-toggle { display:none; }
+  #companion #teachChart { height:300px;margin-top:20px; }
+  #companion .chart-caption .small { font-size:12px; }
+  #companion .market-foot { display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:0 12px; }
+  #companion .home-sidebar { grid-area:sidebar;border-left:1px solid var(--line);padding-left:28px; }
   #companion .fly-card { margin:0; }
-  #companion .scene-wrap { height:310px; }
+  #companion .scene-wrap { height:250px; }
   #companion .fly-actions { padding:4px 0 12px; }
   #companion #flyTools { margin:0 0 20px; }
-  #companion .home-body { display:contents; }
-  #companion .holdings { grid-area:holdings; }
-  #companion .recent { grid-area:recent; }
-  #companion [data-page]:not([data-page=home]) { padding:10px 0 25px;max-width:900px;margin:0 auto; }
-  #companion [data-page=more],#companion [data-page=account],#companion [data-page=holding] { max-width:720px; }
+  #companion .home-body { padding:0; }
+  #companion .home-body>section { padding:22px 0; }
+  #companion .home-sidebar .asset-row { flex-wrap:wrap; }
+  #companion .recent-link { flex-direction:column;gap:6px; }
+  #companion time { font-size:11px; }
+  #companion [data-page]:not([data-page=home]) { padding:10px 0 25px;max-width:1140px;margin:0 auto; }
+  #companion [data-page=records] { max-width:900px; }
+  #companion [data-page=more],#companion [data-page=account],#companion [data-page=holding] { max-width:760px; }
 }
+@media(min-width:1280px) { #companion { padding:0 40px 48px; }#companion [data-page=home] { grid-template-columns:minmax(0,1fr) 356px;gap:0 48px; }#companion .home-sidebar { padding-left:32px; }#companion #teachChart { height:340px; }#companion .scene-wrap { height:280px; } }
 @media(max-width:359px) { #companion .home-body,#companion .overview { padding-left:16px;padding-right:16px; }#companion .big-number { font-size:34px; }#companion .fly-heading { font-size:11px; }#companion #flyDecision { font-size:10px; }#companion [data-page]:not([data-page=home]) { padding-left:16px;padding-right:16px; } }
 @media(prefers-reduced-motion:reduce) { #companion * { scroll-behavior:auto;transition:none!important; } }

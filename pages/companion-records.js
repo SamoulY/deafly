@@ -1,5 +1,6 @@
+import {locale} from './i18n.js?v=1';
 const escape = value => String(value ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const date = seconds => new Date(seconds*1000).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
+const date = seconds => new Date(seconds*1000).toLocaleString(locale(),{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
 const actions={BUY:'Buy Bitcoin',SELL:'Open a short',HOLD:'Wait',CLOSE:'Close the position'};
 const verbs={BUY:'buying',SELL:'selling',HOLD:'waiting'};
 export const effectLabels={changed:'Teaching changed this choice',same_choice:'Same choice with teaching',inactive:'Waiting for a signal',no_examples:'Before learning from you',unavailable:'Comparison unavailable'};

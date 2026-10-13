@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {chromium} from 'playwright';
-import {readFile} from 'node:fs/promises';
+import {loadRaisingView} from './helpers/browser-ui-modules.mjs';
 test('training retries, frozen evaluation and encoded checkpoint activation work in the view',async()=>{
  const browser=await chromium.launch({headless:true});
  try {
@@ -13,12 +13,10 @@ test('training retries, frozen evaluation and encoded checkpoint activation work
    catch(error) { throw new Error(`Expected status ${expected}; received ${await page.locator('#raisingStatus').textContent()}`,{cause:error}); }
   };
   // randomUUID is a secure-context API; use the app's HTTPS environment.
-  await page.route('https://raising.test/',route=>route.fulfill({contentType:'text/html',body:'<div id="raisingRoot"></div>'}));
-  await page.goto('https://raising.test/');
+  await loadRaisingView(page);
   assert.equal(await page.evaluate(()=>isSecureContext && typeof crypto.randomUUID==='function'),true);
-  const source=await readFile(new URL('../pages/raising-ui.js',import.meta.url),'utf8');
-  await page.evaluate(async source=>{
-   const mod=await import(URL.createObjectURL(new Blob([source],{type:'text/javascript'})));
+  await page.evaluate(async()=>{
+   const mod=await import('/raising-ui.js');
    window.calls=[]; let fail=true,active=null,evaluated=false;
    await mod.init({api:async(path,opt)=>{
     window.calls.push({path,opt});
@@ -33,7 +31,7 @@ test('training retries, frozen evaluation and encoded checkpoint activation work
     if(opt?.method==='POST'){if(fail){fail=false;throw Error('timeout');}return {job:{id:'job',status:'QUEUED'}};}
     return {eligibility:{eligible_count:100,min_train:64,min_validation:16},jobs:[{id:'job',status:'COMPLETED'}],versions:[{id:'v /1',checkpoint_hash:'abc'}],active_version:active};
    }});
-  },source);
+  });
   await page.locator('[data-raising-tab="training"]').click();
   await page.waitForFunction(()=>document.querySelector('#raisingStatus').textContent==='TRAINING LOADED');
   await page.locator('#trainFly').click();
