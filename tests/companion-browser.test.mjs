@@ -44,8 +44,10 @@ test('mobile observer separates teaching from execution, restores retries, and r
   await page.reload();await page.waitForFunction(()=>!document.querySelector('#saveLesson').disabled);
   assert.equal(await page.locator('#saveLesson').textContent(),'Retry saving');
   await page.locator('#saveLesson').click();
-  await page.waitForFunction(()=>document.querySelector('#lessonResult').textContent.includes('Example saved'));
+  await page.waitForFunction(()=>document.querySelector('#lessonResult').textContent.includes('Example learned'));
   assert.equal((await dev.db.prepare('SELECT COUNT(*) AS n FROM companion_lessons').first()).n,1);
+  assert.equal((await dev.db.prepare('SELECT COUNT(*) AS n FROM companion_training').first()).n,1);
+  assert.equal((await dev.db.prepare('SELECT version FROM companion_models WHERE user_id=?').bind(before.user_id).first()).version,1);
   assert.deepEqual(await dev.db.prepare('SELECT * FROM portfolios LIMIT 1').first(),before);
   assert.equal(await page.locator('#flyDecision').textContent(),decision);
   assert.equal(posts.some(path=>path==='/api/decision'||path==='/api/correct'||path.endsWith('/actions')),false);
@@ -55,6 +57,7 @@ test('mobile observer separates teaching from execution, restores retries, and r
   await page.locator('.bottom-nav [data-go="records"]').click();
   await page.locator('[data-filter="teaching"]').click();
   assert.match(await page.locator('#recordList').textContent(),/You showed: sell/);
+  assert.match(await page.locator('#recordList').textContent(),/Learned · version 1/);
   assert.doesNotMatch(await page.locator('#recordList').textContent(),/You said hello/);
   await page.locator('.bottom-nav [data-go="more"]').click();
   await page.locator('[data-page="more"] [data-go="practice"]').click();
