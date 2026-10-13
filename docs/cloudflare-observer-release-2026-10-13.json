@@ -1,0 +1,213 @@
+{
+  "release": "chart teaching, learning records, initial Bitcoin, responsive appearance",
+  "verified_at_utc": "2026-10-13T20:03:09.331Z",
+  "pull_request": "https://github.com/SamoulY/deafly/pull/6",
+  "feature_commit": "13ec26fc2b14522b4219a86d119c720089807262",
+  "release_commit": "145776bd214ef8df24b7ff1c56ed0207a86613ec",
+  "production_url": "https://defly.99x.meme",
+  "pages": {
+    "trigger": "ad_hoc",
+    "id": "491bdb09-4bea-4888-8f08-70f1e17f2390",
+    "commit": "145776bd214ef8df24b7ff1c56ed0207a86613ec",
+    "url": "https://491bdb09.flydesk-v2-trial.pages.dev",
+    "created_on": "2026-10-13T19:56:55.017504Z",
+    "status": "success"
+  },
+  "worker": {
+    "id": "cbe7aefb-1fa6-4bd0-8255-14bc1be4419b",
+    "source": "wrangler",
+    "created_on": "2026-10-13T19:56:47.829259Z",
+    "versions": [
+      {
+        "version_id": "258194a8-127a-4bb0-be31-61fa4d315966",
+        "percentage": 100
+      }
+    ]
+  },
+  "previous": {
+    "pages": {
+      "created_on": "2026-10-13T17:23:00.400703Z",
+      "trigger": "ad_hoc",
+      "id": "d954e312-56a4-45d2-b329-44dd7369cacc",
+      "status": "success",
+      "url": "https://d954e312.flydesk-v2-trial.pages.dev",
+      "commit": "28049ff1ef4243ebbb80f112e56d64685a24f6cf"
+    },
+    "worker": {
+      "id": "3e011b56-978e-4151-8d03-30cca0058b29",
+      "source": "wrangler",
+      "created_on": "2026-10-13T17:20:20.484592Z",
+      "versions": [
+        {
+          "version_id": "a933b543-03af-404a-92ad-bbaad8e11204",
+          "percentage": 100
+        }
+      ]
+    }
+  },
+  "database": {
+    "backup": {
+      "file": "flydesk-v2-trial-before-observer-2026-10-13-154626.sql",
+      "bytes": 17334755,
+      "sha256": "EC1D9AD792CF04B94FDAFF56553E99095176F4D687D76380F05B2FC03E92EBE2",
+      "stored_outside_repository": true
+    },
+    "schema_migrations": [],
+    "existing_portfolios_modified": false,
+    "initial_allocation": "New identities only; $10,000 paper budget including fees and slippage; atomic fresh BTCUSD purchase"
+  },
+  "tests": {
+    "full_suite": {
+      "passed": 300,
+      "failed": 0,
+      "duration_ms": 423768.2702
+    },
+    "syntax_modules": 47,
+    "worker_build": true,
+    "wrangler_dry_run": true,
+    "real_wasm": {
+      "gate_spikes": 4,
+      "untrained_choice": "HOLD",
+      "trained_choice": "BUY",
+      "model_version": 3
+    }
+  },
+  "production_verification": {
+    "verified_at_utc": "2026-10-13T19:57:47.620Z",
+    "release_commit": "145776bd214ef8df24b7ff1c56ed0207a86613ec",
+    "production_url": "https://defly.99x.meme",
+    "asset_checks": [
+      {
+        "url": "https://defly.99x.meme/index.html",
+        "status": 200,
+        "matches_local": true,
+        "sha256": "d736b409fb3356576b2b287cb75e2560699bf42e73b952cb5466d8f042ce64bd"
+      },
+      {
+        "url": "https://defly.99x.meme/app.js?v=7",
+        "status": 200,
+        "matches_local": true,
+        "sha256": "3348a070ce4998b086863500725adf85e1e63b0fc67d9acf1a324617980cbd73"
+      },
+      {
+        "url": "https://defly.99x.meme/companion.js?v=3",
+        "status": 200,
+        "matches_local": true,
+        "sha256": "e9c83fff335bb1902334a313473f92d26d265f573cd845467717256762631ef5"
+      },
+      {
+        "url": "https://defly.99x.meme/companion.css?v=2",
+        "status": 200,
+        "matches_local": true,
+        "sha256": "2d483e15242366fbd7c2eeb9fdbe54d6ee84cd339790f16dc05910464c9afe12"
+      },
+      {
+        "url": "https://defly.99x.meme/theme.js?v=1",
+        "status": 200,
+        "matches_local": true,
+        "sha256": "4bceb275bc4010d40172a388a69fb0ed0a03b5b75f9158a2a5facf03782b6b0b"
+      },
+      {
+        "url": "https://defly.99x.meme/companion-records.js?v=1",
+        "status": 200,
+        "matches_local": true,
+        "sha256": "41e086a0773a49abdf48ded95b15e04f34010929208f5525ca58db0c976d4ed3"
+      },
+      {
+        "url": "https://defly.99x.meme/flydesk-chart.js?v=2",
+        "status": 200,
+        "matches_local": true,
+        "sha256": "ae0a75e677b9d5df5f041b7bab58ec1ba5f4b8f7baff6abf94de2940e1130372"
+      },
+      {
+        "url": "https://flydesk-v2-trial.pages.dev/index.html",
+        "status": 200,
+        "matches_local": true,
+        "sha256": "d736b409fb3356576b2b287cb75e2560699bf42e73b952cb5466d8f042ce64bd"
+      },
+      {
+        "url": "https://flydesk-v2-trial.pages.dev/app.js?v=7",
+        "status": 200,
+        "matches_local": true,
+        "sha256": "3348a070ce4998b086863500725adf85e1e63b0fc67d9acf1a324617980cbd73"
+      },
+      {
+        "url": "https://flydesk-v2-trial.pages.dev/companion.js?v=3",
+        "status": 200,
+        "matches_local": true,
+        "sha256": "e9c83fff335bb1902334a313473f92d26d265f573cd845467717256762631ef5"
+      },
+      {
+        "url": "https://flydesk-v2-trial.pages.dev/companion.css?v=2",
+        "status": 200,
+        "matches_local": true,
+        "sha256": "2d483e15242366fbd7c2eeb9fdbe54d6ee84cd339790f16dc05910464c9afe12"
+      },
+      {
+        "url": "https://flydesk-v2-trial.pages.dev/theme.js?v=1",
+        "status": 200,
+        "matches_local": true,
+        "sha256": "4bceb275bc4010d40172a388a69fb0ed0a03b5b75f9158a2a5facf03782b6b0b"
+      },
+      {
+        "url": "https://flydesk-v2-trial.pages.dev/companion-records.js?v=1",
+        "status": 200,
+        "matches_local": true,
+        "sha256": "41e086a0773a49abdf48ded95b15e04f34010929208f5525ca58db0c976d4ed3"
+      },
+      {
+        "url": "https://flydesk-v2-trial.pages.dev/flydesk-chart.js?v=2",
+        "status": 200,
+        "matches_local": true,
+        "sha256": "ae0a75e677b9d5df5f041b7bab58ec1ba5f4b8f7baff6abf94de2940e1130372"
+      }
+    ],
+    "api_checks": {
+      "initial_bitcoin_budget": 10000,
+      "initial_allocation_once": true,
+      "initial_quantity": 0.12002723,
+      "initial_fee": 9.990009761434404,
+      "selected_point_frozen": true,
+      "no_future_candles": true,
+      "authentication_required": true,
+      "credentialed_cors": true,
+      "teaching_trains": true,
+      "retry_trains_exactly_once": true,
+      "training_probability_before": 0.3333333333333333,
+      "training_probability_after": 0.7370133278485784,
+      "model_version": 1,
+      "model_hash": "ae81af0fbbcd5042d1627cc6b6374972ab2f9dc9f87f2c99f02521769779190d",
+      "portfolio_unchanged_by_teaching": true,
+      "no_decision_created_by_teaching": true,
+      "owner_isolation": true,
+      "autonomous_prepare_uses_persisted_model": true,
+      "check_run_stopped": true,
+      "test_identity": "two new isolated anonymous release-check sessions",
+      "test_examples": 1,
+      "initial_paper_allocations": 2,
+      "autonomous_paper_orders": 0
+    }
+  },
+  "browser_verification": {
+    "existing_account_preserved": true,
+    "chart_teaching_preview_and_cancel": true,
+    "starting_allocation_record": true,
+    "desktop_night": true,
+    "mobile_day": true,
+    "original_fly_rendered": true,
+    "console_errors": 0,
+    "console_warnings": 0,
+    "temporary_viewports_reset": true,
+    "screenshots": [
+      "runtime/reports/observer-live-desktop.jpg",
+      "runtime/reports/observer-live-mobile.jpg"
+    ],
+    "isolated_browser_accounts": 1,
+    "autonomous_orders": 0
+  },
+  "limitations": [
+    "Attribution compares the combined learned head with no teaching using identical frozen inputs; it does not prove one example caused a trade.",
+    "Records show the latest 100 decisions and 100 examples. Missing evidence is labelled unavailable.",
+    "Old accounts retain their positions; no balances are reset."
+  ]
+}
