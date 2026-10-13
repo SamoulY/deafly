@@ -1,3 +1,4 @@
+import {locale} from './i18n.js?v=1';
 const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const money = value => Number.isFinite(Number(value)) ? '$' + Number(value).toFixed(2) : '--';
 const percent = value => value != null && Number.isFinite(Number(value)) ? (Number(value)*100).toFixed(1)+'%' : '--';
@@ -68,7 +69,7 @@ export async function init(options) {
     }
     if(modern&&s){
       $('#teachAvailability').textContent=reason||(unavailable.includes('SELL')?'No sellable position':unavailable.includes('BUY')?'Insufficient paper balance':'Each submission advances the market five minutes');
-      $('#deskTime').textContent=new Date(s.as_of*1000).toISOString()+'  · Local '+new Date(s.as_of*1000).toLocaleString('en-US');
+      $('#deskTime').textContent=new Date(s.as_of*1000).toISOString()+'  · Local '+new Date(s.as_of*1000).toLocaleString(locale());
       $('#deskExport').hidden=s.status==='ACTIVE';
       $('#deskAbort').disabled=busy||s.status!=='ACTIVE';
     }
@@ -104,7 +105,7 @@ export async function init(options) {
   });
   async function history() {
     const data=await api('/api/raising/sessions');
-    $('#historyResults').innerHTML = (data.sessions || []).map(s=>`<div class="history-row"><span>${escapeHtml(s.symbol)}<small>${new Date(s.created_at).toLocaleDateString('en-US')} · ${escapeHtml(s.status)}</small></span><span>${s.step}/12</span><button data-open-round="${escapeHtml(s.id)}" title="Open round" aria-label="Open round">→</button></div>`).join('') || '<p class="empty-state">NO COMPLETED ROUNDS YET</p>';
+    $('#historyResults').innerHTML = (data.sessions || []).map(s=>`<div class="history-row"><span>${escapeHtml(s.symbol)}<small>${new Date(s.created_at).toLocaleDateString(locale())} · ${escapeHtml(s.status)}</small></span><span>${s.step}/12</span><button data-open-round="${escapeHtml(s.id)}" title="Open round" aria-label="Open round">→</button></div>`).join('') || '<p class="empty-state">NO COMPLETED ROUNDS YET</p>';
   }
   async function training() {
     const data=await api('/api/raising/training');

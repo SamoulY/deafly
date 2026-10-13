@@ -14,12 +14,13 @@ async function runtimeSources(directory) {
   return files.flat();
 }
 
-test('all recursive browser and Worker runtime sources are English-only', async () => {
+test('Chinese UI copy is centralized in the locale catalog; protocol and model sources stay language-neutral', async () => {
   const files = (await Promise.all(['../pages/', '../worker/src/'].map(path => runtimeSources(new URL(path, import.meta.url))))).flat();
   assert.ok(files.some(url => url.pathname.endsWith('/full-brain/worker.mjs')), 'nested browser modules must be scanned');
   assert.ok(files.some(url => url.pathname.endsWith('/worker/src/flydesk-auth.mjs')), 'API messages must be scanned');
   const violations = [];
   for (const file of files) {
+    if(file.pathname.endsWith('/pages/locales/zh-CN.js'))continue;
     const source = await readFile(file, 'utf8');
     // Decode common literal escapes too: moving Chinese into escapes is not a fix.
     const decoded = source.replace(/\\u\{([\da-f]+)\}|\\u([\da-f]{4})|&#x([\da-f]+);|&#(\d+);/gi,
@@ -28,19 +29,20 @@ test('all recursive browser and Worker runtime sources are English-only', async 
         return point <= 0x10ffff ? String.fromCodePoint(point) : match;
       });
     decoded.split('\n').forEach((line, index) => {
-      if (/\p{Script=Han}/u.test(line)) violations.push(`${file.pathname}:${index + 1}`);
+      // The language selector displays its native autonym in either language.
+      if (/\p{Script=Han}/u.test(line.replaceAll('简体中文',''))) violations.push(`${file.pathname}:${index + 1}`);
     });
   }
-  assert.deepEqual(violations, [], 'Chinese runtime text must be translated: ' + violations.join(', '));
+  assert.deepEqual(violations, [], 'Put translated UI copy in the locale catalog: ' + violations.join(', '));
 });
 
-test('runtime locale-sensitive date and number formatting explicitly uses English', async () => {
+test('locale-sensitive formatting explicitly chooses the active UI locale or stable English protocol format', async () => {
   const files = (await Promise.all(['../pages/', '../worker/src/'].map(path => runtimeSources(new URL(path, import.meta.url))))).flat();
   const violations = [];
   for (const file of files) {
     const source = await readFile(file, 'utf8');
     for (const match of source.matchAll(/\b(?:toLocale(?:Date|Time)?String|Intl\.(?:DateTimeFormat|NumberFormat))\s*\(\s*([^)]*)\)/g)) {
-      if (!/^['"]en(?:-[A-Za-z]+)*['"](?:\s*,|\s*$)/.test(match[1])) violations.push(`${file.pathname}: ${match[0]}`);
+      if (!/^(?:['"](?:en|zh)(?:-[A-Za-z]+)*['"](?:\s*,|\s*$)|locale\()/.test(match[1])) violations.push(`${file.pathname}: ${match[0]}`);
     }
   }
   assert.deepEqual(violations, []);
