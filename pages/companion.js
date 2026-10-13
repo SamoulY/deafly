@@ -75,12 +75,12 @@ export function mountCompanion({api,origin,onPage,onRun,onGreet,onRename,onView,
   document.querySelector('.stage-top').hidden=true;
   document.querySelector('.brain-detail').open=false;
   const scene=document.querySelector('.scene-wrap');
-  let page='home',owner=null,data={portfolio:null,decisions:[],lessons:[]},market=null,range=1,filter='all',greetings=[],pending=null,busy=false,ready=false,epoch=0,refreshing=null,navigation=Promise.resolve();
+  let page='home',owner=null,data={portfolio:null,decisions:[],lessons:[]},market=null,range=1,filter='all',greetings=[],pending=null,lastLessonId=null,busy=false,ready=false,epoch=0,refreshing=null,navigation=Promise.resolve();
   const storageKey = kind => `defly.companion:${origin}:${owner}:${kind}`;
   const say = message => { $('#companionStatus').textContent=message; };
   const mark = () => market?.candles?.at(-1)?.close || null;
   function records() {
-    return [...data.decisions.map(d=>({...d,kind:'decision',title:decisionLabel(d),detail:`Bitcoin · ${money(d.server_price)} · Fee ${money(d.fee)} · ${d.portfolio.position_side.toLowerCase()}`})),...data.lessons.map(d=>({...d,kind:'teaching',title:`You showed: ${labels[d.action].toLowerCase()}`,detail:`Bitcoin · ${money(d.context.market.candles.at(-1).close)} · ${date(d.context.created_at)} snapshot. Saved for review; no model training applied.`})),...greetings].sort((a,b)=>b.created_at-a.created_at);
+    return [...data.decisions.map(d=>({...d,kind:'decision',title:decisionLabel(d),detail:`Bitcoin · ${money(d.server_price)} · Fee ${money(d.fee)} · ${d.portfolio.position_side.toLowerCase()}${d.portfolio.provenance?.teaching?.model_version ? ` · Learning version ${d.portfolio.provenance.teaching.model_version}` : ''}`})),...data.lessons.map(d=>({...d,kind:'teaching',title:`You showed: ${labels[d.action].toLowerCase()}`,detail:`Bitcoin · ${money(d.context.market.candles.at(-1).close)} · ${date(d.context.created_at)} snapshot. ${d.training_applied ? `Learned · version ${d.model_version}. Your fly will consider this in future decisions.` : 'Saved · learning pending. It will retry automatically.'}`})),...greetings].sort((a,b)=>b.created_at-a.created_at);
   }
   function renderRecords() {
     const rows=records();
@@ -111,6 +111,7 @@ export function mountCompanion({api,origin,onPage,onRun,onGreet,onRename,onView,
     $('#holdingDetails').innerHTML=[['Position',qty?(side==='SHORT'?'Short':'Holding'):'None'],['Quantity',`${qty.toFixed(6)} BTC`],['Position value',money(value===null||!p?null:value-Number(p.cash))],['Unrealized gain / loss',money(pnl)],['Entry price',qty?money(entry):'—']].map(([a,b])=>`<div><dt>${a}</dt><dd>${escape(b)}</dd></div>`).join('');
     $('#positionExplanation').textContent=side==='SHORT'?'A short benefits when the price falls. Position value includes the reserved amount and current gain or loss. The fly decides when to close it.':'The fly chooses when to buy, wait, or close its position. Unrealized gain or loss is the change since entry, before closing fees.';
     $('#companionName').textContent=getName()||'Fly';
+    if(lastLessonId && data.lessons.some(l=>l.id===lastLessonId && l.training_applied)) $('#lessonResult').textContent='Example learned. Your fly will consider it in future decisions.';
     if(document.activeElement!==$('#companionRename input')) $('#companionRename input').value=getName()||'Fly';
     renderRecords();
   }
@@ -165,7 +166,7 @@ export function mountCompanion({api,origin,onPage,onRun,onGreet,onRename,onView,
       const context=pending.context;
       $('#lessonPrice').textContent=money(context?.market.candles.at(-1).close);
       $('#lessonLine').innerHTML=lineChart((context?.market.candles||[]).map(c=>({time:c.time,value:c.close})),'Price context for this teaching example');
-      $('#lessonContext').textContent=context?`Snapshot: ${date(context.created_at)}. Saves an example for review; does not place an order or train the model.`:'Loading a current market snapshot…';
+      $('#lessonContext').textContent=context?`Snapshot: ${date(context.created_at)}. Your fly learns from this example for future decisions. Saving does not place an order.`:'Loading a current market snapshot…';
     }
     lessonControls();
   }
@@ -173,6 +174,7 @@ export function mountCompanion({api,origin,onPage,onRun,onGreet,onRename,onView,
     if(busy||pending?.submitted||!ready)return;
     const generation=epoch;
     busy=true; pending={action,idempotency_key:crypto.randomUUID()}; renderLesson();
+    lastLessonId=null;
     $('#lessonResult').textContent='';
     try { const context=await api('/api/companion/contexts',{method:'POST',body:{}}); if(generation===epoch)pending.context=context; }
     catch(error){ if(generation===epoch){pending=null;$('#lessonResult').textContent=`Could not load an example: ${error.message}`;} }
@@ -185,10 +187,11 @@ export function mountCompanion({api,origin,onPage,onRun,onGreet,onRename,onView,
     sessionStorage.setItem(storageKey('pending'),JSON.stringify(pending));
     lessonControls();
     try {
-      await api('/api/companion/lessons',{method:'POST',body:{action:pending.action,context_id:pending.context.id,idempotency_key:pending.idempotency_key}});
+      const receipt=await api('/api/companion/lessons',{method:'POST',body:{action:pending.action,context_id:pending.context.id,idempotency_key:pending.idempotency_key}});
       if(generation!==epoch)return;
+      lastLessonId=receipt.lesson.id;
       pending=null;sessionStorage.removeItem(storageKey('pending'));
-      $('#lessonResult').textContent='Example saved for review. Your fly’s holdings are unchanged.';
+      $('#lessonResult').textContent=receipt.training_applied?'Example learned. Your fly will consider it in future decisions.':'Example saved. Learning is pending and will retry automatically.';
       await refresh(true);
     } catch(error) {
       if(generation!==epoch)return;
@@ -222,7 +225,7 @@ export function mountCompanion({api,origin,onPage,onRun,onGreet,onRename,onView,
   render();
   return {
     async ready(userId){
-      epoch++;refreshing=null;owner=userId;ready=false;busy=false;data={portfolio:null,decisions:[],lessons:[]};market=null;pending=null;greetings=[];
+      epoch++;refreshing=null;owner=userId;ready=false;busy=false;data={portfolio:null,decisions:[],lessons:[]};market=null;pending=null;lastLessonId=null;greetings=[];
       try {greetings=JSON.parse(localStorage.getItem(storageKey('greetings'))||'[]');pending=JSON.parse(sessionStorage.getItem(storageKey('pending'))||'null');}catch{/* Ignore damaged optional local history. */}
       renderLesson();render();
       await navigate(location.hash.slice(1)||'home',{focus:false});

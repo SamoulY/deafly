@@ -1,5 +1,6 @@
 import { accountEquity, FEE_RATE, SLIPPAGE_RATE } from './core.mjs';
 import { rewardFromEquity } from './learning.mjs';
+import {syncTeaching, teachingFeatures, taughtDecision, TEACHING_BACKEND} from './companion-learning.mjs';
 export const BROWSER_BACKEND = 'stonkfly-full-browser-wasm-v1';
 export const PINNED_MANIFEST = '7f7c3bda9418c04d2e86cc7245b3569c7b63c772459f28b77ee328b192a86340';
 const CORS={'access-control-allow-origin':'*','access-control-allow-headers':'content-type,x-session-token,idempotency-key','access-control-allow-methods':'GET,POST,OPTIONS'};
@@ -11,13 +12,18 @@ export async function browserRun(e,uid) {
 export async function prepareBrowser(e,u,observe) {
  const run=await browserRun(e,u.id);
  if(!run)return json({error:'BROWSER_AUTONOMY_NOT_RUNNING'},409);
+ const teaching=await syncTeaching(e.DB,u.id);
+ if(teaching.pending)return json({error:'TEACHING_SYNC_PENDING'},409);
  const observation=await observe();
  const last=observation.candles.at(-1),t=now();
  if(!last || last.time>t+60 || t-last.time>120 || !(last.close>0))return json({error:'MARKET_STALE'},503);
  const p=await e.DB.prepare('SELECT * FROM portfolios WHERE user_id=?').bind(u.id).first();
  const challenge={id:crypto.randomUUID(),run_id:run.id,snapshot_hash:observation.snapshot_hash,observed_at:observation.observed_at,expires_at:t+120,portfolio_revision:p.revision,symbol:'BTCUSD',source:observation.source,manifest_hash:PINNED_MANIFEST,encoder:'market-close-rgb-v1',decoder_threshold_hz:5};
- await e.DB.prepare('INSERT INTO browser_autonomy_challenges(id,user_id,run_id,snapshot_hash,source,observed_at,expires_at,portfolio_revision) VALUES(?,?,?,?,?,?,?,?)').bind(challenge.id,u.id,run.id,challenge.snapshot_hash,challenge.source,challenge.observed_at,challenge.expires_at,p.revision).run();
- return json({run_id:run.id,backend:BROWSER_BACKEND,observation,challenge,challenge_id:challenge.id,portfolio:p});
+ await e.DB.batch([
+  e.DB.prepare('INSERT INTO browser_autonomy_challenges(id,user_id,run_id,snapshot_hash,source,observed_at,expires_at,portfolio_revision) VALUES(?,?,?,?,?,?,?,?)').bind(challenge.id,u.id,run.id,challenge.snapshot_hash,challenge.source,challenge.observed_at,challenge.expires_at,p.revision),
+  e.DB.prepare('INSERT INTO companion_inference VALUES(?,?,?,?,?)').bind(challenge.id,u.id,JSON.stringify(teaching.model),teaching.hash,JSON.stringify(teachingFeatures(observation,p)))
+ ]);
+ return json({run_id:run.id,backend:BROWSER_BACKEND,observation,challenge,challenge_id:challenge.id,portfolio:p,teaching:{backend:TEACHING_BACKEND,version:teaching.model.version,model_hash:teaching.hash}});
 }
 export function validateBrowserProposal(n,c,p) {
  if(!n || n.backend!==BROWSER_BACKEND || n.manifest_hash!==PINNED_MANIFEST)return 'BROWSER_MODEL_MISMATCH';
@@ -69,11 +75,18 @@ export async function stepBrowser(e,u,b,observe) {
  if(error)return json({error},422);
  const obs=await observe(),last=obs.candles.at(-1);
  if(!last || last.time>now()+60 || now()-last.time>120 || !(last.close>0))return json({error:'MARKET_STALE'},503);
- const price=last.close,n=b.neural,action=n.proposed_action;
+ const price=last.close,n=b.neural;
+ // Inference uses the server-owned model and features frozen at prepare time.
+ // A client cannot supply learned weights, a teaching label, or the final action.
+ const learned=await e.DB.prepare('SELECT * FROM companion_inference WHERE challenge_id=? AND user_id=?').bind(c.id,u.id).first();
+ const teaching=learned?{...taughtDecision(JSON.parse(learned.checkpoint_json),JSON.parse(learned.features_json),n.decoder,p),backend:TEACHING_BACKEND,model_hash:learned.model_hash}:null;
+ const action=teaching?.action||n.proposed_action;
  const {next,fee,fillPrice}=browserFill(p,action,price),did=crypto.randomUUID();
  const before=Number(run.last_equity),after=accountEquity(next,price),reward=rewardFromEquity(before,after);
  const provenance={backend:BROWSER_BACKEND,execution_trust:'browser_asserted_untrusted',server_verified_kernel:false,cryptographic_attestation:false,manifest_hash:n.manifest_hash,checkpoint_hash:n.checkpoint_hash,memory_hash:n.memory_hash,snapshot_hash:c.snapshot_hash,frame_hash:n.frame_hash,frame_hash_trust:'browser_asserted',encoder:'market-close-rgb-v1',challenge_id:c.id,decoder:{left_hz:n.decoder.left_hz,right_hz:n.decoder.right_hz,difference_hz:n.decoder.difference_hz,gate_spikes:n.decoder.gate_spikes,threshold_hz:5,proposed_action:n.decoder.proposed_action},proposed_action:action,market_source:c.source,market_symbol:'BTCUSD',execution_snapshot_hash:obs.snapshot_hash};
- const response={run_id:run.id,status:'RUNNING',backend:BROWSER_BACKEND,step:run.step_count+1,proposal:{action},proposed_action:action,executed_action:action,decision_id:did,portfolio:next,market_price:price,fill_price:fillPrice,fee,inactivity_escalation:false,reward:{value:reward,kind:reward>0?'REWARD':reward<0?'PUNISHMENT':null,equity_before:before,equity_after:after,authority:'server_marked_equity',window:'previous_post_execution_equity_to_current_post_execution_including_fees',source_decision_id:run.last_decision_id},learning:{version:null,policy_hash:n.memory_hash,updates:null,reward_total:null,corrections:null,execution_steps:run.step_count+1},provenance,paper_only:true};
+ provenance.teaching=teaching;
+ provenance.raw_neural_action=n.proposed_action;
+ const response={run_id:run.id,status:'RUNNING',backend:BROWSER_BACKEND,step:run.step_count+1,proposal:{action},proposed_action:action,executed_action:action,decision_id:did,portfolio:next,market_price:price,fill_price:fillPrice,fee,inactivity_escalation:false,reward:{value:reward,kind:reward>0?'REWARD':reward<0?'PUNISHMENT':null,equity_before:before,equity_after:after,authority:'server_marked_equity',window:'previous_post_execution_equity_to_current_post_execution_including_fees',source_decision_id:run.last_decision_id},learning:{version:teaching?.model_version??null,policy_hash:teaching?.model_hash||n.memory_hash,updates:teaching?.model_version??null,reward_total:null,corrections:null,execution_steps:run.step_count+1},provenance,paper_only:true};
  try {
   await e.DB.batch([
    e.DB.prepare('INSERT INTO browser_autonomy_receipts VALUES(?,?,?,?,?,?)').bind(c.id,did,u.id,run.id,now(),JSON.stringify(response)),

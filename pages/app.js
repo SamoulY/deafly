@@ -382,7 +382,7 @@ async function autoStep() {
       ? isFlat
         ? "No position · evaluating LONG or SHORT entry"
         : `${side} position active · awaiting close signal`
-      : `AUTONOMOUS STEP ${d.step} · FULL NEURAL DECODER`;
+      : `AUTONOMOUS STEP ${d.step} · FULL NEURAL${d.learning?.version ? ` + TEACHING v${d.learning.version}` : ' DECODER'}`;
   $("#lastReward").textContent =
     d.reward.kind === "REWARD"
       ? `PROFIT REWARD +${d.reward.value.toFixed(4)}`
@@ -390,11 +390,11 @@ async function autoStep() {
         ? `LOSS PENALTY ${d.reward.value.toFixed(4)}`
         : "AWAITING NEXT EVALUATION";
   $("#modelVersion").textContent = d.learning?.version ?? 'FULL WASM';
-  $("#learningEvidence").textContent = `FULL NEURAL · proposed ${payload.decoder.proposed_action} · executed ${d.executed_action} · memory ${payload.memory_hash.slice(0,12)}`;
+  $("#learningEvidence").textContent = `FULL NEURAL · proposed ${payload.decoder.proposed_action} · executed ${d.executed_action}${d.learning?.version ? ` · PERSONAL TEACHING v${d.learning.version}` : ''} · memory ${payload.memory_hash.slice(0,12)}`;
   if (d.reward && ['REWARD','PUNISHMENT'].includes(d.reward.kind)) {
     const learned = await browserBrain.reinforce(frame, d.reward);
     $("#plasticityHash").textContent = learned.memory_hash.slice(0,12);
-    $("#learningEvidence").textContent = `ORIGINAL CIRCUIT ${learned.reinforcement} · ${learned.stimulus_ms}ms · memory ${learned.memory_hash.slice(0,12)} · session only`;
+    $("#learningEvidence").textContent = `ORIGINAL CIRCUIT ${learned.reinforcement} · ${learned.stimulus_ms}ms · memory ${learned.memory_hash.slice(0,12)}${d.learning?.version ? ` · PERSONAL TEACHING v${d.learning.version}` : ''}`;
   }
   if (d.market_price) {
     series.push(d.market_price);
