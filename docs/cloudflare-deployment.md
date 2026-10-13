@@ -93,3 +93,12 @@ Remove-Item Env:CLOUDFLARE_ACCOUNT_ID
 GitHub 同步和 Cloudflare 发布是两件独立的事。若要未来自动发布，需要单独配置 GitHub Actions/Pages Git 集成及仓库 Secrets；当前没有配置它们。本次没有修改账户权限。
 
 官方参考：[账户 Token 验证](https://developers.cloudflare.com/api/resources/accounts/subresources/tokens/methods/verify/)、[Pages 直接上传](https://developers.cloudflare.com/pages/get-started/direct-upload/)、[D1 迁移](https://developers.cloudflare.com/d1/reference/migrations/)。
+
+
+## Desktop and bilingual release — 2026-10-13
+
+PR #7 (`f506adf72b78b755d82916474826d9ab9af11b50`) was merged as `afdd971c5f250cb79e7f371eb3e846df2749d31f` and uploaded to the existing Pages project. Production now uses the wider desktop chart/sidebar layout and persistent English / Simplified Chinese selection on both desktop and mobile. Chart preferences remain independent between the layouts.
+
+The full run passed 302 of 304 tests; two old Blob-based view fixtures were repaired to load the new locale dependency through real module URLs. The final targeted rerun passed all 9 tests, including those two cases. All 304 cases have passed across these runs; 49 application modules, the Worker build and Wrangler dry run also passed.
+
+All 22 asset checks across the custom and fallback domains match the deployed files; API health, authentication and credentialed CORS checks pass. Worker version `258194a8-127a-4bb0-be31-61fa4d315966` remains unchanged, with no schema migration or portfolio reset. Release metadata and verification scope are recorded in `cloudflare-desktop-release-2026-10-13.json`.

@@ -1,0 +1,218 @@
+{
+  "release": "desktop market workspace and English/Simplified Chinese",
+  "verified_at_utc": "2026-10-13T21:45:26.544953+00:00",
+  "pull_request": "https://github.com/SamoulY/deafly/pull/7",
+  "feature_commit": "f506adf72b78b755d82916474826d9ab9af11b50",
+  "release_commit": "afdd971c5f250cb79e7f371eb3e846df2749d31f",
+  "production_url": "https://defly.99x.meme",
+  "pages": {
+    "id": "50f17242-8079-467e-8e3b-9dc7475eda5a",
+    "status": "success",
+    "trigger": "ad_hoc",
+    "url": "https://50f17242.flydesk-v2-trial.pages.dev",
+    "commit": "afdd971c5f250cb79e7f371eb3e846df2749d31f",
+    "created_on": "2026-10-13T21:39:40.974744Z"
+  },
+  "worker": {
+    "unchanged": true,
+    "deployment": {
+      "id": "cbe7aefb-1fa6-4bd0-8255-14bc1be4419b",
+      "source": "wrangler",
+      "created_on": "2026-10-13T19:56:47.829259Z",
+      "versions": [
+        {
+          "version_id": "258194a8-127a-4bb0-be31-61fa4d315966",
+          "percentage": 100
+        }
+      ]
+    }
+  },
+  "database": {
+    "schema_migrations": [],
+    "existing_portfolios_modified": false
+  },
+  "tests": {
+    "full_run": {
+      "total": 304,
+      "passed": 302,
+      "failed": 2,
+      "duration_ms": 411642.936
+    },
+    "repaired_failures": "Two legacy Blob module fixtures could not resolve the locale import; replaced with real module URL routing.",
+    "final_targeted_run": {
+      "total": 9,
+      "passed": 9,
+      "failed": 0,
+      "duration_ms": 18737.0335
+    },
+    "all_304_cases_passed_across_full_run_and_targeted_rerun": true,
+    "syntax_modules": 49,
+    "worker_build": true,
+    "wrangler_dry_run": true
+  },
+  "production_verification": {
+    "verified_at_utc": "2026-10-13T21:39:52.891Z",
+    "release_commit": "afdd971c5f250cb79e7f371eb3e846df2749d31f",
+    "production_url": "https://defly.99x.meme",
+    "asset_checks": [
+      {
+        "url": "https://defly.99x.meme/index.html",
+        "status": 200,
+        "matches_local": true,
+        "sha256": "69b7b393bca9705e52d5e8933e86ce91c413ee130361139fa9ca850c3c23ef76"
+      },
+      {
+        "url": "https://defly.99x.meme/app.js?v=8",
+        "status": 200,
+        "matches_local": true,
+        "sha256": "1daa315fa8c71f727369e259cbdaf9c0ec198a5faacc722205ba2e0777ab6b5b"
+      },
+      {
+        "url": "https://defly.99x.meme/companion.js?v=4",
+        "status": 200,
+        "matches_local": true,
+        "sha256": "fd1f9601839140d5f0f978eec5a6c9a724eb7f1285c64413724ba3bd317e772a"
+      },
+      {
+        "url": "https://defly.99x.meme/companion.css?v=3",
+        "status": 200,
+        "matches_local": true,
+        "sha256": "753769f6b6726fb5ca0914d144b67fb0667e3d510dd443329e7972f35e873f0b"
+      },
+      {
+        "url": "https://defly.99x.meme/companion-records.js?v=2",
+        "status": 200,
+        "matches_local": true,
+        "sha256": "0d001c54d78f465995a09341292715918517e0d34cedbf07debab99d55a82972"
+      },
+      {
+        "url": "https://defly.99x.meme/companion-market.js?v=1",
+        "status": 200,
+        "matches_local": true,
+        "sha256": "010bc7ffdd32acd19fe3036119e30d4d85b41cf1e6f0ad060d17a994153cd214"
+      },
+      {
+        "url": "https://defly.99x.meme/i18n.js?v=1",
+        "status": 200,
+        "matches_local": true,
+        "sha256": "f657f41f9bf7c85d2691a275b705c621f62c971cc7f2e9ce3734e1fbe13bc9ed"
+      },
+      {
+        "url": "https://defly.99x.meme/locales/zh-CN.js?v=1",
+        "status": 200,
+        "matches_local": true,
+        "sha256": "6b61ee63b20a523dd8fc0845ce38415ac2f21d9344a667a085b882a10ccb0587"
+      },
+      {
+        "url": "https://defly.99x.meme/flydesk-chart.js?v=3",
+        "status": 200,
+        "matches_local": true,
+        "sha256": "8c4460ebe5cbdfe8efe0519a61f6c325ccb904a6f61bfd99ef3a02eef13e4f69"
+      },
+      {
+        "url": "https://defly.99x.meme/raising-ui.js?v=2",
+        "status": 200,
+        "matches_local": true,
+        "sha256": "4e696bab57ddb004f436b0a8be69718f64736e619ce898aaba1c88de92c0393a"
+      },
+      {
+        "url": "https://defly.99x.meme/flydesk-live-ui.js?v=2",
+        "status": 200,
+        "matches_local": true,
+        "sha256": "7c00e5bd30c740a652e27ee1d382f6a31ee66f34991ae7f0e9aa146f5760943e"
+      },
+      {
+        "url": "https://flydesk-v2-trial.pages.dev/index.html",
+        "status": 200,
+        "matches_local": true,
+        "sha256": "69b7b393bca9705e52d5e8933e86ce91c413ee130361139fa9ca850c3c23ef76"
+      },
+      {
+        "url": "https://flydesk-v2-trial.pages.dev/app.js?v=8",
+        "status": 200,
+        "matches_local": true,
+        "sha256": "1daa315fa8c71f727369e259cbdaf9c0ec198a5faacc722205ba2e0777ab6b5b"
+      },
+      {
+        "url": "https://flydesk-v2-trial.pages.dev/companion.js?v=4",
+        "status": 200,
+        "matches_local": true,
+        "sha256": "fd1f9601839140d5f0f978eec5a6c9a724eb7f1285c64413724ba3bd317e772a"
+      },
+      {
+        "url": "https://flydesk-v2-trial.pages.dev/companion.css?v=3",
+        "status": 200,
+        "matches_local": true,
+        "sha256": "753769f6b6726fb5ca0914d144b67fb0667e3d510dd443329e7972f35e873f0b"
+      },
+      {
+        "url": "https://flydesk-v2-trial.pages.dev/companion-records.js?v=2",
+        "status": 200,
+        "matches_local": true,
+        "sha256": "0d001c54d78f465995a09341292715918517e0d34cedbf07debab99d55a82972"
+      },
+      {
+        "url": "https://flydesk-v2-trial.pages.dev/companion-market.js?v=1",
+        "status": 200,
+        "matches_local": true,
+        "sha256": "010bc7ffdd32acd19fe3036119e30d4d85b41cf1e6f0ad060d17a994153cd214"
+      },
+      {
+        "url": "https://flydesk-v2-trial.pages.dev/i18n.js?v=1",
+        "status": 200,
+        "matches_local": true,
+        "sha256": "f657f41f9bf7c85d2691a275b705c621f62c971cc7f2e9ce3734e1fbe13bc9ed"
+      },
+      {
+        "url": "https://flydesk-v2-trial.pages.dev/locales/zh-CN.js?v=1",
+        "status": 200,
+        "matches_local": true,
+        "sha256": "6b61ee63b20a523dd8fc0845ce38415ac2f21d9344a667a085b882a10ccb0587"
+      },
+      {
+        "url": "https://flydesk-v2-trial.pages.dev/flydesk-chart.js?v=3",
+        "status": 200,
+        "matches_local": true,
+        "sha256": "8c4460ebe5cbdfe8efe0519a61f6c325ccb904a6f61bfd99ef3a02eef13e4f69"
+      },
+      {
+        "url": "https://flydesk-v2-trial.pages.dev/raising-ui.js?v=2",
+        "status": 200,
+        "matches_local": true,
+        "sha256": "4e696bab57ddb004f436b0a8be69718f64736e619ce898aaba1c88de92c0393a"
+      },
+      {
+        "url": "https://flydesk-v2-trial.pages.dev/flydesk-live-ui.js?v=2",
+        "status": 200,
+        "matches_local": true,
+        "sha256": "7c00e5bd30c740a652e27ee1d382f6a31ee66f34991ae7f0e9aa146f5760943e"
+      }
+    ],
+    "api_checks": {
+      "health": true,
+      "authentication_required": true,
+      "credentialed_cors": true,
+      "read_only": true
+    }
+  },
+  "browser_verification": {
+    "desktop_day_layout": true,
+    "mobile_day_layout": true,
+    "english_and_chinese_live_switch": true,
+    "existing_account_preserved": true,
+    "original_fly_rendered": true,
+    "reported_console_errors": 0,
+    "temporary_viewports_reset": true,
+    "screenshots": [
+      "runtime/reports/desktop-live-zh.jpg",
+      "runtime/reports/mobile-live-zh.jpg",
+      "runtime/reports/mobile-live-en.jpg"
+    ],
+    "interaction_scope": "Chart pointer/keyboard teaching and day/night verified by automated browser regressions. Embedded-browser pointer activation did not visibly trigger either new chart buttons or existing navigation; production manual checks therefore cover rendering and language selection only."
+  },
+  "limitations": [
+    "Market view is the latest 40 server minutes, grouped into 1- or 5-minute bars; partial groups are labelled.",
+    "MA20 needs 20 displayed bars, so it is unavailable in the current 5-minute window.",
+    "User content, external market names and raw technical reports retain their original form."
+  ]
+}
