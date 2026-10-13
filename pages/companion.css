@@ -1,11 +1,13 @@
 /* The compact observer is the default; specialist workspaces retain their tools. */
-.observer-app { --bg:#fff;--panel:#f7f9f8;--line:#e4e9e6;--muted:#68756e;--ink:#18271f;--acid:#188957;--red:#bd4744;--blue:#376759;background:#f2f5f3;color:var(--ink);font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+:root { color-scheme:light;--bg:#fff;--panel:#f5f8f6;--line:#dce5df;--muted:#5f7066;--ink:#18271f;--acid:#137c4e;--red:#b43d3e;--blue:#356897;--hover:#eaf4ee;--primary-ink:#fff;--outer:#f0f4f1; }
+:root[data-theme=dark] { color-scheme:dark;--bg:#101a16;--panel:#18251e;--line:#31453a;--muted:#a4b9ac;--ink:#ebf4ed;--acid:#6ce1a5;--red:#ff9291;--blue:#8db8eb;--hover:#233a2d;--primary-ink:#0c2418;--outer:#0b120e; }
+.observer-app { background:var(--outer);color:var(--ink);font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
 .observer-app > .top,.observer-app > footer { display:none; }
 #companion { display:block;grid-template-areas:none;width:100%;max-width:440px;margin:0 auto;padding:0 0 calc(76px + env(safe-area-inset-bottom));min-height:100dvh;background:var(--bg); }
 #companion * { min-width:0; }
 #companion button,#companion input,#companion select { font:inherit; }
 #companion button { min-height:44px;padding:8px 12px;border:0;border-radius:9px;box-shadow:none;line-height:1.35; }
-#companion button:hover { background:#edf5f0; }
+#companion button:hover { background:var(--hover); }
 #companion button:disabled { opacity:.42; }
 #companion :focus-visible { outline:2px solid var(--acid);outline-offset:3px; }
 #companion h1,#companion h2,#companion h3 { font-family:inherit;font-weight:600;letter-spacing:-.025em; }
@@ -35,7 +37,7 @@
 #companion .range-bar { display:flex;align-items:center;gap:4px; }
 #companion .range-bar button { min-width:44px;font-size:12px;padding:5px 10px; }
 #companion .range-bar>span { margin-left:auto;font-size:10px; }
-#companion [aria-pressed=true] { color:var(--acid);background:#edf5f0; }
+#companion [aria-pressed=true] { color:var(--acid);background:var(--hover); }
 #companion .fly-card { margin:0 12px;position:relative;overflow:hidden;border-radius:12px;background:#060709;color:#e9f2ed; }
 #companion .fly-heading { display:flex;align-items:center;justify-content:space-between;gap:12px;position:absolute;z-index:1;inset:10px 12px auto;pointer-events:none;font-size:12px; }
 #companion .fly-heading b { overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:48%; }
@@ -70,13 +72,13 @@
 #companion .section-row { display:flex;align-items:center;justify-content:space-between;gap:12px; }
 #companion .section-row button { font-size:12px;color:var(--muted);padding-right:0; }
 #companion .lesson-actions { display:flex;justify-content:space-between;gap:12px; }
-#companion .primary { background:var(--acid);color:#fff;padding-left:20px;padding-right:20px; }
-#companion .primary:hover { background:#126c44; }
+#companion .primary { background:var(--acid);color:var(--primary-ink);padding-left:20px;padding-right:20px; }
+#companion .primary:hover { background:var(--acid);filter:brightness(.92); }
 #companion #lessonResult { color:var(--acid); }
 #companion #lessonResult:empty,#companionStatus:empty,#flyRunMessage:empty { display:none; }
 #companion .recent-link { display:flex;justify-content:space-between;gap:8px;width:100%;padding:8px 0;text-align:left;font-size:12px; }
 #companion time { color:var(--muted);font-size:10px;font-weight:400;white-space:nowrap; }
-#companion .bottom-nav { position:fixed;z-index:10;bottom:0;left:50%;transform:translateX(-50%);display:grid;grid-template-columns:repeat(3,1fr);width:min(100%,440px);background:#fffffff5;backdrop-filter:blur(12px);border-top:1px solid var(--line);padding:5px 12px calc(7px + env(safe-area-inset-bottom)); }
+#companion .bottom-nav { position:fixed;z-index:10;bottom:0;left:50%;transform:translateX(-50%);display:grid;grid-template-columns:repeat(3,1fr);width:min(100%,440px);background:var(--bg);border-top:1px solid var(--line);padding:5px 12px calc(7px + env(safe-area-inset-bottom)); }
 #companion .bottom-nav button { display:grid;justify-items:center;gap:1px;color:var(--muted);font-size:10px; }
 #companion .bottom-nav button>span { font-size:23px;line-height:24px; }
 #companion .bottom-nav [aria-current=page] { color:var(--acid); }
@@ -116,7 +118,7 @@
 #companion .router-panel,#companion #wardrobe,#companion .round-facts,#companion .terminal-head,#companion .arena-join,#companion .join99x { background:var(--panel);color:var(--ink);border-color:var(--line);font-family:inherit; }
 #companion .router-panel summary,#companion .live-desk summary { color:var(--ink);letter-spacing:normal; }
 #companion #raisingRoot button,#companion #sessionRecovery button,#companion #colonyRoot button { background:var(--panel);border:1px solid var(--line); }
-#companion #raisingRoot button[aria-pressed=true] { background:#edf5f0;color:var(--acid); }
+#companion #raisingRoot button[aria-pressed=true] { background:var(--hover);color:var(--acid); }
 #companion #raisingRoot input,#companion #raisingRoot select,#companion select { background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:6px; }
 #companion .desk-rules,#companion #deskTime,#companion .desk-chart-toolbar span { color:var(--muted); }
 #companion input[type=checkbox] { width:20px;height:20px;min-height:20px;accent-color:var(--acid);vertical-align:middle; }
@@ -137,6 +139,59 @@
 #companion #technicalSlot,#companion #experimentsSlot { overflow-wrap:anywhere; }
 #companion .stats { grid-template-columns:repeat(2,minmax(0,1fr)); }
 #companion #recoverySlot { padding:0 22px; }
-@media(min-width:760px) { #companion[data-active-page=practice],#companion[data-active-page=technical],#companion[data-active-page=analysis] { max-width:900px; } }
+#companion .market-teaching { margin:0 22px 20px;padding:12px 0 0; }
+#companion .market-teaching h2 { margin:0; }
+#companion #marketPrice { font-weight:500;font-variant-numeric:tabular-nums; }
+#companion #teachChart { height:150px;margin-top:12px;cursor:crosshair;touch-action:pan-y; }
+#companion #chartPoint { position:absolute;width:1px;height:1px;min-height:0;padding:0;border:0;clip-path:inset(50%);overflow:hidden;accent-color:var(--acid); }
+#companion #chartPoint:focus-visible { position:static;width:100%;height:44px;clip-path:none; }
+#companion .chart-caption { display:flex;flex-wrap:wrap;gap:4px 12px;justify-content:space-between;margin:4px 0; }
+#companion .chart-caption .small { font-size:10px; }
+#companion .chart-cursor { stroke:var(--muted);stroke-dasharray:3 4;fill:none;vector-effect:non-scaling-stroke; }
+#companion .selected-point { stroke:var(--bg);stroke-width:2; }
+#companion .lesson-marker { stroke:var(--bg);stroke-width:1.5; }
+#companion .marker-SELL { fill:var(--red); }
+#companion .marker-HOLD { fill:var(--muted); }
+#companion .record-detail { background:var(--panel);border-radius:10px;padding:16px;margin-bottom:14px;overflow-wrap:anywhere; }
+#companion .record-detail h3 { margin-top:18px; }
+#companion .record-detail h3:first-child { margin-top:0; }
+#companion .record-badge { display:block;font-size:11px;color:var(--muted);padding:4px 0; }
+#companion .record-badge.changed { color:var(--acid); }
+#companion .record summary { align-items:flex-start;gap:16px;padding:16px 0; }
+#companion .record summary strong { font-weight:500; }
+#companion .record summary time { margin-top:4px; }
+#companion .record-link { display:flex;justify-content:space-between;align-items:center;gap:12px;text-align:left;width:100%;border-top:1px solid var(--line);border-radius:0;padding:12px 0;font-size:12px; }
+#companion .choice-comparison { display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:10px;border:1px solid var(--line);border-radius:10px;padding:14px 10px; }
+#companion .choice-comparison small { display:block;color:var(--muted);font-size:10px;margin-bottom:4px; }
+#companion .choice-comparison strong { font-weight:500;font-size:13px; }
+#companion .record-note { font-size:11px; }
+#companion .appearance-control { display:flex;align-items:center;justify-content:space-between;gap:16px;border-bottom:1px solid var(--line);padding:12px 0 20px; }
+#companion .appearance-control select { min-height:44px;padding:8px 12px; }
+#companion .round-review,#companion .round-details,#companion .round-actions,#companion .desk-chart-toolbar,#companion .memory-strip,#companion .workspace-panel,#companion .brain-detail { background:var(--panel);color:var(--ink);border-color:var(--line); }
+#companion [hidden] { display:none!important; }
+@media(min-width:600px) { #companion { max-width:720px; }#companion .bottom-nav { width:min(100%,720px); }#companion .scene-wrap { height:250px; } }
+@media(min-width:1000px) {
+  #companion { position:relative;max-width:1160px;padding:0 32px 40px;margin:24px auto;min-height:calc(100dvh - 48px);border:1px solid var(--line);border-radius:18px; }
+  #companion .companion-header { padding:24px 0 30px;justify-content:flex-start;gap:16px; }
+  #companion .bottom-nav { position:absolute;inset:14px 24px auto auto;transform:none;width:300px;border:0;padding:0;background:transparent; }
+  #companion .bottom-nav button { display:flex;justify-content:center;align-items:center;gap:8px;font-size:13px; }
+  #companion .bottom-nav [aria-current=page] { background:var(--hover); }
+  #companion [data-page=home] { display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);grid-template-areas:'recovery recovery' 'value fly' 'market fly' 'holdings recent';gap:0 36px;align-items:start; }
+  #companion #recoverySlot { grid-area:recovery;padding:0; }
+  #companion .overview { grid-area:value;padding:0 0 16px; }
+  #companion .big-number { font-size:46px; }
+  #companion .market-teaching { grid-area:market;margin:0 0 24px; }
+  #companion #teachChart { height:190px; }
+  #companion .fly-companion { grid-area:fly; }
+  #companion .fly-card { margin:0; }
+  #companion .scene-wrap { height:310px; }
+  #companion .fly-actions { padding:4px 0 12px; }
+  #companion #flyTools { margin:0 0 20px; }
+  #companion .home-body { display:contents; }
+  #companion .holdings { grid-area:holdings; }
+  #companion .recent { grid-area:recent; }
+  #companion [data-page]:not([data-page=home]) { padding:10px 0 25px;max-width:900px;margin:0 auto; }
+  #companion [data-page=more],#companion [data-page=account],#companion [data-page=holding] { max-width:720px; }
+}
 @media(max-width:359px) { #companion .home-body,#companion .overview { padding-left:16px;padding-right:16px; }#companion .big-number { font-size:34px; }#companion .fly-heading { font-size:11px; }#companion #flyDecision { font-size:10px; }#companion [data-page]:not([data-page=home]) { padding-left:16px;padding-right:16px; } }
 @media(prefers-reduced-motion:reduce) { #companion * { scroll-behavior:auto;transition:none!important; } }

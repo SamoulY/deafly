@@ -90,11 +90,16 @@ test('server-trained head affects only future autonomous steps, survives reload,
   assert.equal(next.http_status,200);assert.equal(next.executed_action,'BUY');
   assert.equal(next.provenance.raw_neural_action,'HOLD');
   assert.equal(next.provenance.teaching.model_version,3);
+  assert.equal(next.provenance.teaching.comparison.effect,'changed');
+  assert.equal(next.provenance.teaching.comparison.without_teaching,'HOLD');
   assert.equal(next.learning.policy_hash,loaded.hash);
   assert.equal(next.portfolio.position_side,'LONG');
   const retry=await x.step('alice',body);
   assert.equal(retry.decision_id,next.decision_id);assert.equal(retry.replayed,true);
-  assert.equal((await x.api('alice','')).decisions.length,2);
+  const history=await x.api('alice','');assert.equal(history.decisions.length,2);
+  assert.equal(history.decisions.find(d=>d.id===next.decision_id).teaching_evidence.effect,'changed');
+  assert.equal(history.decisions.find(d=>d.id===oldStep.decision_id).teaching_evidence.effect,'no_examples');
+  assert.ok(history.decisions.every(d=>!('checkpoint_json' in d)&&!('features_json' in d)));
   const bob=await x.prepare('bob');assert.equal((await x.step('bob',x.proposal(bob))).executed_action,'HOLD');
   assert.equal((await x.step('bob',body)).http_status,409);
   const forged=await x.prepare('alice');const forgedBody=x.proposal(forged);forgedBody.neural.proposed_action='SELL';
@@ -160,7 +165,8 @@ test('the real WASM brain and server-trained head jointly determine the next aut
       res.end(await readFile(new URL('../pages'+path,import.meta.url)));
     } catch {res.writeHead(404);res.end();}
   });
-  await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));t.after(()=>new Promise(resolve=>server.close(resolve)));
+  await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
+  t.after(()=>{server.closeAllConnections();return new Promise(resolve=>server.close(resolve));});
   const browser=await chromium.launch({headless:true});t.after(()=>browser.close());
   const page=await browser.newPage();await page.goto(`http://127.0.0.1:${server.address().port}`);
   const reference=await x.prepare('bob');

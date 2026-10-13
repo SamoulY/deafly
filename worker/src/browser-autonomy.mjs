@@ -1,6 +1,7 @@
 import { accountEquity, FEE_RATE, SLIPPAGE_RATE } from './core.mjs';
 import { rewardFromEquity } from './learning.mjs';
 import {syncTeaching, teachingFeatures, taughtDecision, TEACHING_BACKEND} from './companion-learning.mjs';
+import {compareTeaching} from './companion-evidence.mjs';
 export const BROWSER_BACKEND = 'stonkfly-full-browser-wasm-v1';
 export const PINNED_MANIFEST = '7f7c3bda9418c04d2e86cc7245b3569c7b63c772459f28b77ee328b192a86340';
 const CORS={'access-control-allow-origin':'*','access-control-allow-headers':'content-type,x-session-token,idempotency-key','access-control-allow-methods':'GET,POST,OPTIONS'};
@@ -80,6 +81,7 @@ export async function stepBrowser(e,u,b,observe) {
  // A client cannot supply learned weights, a teaching label, or the final action.
  const learned=await e.DB.prepare('SELECT * FROM companion_inference WHERE challenge_id=? AND user_id=?').bind(c.id,u.id).first();
  const teaching=learned?{...taughtDecision(JSON.parse(learned.checkpoint_json),JSON.parse(learned.features_json),n.decoder,p),backend:TEACHING_BACKEND,model_hash:learned.model_hash}:null;
+ if(teaching)teaching.comparison=compareTeaching(JSON.parse(learned.checkpoint_json),JSON.parse(learned.features_json),n.decoder,p);
  const action=teaching?.action||n.proposed_action;
  const {next,fee,fillPrice}=browserFill(p,action,price),did=crypto.randomUUID();
  const before=Number(run.last_equity),after=accountEquity(next,price),reward=rewardFromEquity(before,after);

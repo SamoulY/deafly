@@ -1,4 +1,6 @@
 import {syncTeaching, TEACHING_BACKEND} from './companion-learning.mjs';
+import {recordedTeachingEvidence} from './companion-evidence.mjs';
+import {hash} from './raising-core.mjs';
 // Saving trains a private decision head; only autonomous steps can execute it.
 const reply = (body, status = 200) => Response.json(body, {status, headers:{'cache-control':'no-store'}});
 const seconds = () => Math.floor(Date.now() / 1000);
@@ -17,16 +19,31 @@ export async function handleCompanion(request, env, user, {observation}) {
   if (request.method === 'GET' && path === '/api/companion') {
     const learning = await learn(db, user.id);
     // Read one consistent account/decision view even while the fly commits a step.
-    const [portfolios, decisions, lessons] = await db.batch([
+    const [portfolios, decisions, lessons, opening] = await db.batch([
       db.prepare('SELECT * FROM portfolios WHERE user_id=?').bind(user.id),
-      db.prepare("SELECT id, action, server_price, fee, state_json, created_at FROM decisions WHERE user_id=? AND symbol='BTCUSD' AND json_extract(state_json,'$.source')='BROWSER_NEURAL' ORDER BY created_at DESC, rowid DESC LIMIT 100").bind(user.id),
-      db.prepare('SELECT l.id, l.action, l.created_at, c.snapshot_json, t.version_after AS model_version, t.model_hash, t.trained_at FROM companion_lessons l JOIN companion_contexts c ON c.id=l.context_id LEFT JOIN companion_training t ON t.lesson_id=l.id AND t.user_id=l.user_id WHERE l.user_id=? ORDER BY l.created_at DESC, l.rowid DESC LIMIT 100').bind(user.id),
+      db.prepare("SELECT d.id,d.action,d.server_price,d.fee,d.state_json,d.created_at,i.checkpoint_json,i.features_json,i.model_hash FROM decisions d LEFT JOIN companion_inference i ON i.challenge_id=json_extract(d.state_json,'$.provenance.challenge_id') AND i.user_id=d.user_id WHERE d.user_id=? AND d.symbol='BTCUSD' AND json_extract(d.state_json,'$.source')='BROWSER_NEURAL' ORDER BY d.created_at DESC,d.rowid DESC LIMIT 100").bind(user.id),
+      db.prepare('SELECT l.id, l.action, l.created_at, c.snapshot_json, t.version_after AS model_version, t.model_hash, t.trained_at, t.probability_before, t.probability_after FROM companion_lessons l JOIN companion_contexts c ON c.id=l.context_id LEFT JOIN companion_training t ON t.lesson_id=l.id AND t.user_id=l.user_id WHERE l.user_id=? ORDER BY l.created_at DESC, l.rowid DESC LIMIT 100').bind(user.id),
+      db.prepare("SELECT id,server_price,fee,state_json,created_at FROM decisions WHERE user_id=? AND idempotency_key='initial-bitcoin' AND json_extract(state_json,'$.source')='INITIAL_ALLOCATION' LIMIT 1").bind(user.id),
     ]);
-    return reply({portfolio:portfolios.results[0]||null, decisions:decisions.results.map(({state_json,...row})=>({...row,portfolio:JSON.parse(state_json)})), lessons:lessons.results.map(({snapshot_json,...row})=>({...row,context:JSON.parse(snapshot_json),training_applied:row.model_version!==null})),learning});
+    return reply({portfolio:portfolios.results[0]||null, decisions:decisions.results.map(({state_json,checkpoint_json,features_json,model_hash,...row})=>{
+      const decision={...row,portfolio:JSON.parse(state_json)};
+      return {...decision,teaching_evidence:recordedTeachingEvidence(decision,{checkpoint_json,features_json,model_hash})};
+    }), lessons:lessons.results.map(({snapshot_json,...row})=>({...row,context:JSON.parse(snapshot_json),training_applied:row.model_version!==null})),opening:opening.results[0]?{...opening.results[0],portfolio:JSON.parse(opening.results[0].state_json),state_json:undefined}:null,learning});
   }
   if (request.method === 'POST' && path === '/api/companion/contexts') {
     // Freeze the actual view before the user chooses to save it. Clients cannot supply a price.
-    const market = await observation(env);
+    if(Number(request.headers.get('content-length'))>1024)return reply({error:'REQUEST_TOO_LARGE'},413);
+    const text=await request.text();
+    if(text.length>1024)return reply({error:'REQUEST_TOO_LARGE'},413);
+    let body;try{body=JSON.parse(text||'{}');}catch{return reply({error:'INVALID_CHART_POINT'},422);}
+    if(!body||typeof body!=='object'||Array.isArray(body)||(body.candle_time!==undefined&&!Number.isSafeInteger(body.candle_time)))return reply({error:'INVALID_CHART_POINT'},422);
+    let market = await observation(env);
+    if(body.candle_time!==undefined){
+      const index=market.candles.findIndex(c=>c.time===body.candle_time);
+      if(index<1)return reply({error:'CHART_POINT_UNAVAILABLE'},409);
+      const candles=market.candles.slice(0,index+1),snapshot_hash=await hash(candles);
+      market={...market,candles,parent_snapshot_hash:market.snapshot_hash,snapshot_hash,frame_hash:await hash('vision-v2:'+snapshot_hash)};
+    }
     const portfolio = await db.prepare('SELECT * FROM portfolios WHERE user_id=?').bind(user.id).first();
     const context = {id:crypto.randomUUID(),symbol:'BTCUSD',market,portfolio,created_at:seconds(),expires_at:seconds()+600};
     await db.prepare('INSERT INTO companion_contexts VALUES (?,?,?,?,?)').bind(context.id,user.id,JSON.stringify(context),context.created_at,context.expires_at).run();

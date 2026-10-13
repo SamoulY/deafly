@@ -4,14 +4,14 @@ import { init as initRaising } from "./raising-ui.js";
 import { UNAVAILABLE, verifyAnatomy } from "./neural-contract.js";
 import { createBrowserBrainClient, encodeMarketObservation } from "./browser-brain-client.js";
 import { routerRegistry, addRouter } from './router-registry.js';
-import {createDeskChart} from './flydesk-chart.js';
+import {createDeskChart} from './flydesk-chart.js?v=2';
 import {initLiveDesk} from './flydesk-live-ui.js';
 import {mountDeskAdmin} from './flydesk-admin.js';
 import { initializePersonalFly, checkpointLabel } from './personal-fly.js';
 import { checkpointStore } from './full-brain/checkpoint.mjs';
 import {createColonyClient} from './colony-client.js';
 import {mountColonyUI} from './colony-ui.js';
-import {mountCompanion} from './companion.js?v=2';
+import {mountCompanion} from './companion.js?v=3';
 let companion = null;
 let colonyBusy = false, colonyAutomatic = false, colonyUI = null;
 let personalFly = null;
@@ -708,7 +708,9 @@ const esc = (s) =>
     }).format(Number(n) || 0);
 initRouterControls();
 function bootError(error) {
-  companion?.error('Could not restore your fly. Use Account & saves to log in, or retry below.');
+  companion?.error('');
+  const marketUnavailable=['MARKET_UNAVAILABLE','MARKET_STALE','MARKET_INVALID','HISTORY_INCOMPLETE'].includes(error.code);
+  $('#sessionRecovery p').textContent=marketUnavailable?'Bitcoin prices are temporarily unavailable. Retry shortly to start your fly.':error.code==='SESSION_LOGIN_REQUIRED'?'Your login expired. Open Account & saves to restore your fly.':'Could not restore your fly. Retry, or use Account & saves to log in.';
   if (!personalFly) { $("#flyIdentity").textContent = "UNAVAILABLE"; $("#flyIdentityStatus").textContent = error.message; }
   $("#notice").textContent = "RESTORE FAILED · " + error.message;
   $("#sessionRecovery").hidden = false;

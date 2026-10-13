@@ -4,12 +4,18 @@ import {createServer} from 'node:http';
 import {resolve,extname,sep} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {build} from 'esbuild';
-export async function startDev({fixture=false,port=8876,apiPort=8787,persist=false}={}) {
+export async function startDev({fixture=false,port=8876,apiPort=8787,persist=false,outboundService}={}) {
  const start=(Math.floor(Date.now()/60000)-200)*60;
  const bindings={PAPER_ONLY:'true',APP_ENV:'dev',ADMIN_USER_IDS:process.env.FLYDESK_ADMIN_USER_IDS||'',ALLOWED_ORIGIN:`http://127.0.0.1:${port},http://localhost:${port}`,...(fixture?{FLYDESK_TEST_MODE:'local-only',FLYDESK_TEST_HISTORY:Array.from({length:120},(_,i)=>({time:start+i*60,open:100+i,high:102+i,low:99+i,close:101+i,volume:10+i}))}:{})};
  const bundle=await build({entryPoints:['worker/src/index.mjs'],bundle:true,format:'esm',platform:'browser',write:false});
  const modules=[{type:'ESModule',path:resolve('worker/bundle.mjs'),contents:bundle.outputFiles[0].text}];
- const mf=new Miniflare(convertV4MiniflareOptions({modules,port:apiPort,host:'127.0.0.1',compatibilityDate:'2026-08-18',bindings,d1Databases:['DB'],d1Persist:persist?'.wrangler/flydesk-d1':false,durableObjectsPersist:persist?'.wrangler/flydesk-live':false,durableObjects:{FLYDESK_LIVE:{className:'FlydeskLive',useSQLite:true}}}));
+ // Fixture quotes live in the local harness, never in the deployed Worker.
+ const fixtureMarket=async request=>{
+   if(new URL(request.url).hostname!=='api.kraken.com')return new Response('Fixture has no external service',{status:503});
+   const end=Math.floor(Date.now()/60000)*60;
+   return Response.json({error:[],result:{XBTUSD:Array.from({length:40},(_,i)=>[end-(40-i)*60,String(100+i),String(102+i),String(99+i),String(101+i),'0','10',1]),last:end}});
+ };
+ const mf=new Miniflare(convertV4MiniflareOptions({modules,port:apiPort,host:'127.0.0.1',compatibilityDate:'2026-08-18',bindings,d1Databases:['DB'],d1Persist:persist?'.wrangler/flydesk-d1':false,durableObjectsPersist:persist?'.wrangler/flydesk-live':false,durableObjects:{FLYDESK_LIVE:{className:'FlydeskLive',useSQLite:true}},...((outboundService||fixture)?{outboundService:outboundService||fixtureMarket}:{})}));
  const db=await mf.getD1Database('DB');
  await db.exec('CREATE TABLE IF NOT EXISTS local_schema_migrations (name TEXT PRIMARY KEY);');
  for(const file of ['worker/schema.sql',...['0004_raising.sql','0005_raising_training.sql','0006_browser_autonomy.sql','0007_market_source.sql','0008_federation.sql','0009_colony_tasks.sql','0010_colony_auto.sql','0009_flydesk.sql','0010_flydesk_auth.sql','0011_flydesk_datasets.sql','0012_companion_teaching.sql','0013_companion_learning.sql'].map(f=>'worker/migrations/'+f)]){
