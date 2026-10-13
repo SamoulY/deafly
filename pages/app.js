@@ -11,7 +11,7 @@ import { initializePersonalFly, checkpointLabel } from './personal-fly.js';
 import { checkpointStore } from './full-brain/checkpoint.mjs';
 import {createColonyClient} from './colony-client.js';
 import {mountColonyUI} from './colony-ui.js';
-import {mountCompanion} from './companion.js';
+import {mountCompanion} from './companion.js?v=2';
 let companion = null;
 let colonyBusy = false, colonyAutomatic = false, colonyUI = null;
 let personalFly = null;
