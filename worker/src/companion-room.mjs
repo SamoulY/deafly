@@ -15,6 +15,17 @@ export async function handleRoom(request,env,user){
   if(request.method!=='POST')return reply({error:'METHOD_NOT_ALLOWED'},405);
   const text=await request.text();if(text.length>2048)return reply({error:'REQUEST_TOO_LARGE'},413);
   let body;try{body=JSON.parse(text);}catch{return reply({error:'INVALID_REQUEST'},422);}
+  if(path==='/api/companion/room/loadout'){
+    const slots=['head','face','body','background','sticker','desk'],loadout=body?.loadout;
+    if(!loadout||typeof loadout!=='object'||Array.isArray(loadout)||Object.entries(loadout).some(([slot,id])=>!slots.includes(slot)||typeof id!=='string'||id.length>80))return reply({error:'INVALID_LOADOUT'},422);
+    // One atomic batch, with membership checked inside the UPDATE: a concurrent
+    // sale cannot leave an unowned item equipped. Never changes the cash ledger.
+    await db.batch([
+      db.prepare('UPDATE room_inventory SET equipped=0 WHERE user_id=?').bind(user.id),
+      db.prepare('UPDATE room_inventory SET equipped=1 WHERE user_id=? AND item_id=json_extract(?,\'$.\'||slot)').bind(user.id,JSON.stringify(loadout)),
+    ]);
+    return reply(await state());
+  }
   if(!body||typeof body.item_id!=='string')return reply({error:'INVALID_ITEM'},422);
   const item=await db.prepare('SELECT * FROM room_catalog WHERE id=?').bind(body.item_id).first();
   if(!item)return reply({error:'INVALID_ITEM'},422);

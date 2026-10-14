@@ -1,4 +1,4 @@
-import {locale,translate} from './i18n.js?v=2';
+import {locale,translate} from './i18n.js?v=3';
 
 const escape=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const defaultChartSettings=()=>({style:'line',timeframe:60,average:false,volume:false,markers:true});

@@ -61,3 +61,17 @@ test('account profiles validate safe avatars and remain owner scoped',async t=>{
  assert.equal((await call(undefined,null)).status,401);assert.equal((await call({display_name:'Name',avatar:'javascript:alert(1)'})).status,422);
  assert.equal((await call({display_name:'Waiting',avatar:'moon'})).data.display_name,'Waiting');assert.equal((await call()).data.avatar,'moon');assert.equal((await call(undefined,'bob')).data.avatar,'orbit');
 });
+test('local loadout reconciliation atomically equips only owned items without touching cash or another owner',async t=>{
+ const {DB,call}=await setup(t);await call('');await call('',undefined,'bob');
+ const before=await DB.prepare("SELECT * FROM portfolios WHERE user_id='alice'").first();
+ assert.equal((await call('/loadout',{loadout:{desk:'desk-lamp',head:'unowned-item'},cash:999999})).status,200);
+ assert.deepEqual((await call('')).data.loadout,{desk:'desk-lamp'});
+ assert.deepEqual((await call('/loadout',{loadout:{}})).data.loadout,{});
+ assert.deepEqual((await call('',undefined,'bob')).data.loadout,{desk:'desk-lamp'});
+ assert.equal((await call('/loadout',{loadout:{evil:'desk-lamp'}})).status,422);
+ assert.equal((await call('/loadout',{loadout:[]})).status,422);
+ assert.deepEqual(await DB.prepare("SELECT * FROM portfolios WHERE user_id='alice'").first(),before);
+ await call('/trade',{item_id:'desk-lamp',operation:'SELL',idempotency_key:'sell_during_sync_12345'});
+ assert.deepEqual((await call('/loadout',{loadout:{desk:'desk-lamp'}})).data.loadout,{});
+ assert.equal((await call('')).data.cash,15);
+});

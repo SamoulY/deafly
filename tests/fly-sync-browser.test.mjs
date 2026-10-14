@@ -1,0 +1,50 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {chromium} from 'playwright';
+import {startDev} from '../scripts/flydesk-dev.mjs';
+import {createHash} from 'node:crypto';
+
+test('user fly wins sync conflicts while website account, money and ownership remain authoritative on both screens',async t=>{
+ const dev=await startDev({fixture:true,port:8904});t.after(()=>dev.close());const browser=await chromium.launch({headless:true});t.after(()=>browser.close());
+ const context=await browser.newContext({viewport:{width:1440,height:1000},locale:'zh-CN'}),page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.route('**/full-brain/**',r=>/\.(bin\.gz|wasm)$/.test(new URL(r.request().url()).pathname)?r.abort():r.continue());
+ await page.goto(dev.url);await page.locator('#chartPoint:enabled').waitFor();
+ assert.equal(await page.locator('#chartPoint').innerText(),'开始指导果蝇买卖');
+ assert.equal(await page.locator('#teachChart').getAttribute('aria-label'),'开始指导果蝇买卖');
+ const initial=await dev.db.prepare('SELECT * FROM portfolios LIMIT 1').first(),uid=initial.user_id;
+ const identity=await page.locator('#flyIdentity').textContent();
+ await page.evaluate(()=>{const key=Object.keys(localStorage).find(k=>k.startsWith('defly.fly.preferences.v1:')),prefs=JSON.parse(localStorage.getItem(key));prefs.name='本机小飞';prefs.loadout={};localStorage.setItem(key,JSON.stringify(prefs));});
+ await dev.db.prepare('UPDATE raising_profiles SET name=? WHERE user_id=?').bind('网页名字',uid).run();
+ await dev.db.prepare('UPDATE portfolios SET cash=345,revision=revision+1 WHERE user_id=?').bind(uid).run();
+ await page.reload();await page.locator('#chartPoint:enabled').waitFor();
+ assert.equal(await page.locator('#companionName').textContent(),'本机小飞');assert.equal(await page.locator('#flyIdentity').textContent(),identity);
+ assert.equal((await dev.db.prepare('SELECT name FROM raising_profiles WHERE user_id=?').bind(uid).first()).name,'本机小飞');
+ assert.equal((await dev.db.prepare('SELECT equipped FROM room_inventory WHERE user_id=? AND item_id=?').bind(uid,'desk-lamp').first()).equipped,0);
+ const before=await dev.db.prepare('SELECT * FROM portfolios WHERE user_id=?').bind(uid).first();assert.equal(before.cash,345);assert.equal(before.quantity,initial.quantity);
+ await page.locator('[data-go=shop]').first().click();await page.waitForFunction(()=>document.querySelector('#shopCash')?.textContent==='USD 345.00');
+ await page.locator('[data-item="desk-lamp"] [data-equip]').click();await page.waitForFunction(()=>document.querySelector('[data-item="desk-lamp"] [data-equip]')?.getAttribute('aria-pressed')==='true');
+ assert.deepEqual(await dev.db.prepare('SELECT * FROM portfolios WHERE user_id=?').bind(uid).first(),before,'sync and equip do not change account money');
+ // A sale elsewhere wins the ownership comparison, despite the local equipped choice.
+ await dev.db.prepare('DELETE FROM room_inventory WHERE user_id=? AND item_id=?').bind(uid,'desk-lamp').run();
+ await page.reload();await page.locator('#shopCash').filter({hasText:'345.00'}).waitFor();
+ assert.equal(await page.evaluate(()=>{const key=Object.keys(localStorage).find(k=>k.startsWith('defly.fly.preferences.v1:'));return JSON.parse(localStorage.getItem(key)).loadout.desk||null;}),null);
+ // Real Worker auth chooses the signed-in website owner over a leftover guest.
+ const loginToken='a'.repeat(64),hash=createHash('sha256').update(JSON.stringify(loginToken)).digest('hex');
+ await dev.db.prepare('INSERT INTO flydesk_auth_sessions VALUES (?,?,?)').bind(hash,uid,Date.now()+60000).run();
+ await context.addCookies([{name:'flydesk_session',value:loginToken,domain:'127.0.0.1',path:'/',httpOnly:true,sameSite:'Lax'}]);
+ await page.evaluate(()=>localStorage.setItem('defly.session:http://127.0.0.1:8787','unrelated-guest-token'));
+ await dev.db.prepare('INSERT INTO account_profiles VALUES (?,?,?)').bind(uid,'网站账号名称','moon').run();
+ await dev.db.prepare('INSERT INTO flydesk_credentials VALUES (?,?,?,?,?,?)').bind('local-sync-test',uid,'0'.repeat(32),'0'.repeat(64),2,Date.now()).run();
+ await page.setViewportSize({width:390,height:844});await page.goto(dev.url+'/#home');await page.reload();await page.locator('#chartPoint:enabled').waitFor();
+ await page.waitForFunction(()=>document.querySelector('#headerAccount').textContent.includes('网站账号名称'));
+ assert.equal(await page.locator('#flyIdentity').textContent(),identity);assert.equal(await page.locator('#companionName').textContent(),'本机小飞');
+ assert.equal(await page.evaluate(()=>localStorage.getItem('defly.session:http://127.0.0.1:8787')),null);
+ assert.equal(await page.locator('#flySyncStatus').isVisible(),false,'no extra sync status on the home page');
+ assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
+ await page.locator('#headerAccount').click();await page.locator('.data-sync summary').click();await page.locator('#flySyncStatus').filter({hasText:'已核对网站账号'}).waitFor();
+ const stale=await context.request.post('http://127.0.0.1:8787/api/flydesk/profile',{headers:{'x-expected-owner':'other-account'},data:{name:'Must not overwrite'}});
+ assert.equal(stale.status(),409);assert.equal((await stale.json()).error,'SESSION_OWNER_CHANGED');
+ const staleAccount=await context.request.post('http://127.0.0.1:8787/api/account/profile',{headers:{'x-expected-owner':'other-account'},data:{display_name:'Must not overwrite',avatar:'leaf'}});assert.equal(staleAccount.status(),409);
+ assert.equal((await dev.db.prepare('SELECT name FROM raising_profiles WHERE user_id=?').bind(uid).first()).name,'本机小飞');
+ assert.deepEqual(errors,[]);
+});

@@ -1,22 +1,23 @@
-import {locale,translate} from './i18n.js?v=2';
+import {locale,translate} from './i18n.js?v=3';
 import { startScene, startVisionScene, startBrainScene } from "./scene.js?v=5";
-import { createSessionClient, resolveApiOrigin } from "./session-client.js?v=2";
-import { init as initRaising } from "./raising-ui.js?v=3";
+import { createSessionClient, resolveApiOrigin } from "./session-client.js?v=3";
+import { init as initRaising } from "./raising-ui.js?v=4";
 import { UNAVAILABLE, verifyAnatomy } from "./neural-contract.js";
 import { createBrowserBrainClient, encodeMarketObservation } from "./browser-brain-client.js";
 import { routerRegistry, addRouter } from './router-registry.js';
-import {createDeskChart} from './flydesk-chart.js?v=4';
-import {initLiveDesk} from './flydesk-live-ui.js?v=3';
+import {createDeskChart} from './flydesk-chart.js?v=5';
+import {initLiveDesk} from './flydesk-live-ui.js?v=4';
 import {mountDeskAdmin} from './flydesk-admin.js';
 import { initializePersonalFly, checkpointLabel } from './personal-fly.js';
 import { checkpointStore } from './full-brain/checkpoint.mjs';
 import {createColonyClient} from './colony-client.js';
 import {mountColonyUI} from './colony-ui.js';
-import {mountCompanion} from './companion.js?v=5';
-import {mountAccount} from './account-ui.js?v=1';
+import {mountCompanion} from './companion.js?v=6';
+import {createFlySync} from './fly-sync.js?v=1';
+import {mountAccount} from './account-ui.js?v=2';
 let companion = null;
 let colonyBusy = false, colonyAutomatic = false, colonyUI = null;
-let personalFly = null;
+let personalFly = null, flySync = null;
 const personalStore = checkpointStore();
 function startPersonalBrain(ids = [], scope = 'observation') {
   if (colonyBusy || colonyAutomatic || !personalFly) return;
@@ -45,7 +46,7 @@ $('#checkpointSave').onclick = async () => {
 
 const API = resolveApiOrigin($("meta[name='defly-api-origin']")?.content, location.hostname);
 const transportOrigin=['defly.99x.meme','flydesk-v2-trial.pages.dev'].includes(location.hostname)?location.origin:API;
-const sessionClient = createSessionClient({origin: API,transportOrigin,storage:localStorage,cookieMode:true});
+const sessionClient = createSessionClient({origin: API,transportOrigin,storage:localStorage,cookieMode:true,onOwnerChanged:()=>location.reload()});
 const api = sessionClient.api;
 mountDeskAdmin(api);
 const accountUI=mountAccount(sessionClient);
@@ -62,6 +63,7 @@ async function initPersonalIdentity() {
   const ownerToken=localStorage.getItem(`defly.session:${API}`);
   const ownerId=sessionClient.currentUser?.id;
   personalFly = await initializePersonalFly({storage:localStorage,ownerToken,ownerId,apiOrigin:API});
+  flySync=createFlySync({storage:localStorage,key:JSON.stringify([API,ownerId,personalFly.checkpointKey]),api,onStatus:accountUI.syncStatus});
   browserBrain.setCheckpointKey(personalFly.checkpointKey);
   $('#flyIdentity').textContent = personalFly.identity.fly_id;
   $('#flyIdentityStatus').textContent = `SESSION-SCOPED OWNER · GENESIS ${personalFly.identity.genesis_model_hash}`;
@@ -156,7 +158,7 @@ async function boot(reset = false) {
   if (colonyBusy) return;
   colonyUI?.dispose();
   colonyUI = null;
-  personalFly = null;
+  personalFly = null;flySync=null;raising=null;
   roomOutfit=null;outfit={};
   browserBrain.cancel();
   const saved = reset ? await sessionClient.reset() : await sessionClient.restore();
@@ -176,7 +178,7 @@ async function boot(reset = false) {
   await stopAuto();
   if (anatomy) startPersonalBrain(anatomy.nodes.map(n => n.id), 'observation');
   $("#sessionRecovery").hidden = true;
-  raising = await initRaising({api:deskApi,flydesk:true,beforeAction:()=>deskChart.flush(),
+  raising = await initRaising({api:deskApi,flydesk:true,reconcileProfile:data=>flySync.profile(data),saveName:(name,data)=>flySync.rename(name,data),beforeAction:()=>deskChart.flush(),
     onOutfit: loadout => { outfit = roomOutfit || loadout; scenes.fly?.setOutfit?.(outfit); scenes.vision?.setOutfit?.(outfit); },
     onMode: exitLab,
     onObservation: applyRaisingObservation,
@@ -785,7 +787,8 @@ $("#historicalMode").onclick = () => switchMode("raising");
 $("#autonomousMode").onclick = () => switchMode("lab");
 companion = mountCompanion({
   api,origin:API,
-  onAccount:()=>accountUI.refresh(),
+  onAccount:async()=>{await accountUI.refresh();if(raising)await raising.refreshProfile();},
+  getFlySync:()=>flySync,
   onRoom:loadout=>{roomOutfit=loadout;outfit=loadout;scenes.fly?.setOutfit?.(loadout);scenes.vision?.setOutfit?.(loadout);},
   onPage:async next => {
     if (!raising) return;

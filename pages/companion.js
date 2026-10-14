@@ -1,8 +1,8 @@
-import {renderRecord} from './companion-records.js?v=3';
-import {locale,mountLanguage,sourceText} from './i18n.js?v=2';
-import {defaultChartSettings,normalizeChartSettings,groupCandles,marketChart} from './companion-market.js?v=2';
-import {mountTraining} from './companion-training.js?v=1';
-import {mountShop} from './companion-shop.js?v=1';
+import {renderRecord} from './companion-records.js?v=4';
+import {locale,mountLanguage,sourceText} from './i18n.js?v=3';
+import {defaultChartSettings,normalizeChartSettings,groupCandles,marketChart} from './companion-market.js?v=3';
+import {mountTraining} from './companion-training.js?v=2';
+import {mountShop} from './companion-shop.js?v=2';
 const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const money = value => Number.isFinite(value) ? 'USD '+new Intl.NumberFormat(locale(),{minimumFractionDigits:2,maximumFractionDigits:2}).format(value) : '—';
 const date = seconds => new Date(seconds*1000).toLocaleString(locale(),{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
@@ -27,7 +27,7 @@ function lineChart(points, label) {
   return `<svg viewBox="0 0 360 125" preserveAspectRatio="none" role="img" aria-label="${escape(label)}"><path d="M10 110H350" class="chart-baseline"/><polyline points="${coordinates}"/><circle cx="${coordinates.split(' ').at(-1).split(',')[0]}" cy="${coordinates.split(' ').at(-1).split(',')[1]}" r="3"/></svg>`;
 }
 const pageHead = (title,back='more') => `<div class="page-heading"><button data-go="${back}" aria-label="Back">‹</button><h1 tabindex="-1">${title}</h1></div>`;
-export function mountCompanion({api,origin,onPage,onRun,onGreet,onRename,onView,getName,onAccount=()=>{},onRoom=()=>{}}) {
+export function mountCompanion({api,origin,onPage,onRun,onGreet,onRename,onView,getName,onAccount=()=>{},onRoom=()=>{},getFlySync=()=>null}) {
   const legacy = document.querySelector('main');
   legacy.id = 'legacyWorkspace';
   const root = document.createElement('main');
@@ -62,8 +62,8 @@ export function mountCompanion({api,origin,onPage,onRun,onGreet,onRename,onView,
   $('.companion-header').insertAdjacentHTML('beforeend','<button id="headerAccount" data-go="account" aria-label="Log in"><span aria-hidden="true">◉</span><span>Log in</span></button>');
   $('[data-page="account"]').insertAdjacentHTML('beforebegin',`<section data-page="training" hidden>${pageHead('Reinforcement practice','home')}<div id="trainingSlot"></div></section><section data-page="shop" hidden>${pageHead('Fly shop','home')}<div class="shop-layout"><aside><div class="room-tabs"><button data-go="home">Room</button><button aria-current="page">Shop</button><button data-go="vision" aria-label="Fly vision">◉</button></div><div id="shopScene"></div><p class="small muted">Your room, seen through your fly's eyes too.</p></aside><div id="shopSlot"></div></div></section>`);
   // A single accessible latest-point control replaces the historical scrubber.
-  $('#chartPoint').outerHTML='<button id="chartPoint" class="latest-teaching" disabled>Teach at the latest point</button>';
-  $('#teachChart').setAttribute('tabindex','0');$('#teachChart').setAttribute('role','button');$('#teachChart').setAttribute('aria-label','Teach at the latest point');
+  $('#chartPoint').outerHTML='<button id="chartPoint" class="latest-teaching" disabled>Start guiding your fly’s trading</button>';
+  $('#teachChart').setAttribute('tabindex','0');$('#teachChart').setAttribute('role','button');$('#teachChart').setAttribute('aria-label','Start guiding your fly’s trading');
   $('.chart-caption').insertAdjacentHTML('afterend','<div class="teaching-entry"><button data-go="training">Reinforcement practice <span aria-hidden="true">↗</span></button></div>');
   $('.market-teaching>.section-row').append(Object.assign(document.createElement('button'),{id:'mobileChartToggle',className:'mobile-chart-toggle',textContent:'⋯'}));
   $('#mobileChartToggle').setAttribute('aria-label','Chart settings');$('#mobileChartToggle').setAttribute('aria-expanded','false');
@@ -126,7 +126,7 @@ export function mountCompanion({api,origin,onPage,onRun,onGreet,onRename,onView,
   let page='home',owner=null,data={portfolio:null,decisions:[],lessons:[]},market=null,range=1,filter='all',greetings=[],pending=null,lastLessonId=null,busy=false,ready=false,epoch=0,refreshing=null,navigation=Promise.resolve();
   let displayMarket=null,chartRequest=0,chartLoading=false;
   const training=mountTraining($('#trainingSlot'),{api,onSaved:()=>refresh(true),ownerKey:()=>owner?`${origin}:${owner}`:null});
-  const shop=mountShop($('#shopSlot'),{api,onRoom,onCash:()=>{if(owner)refresh(true);},ownerKey:()=>owner?`${origin}:${owner}`:null});
+  const shop=mountShop($('#shopSlot'),{api,onRoom,getFlySync,onCash:()=>{if(owner)refresh(true);},ownerKey:()=>owner?`${origin}:${owner}`:null});
   async function loadChart(){
     const interval=currentChartSettings().timeframe,request=++chartRequest,generation=epoch;
     chartLoading=true;displayMarket=null;renderMarket();
@@ -213,7 +213,7 @@ export function mountCompanion({api,origin,onPage,onRun,onGreet,onRename,onView,
     }
     if(page==='analysis') $('#experimentalLab').hidden=false;
     if(page==='home' || page==='records') await refresh();
-    if(page==='account')await onAccount();
+    if(page==='account'){await onAccount();await shop.refresh();}
     if(page==='shop')await shop.refresh();
     if(page==='training'&&owner)await training.open();
     if(location.hash!==`#${page}`) history.pushState(null,'',`#${page}`);
