@@ -44,5 +44,12 @@ export function checkpointStore(indexedDB=globalThis.indexedDB){
    tx.onabort=()=>reject(error||tx.error||Error('Checkpoint save aborted'));
   });}finally{db.close();}
  }
- return {load:key=>run(key,null,false),save:(key,value,expectedHash)=>run(key,value,true,expectedHash)};
+ async function pruneEvaluationCopies(ownerKey,keep){
+  // Only disposable evaluation copies are eligible. Personal keys never match.
+  if(!/^[a-f0-9]{64}$/.test(ownerKey)||!Array.isArray(keep))throw Error('Invalid evaluation owner');
+  const prefix=`universe:${ownerKey}:`,retained=new Set(keep);
+  const db=await new Promise((resolve,reject)=>{const r=indexedDB.open('defly-full-brain',1);r.onupgradeneeded=()=>r.result.createObjectStore('checkpoints');r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);});
+  try{await new Promise((resolve,reject)=>{const tx=db.transaction('checkpoints','readwrite'),cursor=tx.objectStore('checkpoints').openKeyCursor();cursor.onsuccess=()=>{const c=cursor.result;if(!c)return;const k=c.key;if(typeof k==='string'&&k.startsWith(prefix)&&!retained.has(k))tx.objectStore('checkpoints').delete(k);c.continue();};tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error);});}finally{db.close();}
+ }
+ return {load:key=>run(key,null,false),save:(key,value,expectedHash)=>run(key,value,true,expectedHash),pruneEvaluationCopies};
 }

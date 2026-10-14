@@ -1,0 +1,58 @@
+{
+  "version": "universe-forward-v1",
+  "release_intent": "One-way server learning; independent personal flies; fair forward evaluation",
+  "data_flow": [
+    "An explicit enrollment signs consent and fixes next period's full local checkpoint hash and private teaching-head version.",
+    "A browser-local copy runs the actual WASM brain with plasticity frozen. Each task starts from that copy; personal storage is not written.",
+    "The server applies the frozen private teaching head to the signed neural decoder, then runs a separate standardized spot account.",
+    "The official server policy learns only from consented predictions in completed periods. No model weights are distributed to personal flies."
+  ],
+  "evaluation": {
+    "default_period": "Daily 00:00 to 00:00 UTC; persisted rules version per period",
+    "enrollment": "Next period only. A new consent/enrollment is required per period. No automatic migration of legacy colony consent.",
+    "starting_assets": "BTC worth USD 10000 at the common period opening price; no initial purchase fee because the initial holding is granted equally",
+    "decisions": "Every 300 seconds, 120 seconds to submit; execute at the open of the minute beginning 60 seconds after the deadline, once that bar closes",
+    "positions": "BTC or USD cash, no leverage or shorts, full spot allocation",
+    "costs": {
+      "fee": 0.001,
+      "slippage": 0.0005
+    },
+    "ranking": "Net mark-to-market return after costs. Full global schedule and all personal predictions required. Ties share rank; percentile counts strictly lower returns.",
+    "risk": "Maximum drawdown sampled at minute marks and executions. This does not measure intraminute extremes.",
+    "benchmarks": [
+      "Official fly, frozen server policy version for the period",
+      "Hold Bitcoin"
+    ],
+    "funds": "Dedicated universe_entries state. Never reads personal cash for evaluation or writes portfolios/shop inventory."
+  },
+  "learning": {
+    "backend": "universe-distillation-v1",
+    "model": "Bounded 3-action softmax decision model with 7 market/portfolio features; distinct from the full local connectome",
+    "labels": "Compare each actual received action against waiting at the next task execution mark, including paid costs. Positive advantage teaches the executed action; otherwise teaches HOLD. The last task has no next-period label and is excluded.",
+    "weighting": "One total training weight per task, divided over distinct checkpoint+teaching-head clusters, then over owners within each cluster",
+    "jobs": "Resumable per-finished-period training, four task groups per cron invocation. Immutable version published after the entire period is consumed. Only subsequent periods can use it.",
+    "cold_start": "Version 0 holds the initial BTC. UI states collecting experience; no invented performance or superiority claim.",
+    "limitations": "Outcome-conditioned distillation is a first server learner, not proof of generalization or trading advantage. No hyperparameter search on evaluation periods."
+  },
+  "trust_and_operations": {
+    "execution_trust": "Owner-signed browser report; signature validates identity and task binding, not independent neural execution attestation",
+    "identity": "One fly per account per period. This is not a Sybil-resistant identity system. No money prizes.",
+    "scheduler": "Existing minute cron, 180-second dispatcher lease, immutable per-entry event receipts and revision guards; bound JSON settlement chunks of 256 entries, up to four chunks per task. Enrollment capped atomically at 1000 personal flies per period.",
+    "failure_policy": "No retroactive submissions. Missing execution bars or global slots prevent complete-period rank/training. Missing personal decisions remain explicit and exclude that fly from final rank.",
+    "browser": "Visible browser required. The shared WASM runtime pauses personal automatic trading while evaluating. Archived local copies are pruned; current and next-period copies remain.",
+    "migration": "0016_universe.sql is additive and must run before the new Worker cron. It must not be replaced by replaying historical migrations.",
+    "legacy": "Existing group voting remains under a collapsed experiment. Cross-router replication and model distribution are not active.",
+    "capacity": "The initial 1000-entry period limit bounds per-tick work. Operators must size their D1 plan for minute marks and durable decision history before attracting this load."
+  },
+  "api": [
+    "GET /api/universe?round=...",
+    "POST /api/universe/enroll",
+    "GET /api/universe/task",
+    "POST /api/universe/predict"
+  ],
+  "ui": "More > Fly universe; official policy and benchmarks, period selector, personal leaderboard, explicit opt-in, detailed rules. Responsive Chinese/English, day/night. Home has no additional status.",
+  "references": [
+    "https://developers.cloudflare.com/d1/platform/limits/",
+    "https://developers.cloudflare.com/workers/platform/limits/"
+  ]
+}

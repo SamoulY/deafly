@@ -147,7 +147,7 @@ test('mobile observer separates teaching from execution, restores retries, and r
     await page.locator(`[data-page="more"] [data-go="${target}"]`).click();
     await page.locator(`[data-page="${target}"]`).waitFor({state:'visible'});
     assert.equal(await page.locator(`[data-page="${target}"]`).isVisible(),true);
-    const content={analysis:'#chart',vision:'#visionScene',colony:'#colonyRoot',account:'.account-login',technical:'.brain-bar',experiments:'[aria-label="Federated routers"]',practice:'#raisingRoot'};
+    const content={analysis:'#chart',vision:'#visionScene',colony:'#universeRoot',account:'.account-login',technical:'.brain-bar',experiments:'[aria-label="Federated routers"]',practice:'#raisingRoot'};
     assert.equal(await page.locator(`[data-page="${target}"] ${content[target]}`).isVisible(),true,`${target} contains its actual workspace`);
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,`no ${target} overflow at 320`);
     if(['colony','practice','account'].includes(target))await page.screenshot({path:`runtime/reports/companion-${target}.png`});

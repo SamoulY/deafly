@@ -1,18 +1,20 @@
-import {locale,translate} from './i18n.js?v=4';
+import {locale,translate} from './i18n.js?v=5';
 import { startScene, startVisionScene, startBrainScene } from "./scene.js?v=6";
 import { createSessionClient, resolveApiOrigin } from "./session-client.js?v=3";
 import { init as initRaising } from "./raising-ui.js?v=5";
 import { UNAVAILABLE, verifyAnatomy } from "./neural-contract.js";
-import { createBrowserBrainClient, encodeMarketObservation } from "./browser-brain-client.js";
+import { createBrowserBrainClient, encodeMarketObservation } from "./browser-brain-client.js?v=2";
 import { routerRegistry, addRouter } from './router-registry.js';
 import {createDeskChart} from './flydesk-chart.js?v=6';
 import {initLiveDesk} from './flydesk-live-ui.js?v=5';
 import {mountDeskAdmin} from './flydesk-admin.js';
 import { initializePersonalFly, checkpointLabel } from './personal-fly.js';
 import { checkpointStore } from './full-brain/checkpoint.mjs';
-import {createColonyClient} from './colony-client.js';
+import {createColonyClient} from './colony-client.js?v=2';
+import {createUniverseClient} from './universe-client.js?v=1';
+import {mountUniverseUI} from './universe-ui.js?v=1';
 import {mountColonyUI} from './colony-ui.js';
-import {mountCompanion} from './companion.js?v=7';
+import {mountCompanion} from './companion.js?v=8';
 import {createFlySync} from './fly-sync.js?v=1';
 import {mountAccount} from './account-ui.js?v=3';
 let companion = null;
@@ -58,7 +60,7 @@ const routers = routerRegistry(localStorage);
 let series = [], mode = "raising", raising = null, outfit = {}, roomOutfit = null, booted = false;
 let anatomy = null, neuralSnapshot = null, neuralPayload = null, observationGeneration = 0;
 function renderBackend(state){const el=$("#activeBackend");if(!el)return;el.textContent=({ready:'FULL BROWSER WASM',loading:'FULL BROWSER WASM · LOADING',error:'FULL BROWSER WASM · ERROR',cancelled:'FULL BROWSER WASM · STOPPED'})[state] || 'BROWSER ACTIVITY UNAVAILABLE';}
-function initRouterControls(){if(!document.querySelector('#routerPeers'))return;renderRouters();$("#routerConnect")?.addEventListener('click',async()=>{const input=$("#routerUrl"),status=$("#routerStatus");try{status.textContent='CONNECTING...';await addRouter({base_url:input.value},routers);input.value='';renderRouters();status.textContent='CONNECTED';}catch(e){status.textContent=`FAILED · ${e.message}`;}});}
+function initRouterControls(){if(!document.querySelector('#routerPeers'))return;renderRouters();$("#routerConnect")?.addEventListener('click',async()=>{const input=$("#routerUrl"),status=$("#routerStatus");try{status.textContent='CONNECTING...';await addRouter({base_url:input.value},routers);input.value='';renderRouters();status.textContent='Router saved. Automatic model sync is not active.';}catch(e){status.textContent=`FAILED · ${e.message}`;}});}
 async function initPersonalIdentity() {
   const ownerToken=localStorage.getItem(`defly.session:${API}`);
   const ownerId=sessionClient.currentUser?.id;
@@ -164,8 +166,11 @@ async function boot(reset = false) {
   const saved = reset ? await sessionClient.reset() : await sessionClient.restore();
   state = saved.portfolio;
   await initPersonalIdentity();
-  colonyUI = await mountColonyUI($('#colonyRoot'), createColonyClient({api,identity:personalFly.identity,storage:localStorage,withBrain:withColonyBrain}), {
+  let universeUI;
+  const colonyClient=createColonyClient({api,identity:personalFly.identity,storage:localStorage,withBrain:withColonyBrain});
+  const legacyColonyUI = await mountColonyUI($('#colonyRoot'), colonyClient, {
     beforeStart:async () => {
+      universeUI?.pause();
       if (modeBusy || colonyBusy) throw Error('BRAIN_BUSY');
       colonyAutomatic = true;
       observationGeneration++;
@@ -173,6 +178,11 @@ async function boot(reset = false) {
     },
     onRunning:running => { colonyAutomatic = running; },
   });
+  universeUI=await mountUniverseUI($('#universeRoot'),createUniverseClient({api,identity:personalFly.identity,owner:saved.user.id,checkpointKey:personalFly.checkpointKey,store:personalStore,withBrain:withColonyBrain,register:colonyClient.register,getName:()=>raising?.state.profile?.profile.name}),{
+    beforeStart:async()=>{legacyColonyUI.pause();if(modeBusy||colonyBusy)throw Error('BRAIN_BUSY');colonyAutomatic=true;observationGeneration++;await stopAuto();},
+    onRunning:running=>{colonyAutomatic=running;},
+  });
+  colonyUI={pause:message=>{legacyColonyUI.pause(message);universeUI.pause(message);},dispose:()=>{legacyColonyUI.dispose();universeUI.dispose();}};
   changeView("fly");
   // A reopened historical desk must not leave an earlier server run unattended.
   await stopAuto();
@@ -455,7 +465,7 @@ async function stopAuto() {
     if (mode === 'lab') await refreshObservation();
   }
 }
-async function withColonyBrain(operation) {
+async function withColonyBrain(operation, options={}) {
   if (colonyBusy || modeBusy || !personalFly) throw Error('BRAIN_BUSY_OR_SESSION_UNAVAILABLE');
   colonyBusy = true;
   const controls = ['historicalMode','autonomousMode','autoToggle','autoStep','brainRetry','checkpointSave','retrySession','resetSession'];
@@ -468,7 +478,8 @@ async function withColonyBrain(operation) {
     while (autoInFlight) { if (Date.now() > until) throw Error('AUTONOMY_DRAIN_TIMEOUT'); await new Promise(r => setTimeout(r,50)); }
     if (browserBrain.ready && browserBrain.scope === 'autonomy') await browserBrain.saveCheckpoint();
     browserBrain.cancel();
-    browserBrain.start(anatomy?.nodes.map(n => n.id) || [], 'autonomy', {checkpointPersistence:'ephemeral'});
+    if(options.checkpointKey)browserBrain.start(anatomy?.nodes.map(n => n.id) || [], 'autonomy', {checkpointPersistence:'ephemeral',checkpointKey:options.checkpointKey,frozen:true});
+    else browserBrain.start(anatomy?.nodes.map(n => n.id) || [], 'autonomy', {checkpointPersistence:'ephemeral'});
     await browserBrain.waitReady();
     return await operation(browserBrain);
   } finally {
