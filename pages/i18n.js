@@ -1,4 +1,4 @@
-import {messages} from './locales/zh-CN.js?v=2';
+import {messages} from './locales/zh-CN.js?v=3';
 
 const supported = new Set(['en','zh-CN']);
 let language = 'en';

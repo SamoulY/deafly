@@ -7,6 +7,17 @@ const hash=s=>createHash('sha256').update(s).digest('hex');
 const memory=()=>{const values=new Map();return {values,getItem:k=>values.get(k)||null,setItem:(k,v)=>values.set(k,v),removeItem:k=>values.delete(k)};};
 const manifest={manifest_hash:'a'.repeat(64),kernel_hash:'b'.repeat(64)};
 const fly=(storage,ownerId,apiOrigin,ownerToken)=>initializePersonalFly({storage,ownerId,apiOrigin,ownerToken,fetchManifest:async()=>manifest});
+test('website login wins over an unrelated stale guest token without claiming the guest fly',async()=>{
+ const storage=memory(),origin='https://router.test',token='old-guest-secret';storage.setItem(`defly.session:${origin}`,token);
+ const guest=await fly(storage,undefined,undefined,token);
+ let expired=false;const client=createSessionClient({origin,storage,cookieMode:true,fetch:async()=>expired?Response.json({error:'UNAUTHORIZED'},{status:401}):Response.json({user:{id:'account'},session:{kind:'account'},portfolio:{cash:123}})});
+ assert.equal((await client.restore()).portfolio.cash,123);
+ const signedIn=await fly(storage,client.currentUser.id,origin);
+ assert.notEqual(signedIn.identity.fly_id,guest.identity.fly_id);assert.equal(storage.getItem(`defly.session:${origin}`),null);
+ assert.equal(storage.getItem(`defly.checkpoint-owner:${origin}:account`),null,'a website login cannot claim an unrelated legacy key');
+ assert.equal((await fly(storage,undefined,undefined,token)).identity.fly_id,guest.identity.fly_id);
+ expired=true;await assert.rejects(client.restore(),{code:'SESSION_LOGIN_REQUIRED'});
+});
 test('validated guest owner retains legacy identity and checkpoint through registration and cookie login',async()=>{
  const storage=memory(),origin='https://router-a.test',token='legacy-secret';storage.setItem(`defly.session:${origin}`,token);
  const legacy=await fly(storage,undefined,undefined,token);

@@ -1,4 +1,4 @@
-import {locale} from './i18n.js?v=2';
+import {locale} from './i18n.js?v=3';
 const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const money = value => Number.isFinite(Number(value)) ? '$' + Number(value).toFixed(2) : '--';
 const percent = value => value != null && Number.isFinite(Number(value)) ? (Number(value)*100).toFixed(1)+'%' : '--';
@@ -136,10 +136,11 @@ export async function init(options) {
   return ui;
 }
 
-export function createRaisingController({ api, onObservation = () => {}, onOutfit = () => {}, onMode = () => {}, onAction = () => {}, beforeAction = async () => {} }) {
+export function createRaisingController({ api, onObservation = () => {}, onOutfit = () => {}, onMode = () => {}, onAction = () => {}, beforeAction = async () => {}, reconcileProfile = async data => data, saveName = null }) {
   const state = { profile: null, catalog: [], session: null };
   const prefix = '/api/raising';
-  function profile(data) { state.preview = null; state.profile = data; onOutfit(data.profile.loadout); return data; }
+  function applyProfile(data) { state.preview = null; state.profile = data; onOutfit(data.profile.loadout); return data; }
+  async function profile(data) { return applyProfile(await reconcileProfile(data)); }
   async function session(data) { await onMode('raising'); state.session = data; onObservation(data); return data; }
   return {
     state,
@@ -152,13 +153,14 @@ export function createRaisingController({ api, onObservation = () => {}, onOutfi
     preview(id) { const item = state.catalog.find(item => item.id === id); if (!item) return; state.preview = item; onOutfit({...state.profile.profile.loadout, [item.slot]: item.id}); },
     cancelPreview() { state.preview = null; if (state.profile) onOutfit(state.profile.profile.loadout); },
     async load() {
-      profile(await api(prefix + '/profile'));
+      await profile(await api(prefix + '/profile'));
       if (state.profile.active_session_id) await session(await api(prefix + '/sessions/' + encodeURIComponent(state.profile.active_session_id)));
       else await session(await api(prefix + '/sessions', {method:'POST',body:{symbol:'BTCUSD'}}));
       state.catalog = (await api(prefix + '/catalog')).items;
     },
     async start(symbol,extra={}) { return session(await api(prefix + '/sessions', {method:'POST',body:{symbol,...extra}})); },
-    async rename(name) { return profile(await api(prefix + '/profile', {method:'POST',body:{name}})); },
+    async refreshProfile() { return profile(await api(prefix + '/profile')); },
+    async rename(name) { return saveName ? applyProfile(await saveName(name,state.profile)) : profile(await api(prefix + '/profile', {method:'POST',body:{name}})); },
     async purchase(item_id) { return profile(await api(prefix + '/purchase', {method:'POST',body:{item_id}})); },
     async equip(item_id) { return profile(await api(prefix + '/equip', {method:'POST',body:{item_id}})); },
     async open(id) { return session(await api(prefix + '/sessions/' + encodeURIComponent(id))); },
@@ -171,7 +173,7 @@ export function createRaisingController({ api, onObservation = () => {}, onOutfi
       state.pending = null;
       await session(result);
       onAction(action, `teaching:${result.id}:${result.step}`);
-      if (result.status === 'COMPLETED') profile(await api(prefix + '/profile'));
+      if (result.status === 'COMPLETED') await profile(await api(prefix + '/profile'));
       return result;
     },
   };

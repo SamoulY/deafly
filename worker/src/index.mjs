@@ -27,7 +27,7 @@ import {
   applyPlasticity,
   plasticityHash,
 } from "./learning.mjs";
-const CORS={"access-control-allow-origin":"*","access-control-allow-headers":"content-type,x-session-token,idempotency-key","access-control-allow-methods":"GET,POST,OPTIONS"};
+const CORS={"access-control-allow-origin":"*","access-control-allow-headers":"content-type,x-session-token,x-expected-owner,idempotency-key","access-control-allow-methods":"GET,POST,OPTIONS"};
 const json = (x, s = 200) =>
   new Response(JSON.stringify(x), {
     status: s,
@@ -626,12 +626,16 @@ const application = {
             ...CORS,
             "access-control-allow-origin": "*",
             "access-control-allow-headers":
-              "content-type,x-session-token,idempotency-key",
+              "content-type,x-session-token,x-expected-owner,idempotency-key",
             "access-control-allow-methods": "GET,POST,OPTIONS",
           },
         });
       const u = new URL(r.url);
-      if(u.pathname.startsWith('/api/account/'))return handleAccount(r,e,(await cookieUser(r,e))||await auth(r,e));
+      if(u.pathname.startsWith('/api/account/')){
+        const accountUser=(await cookieUser(r,e))||await auth(r,e),expected=r.headers.get('x-expected-owner');
+        if(expected&&accountUser&&expected!==accountUser.id)return json({error:'SESSION_OWNER_CHANGED',message:'Your account changed. Reload to load its fly.'},409);
+        return handleAccount(r,e,accountUser);
+      }
       if (u.pathname === "/api/99x/markets" && r.method === "GET")
         return arenaProxy(r, e, "/api/arena/markets");
       if (u.pathname === "/api/99x/leaderboard" && r.method === "GET")
@@ -691,8 +695,10 @@ const application = {
         });
       }
       if (u.pathname === "/api/router/info" && r.method === "GET") return federation(r,e,null,u.pathname);
-      const user = (r.headers.get("cookie")?.includes("flydesk_session=")?await cookieUser(r,e):null)||await auth(r, e);
+      const signedInUser = r.headers.get("cookie")?.includes("flydesk_session=")?await cookieUser(r,e):null;
+      const user = signedInUser || await auth(r, e);
       if (!user) return json({ error: "UNAUTHORIZED" }, 401);
+      if(r.headers.get('x-expected-owner')&&r.headers.get('x-expected-owner')!==user.id)return json({error:'SESSION_OWNER_CHANGED',message:'Your account changed. Reload to load its fly.'},409);
       if (u.pathname === '/api/companion' || u.pathname.startsWith('/api/companion/')) {
         const response = await handleCompanion(r,e,user,{observation});
         const headers = new Headers(response.headers);
@@ -725,6 +731,7 @@ const application = {
       if (r.method === "GET" && u.pathname === "/api/state")
         return json({
           user: { id: user.id, nickname: user.nickname },
+          session: {kind:signedInUser?'account':'guest'},
           portfolio: await getPortfolio(e, user.id),
           paper_only: true,
           backend: "99x_paper_adapter_v1",

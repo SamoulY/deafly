@@ -1,5 +1,5 @@
-import {marketChart} from './companion-market.js?v=2';
-import {locale} from './i18n.js?v=2';
+import {marketChart} from './companion-market.js?v=3';
+import {locale} from './i18n.js?v=3';
 const money=v=>'USD '+new Intl.NumberFormat(locale(),{minimumFractionDigits:2,maximumFractionDigits:2}).format(v);
 export function mountTraining(root,{api,onSaved,ownerKey}){
   root.innerHTML=`<p class="training-intro muted">Practice teaching with real historical prices. Only the 40 candles before the cutoff are shown. Your example trains the same fly; no trade is placed.</p><div class="training-layout"><section><div class="section-row"><h2>Bitcoin · 1 minute</h2><span class="small muted">40 candles</span></div><div id="trainingChart" class="line-chart"></div><p id="trainingCutoff" class="small muted"></p><dl id="trainingIndicators" class="training-indicators"></dl></section><section class="training-choice"><h2>What would you do now?</h2><p class="small muted">These are practice holdings for this scene, separate from your fly's account.</p><dl id="trainingHoldings"></dl><div class="teaching-choices">${['BUY','SELL','HOLD'].map((a,i)=>`<button data-training-action="${a}" aria-pressed="false" disabled>${['Buy','Sell','Wait'][i]}</button>`).join('')}</div><button id="saveTraining" class="primary full-width" disabled>Save example</button><p id="trainingStatus" class="small" role="status"></p><button id="nextTraining" class="full-width">New scenario</button><button class="menu-row" data-go="records">See what it learned <span>›</span></button></section></div>`;

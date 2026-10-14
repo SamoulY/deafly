@@ -26,6 +26,16 @@ Room / Shop tabs sit above the fly. The shop has 18 clothes, walls, stickers and
 
 Migration `0014_room_and_profile.sql` adds profiles, catalog, inventory and a transaction ledger. D1 triggers atomically enforce ownership, funds and server prices, change cash and inventory, and increment the portfolio revision so in-flight autonomous trades cannot overwrite a purchase. They also adjust active runs' reward baseline by the cash flow: buying a hat must not penalize the trading model. Idempotent receipts survive lost responses and reloads. Existing portfolios are not reset.
 
+### User-device / website reconciliation
+
+Account identity, profile/avatar, balances, holdings, item ownership and the teaching ledger remain website-authoritative. `/api/state` identifies whether authentication actually used the signed-in account or a guest token. A signed-in account discards any leftover guest bearer token without claiming that guest's local fly. After restoration, requests carry the expected owner; a changed login rejects old-tab requests before they can write fly or account data and reloads the tab under the new owner.
+
+Fly identity/private keys and full-brain IndexedDB checkpoints remain on the user device. The owner and canonical API namespace are unchanged. They are never downloaded, replaced, or uploaded by reconciliation. Fly name and equipped-item preferences now persist locally under the API origin, validated account ID and checkpoint owner key. A device with no saved preference seeds it from the website; subsequently local preferences win when opening the app, account page or shop. Empty loadouts explicitly mean no items equipped. Actual ownership always comes from the website: a sold or unowned item is removed from the local preference, without purchasing it or changing cash. Whole-loadout updates use an atomic D1 batch. Per-owner Web Locks serialize reconciliation across tabs.
+
+Name and outfit choices are saved locally before synchronization. Failed synchronization preserves them for the next account/room refresh. Account-page details explain the split and report pending changes; home gets no additional status. Account profile refreshes preserve edits in progress. Full brains and cryptographic fly identities are **not** transferred to another device; website teaching heads and history remain server-backed. This release needs no database migration.
+
+The live-chart button and accessible label now say **开始指导果蝇买卖** / **Start guiding your fly’s trading**. Guidance still freezes only the latest market point and cannot place an order.
+
 Room decorations render in the original fly scene and the fly-view display; a side mirror makes worn clothes visible in the eye view. These cosmetics do not alter the market data sent to the neural encoder. Idle grooming and wing stretches do not press trade keys and respect paused / reduced-motion preferences. Native selects and options have explicit theme colors; account totals explicitly use USD.
 
 Provider references: [Bitfinex candles](https://docs.bitfinex.com/reference/rest-public-candles), [Turnstile server validation](https://developers.cloudflare.com/turnstile/get-started/server-side-validation/).
