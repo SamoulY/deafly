@@ -8,14 +8,37 @@ function equal(a,b){let diff=a.length^b.length;for(let i=0;i<Math.max(a.length,b
 const cookieToken=r=>r.headers.get('cookie')?.match(/(?:^|;\s*)flydesk_session=([a-f0-9]{64})(?:;|$)/)?.[1];
 export async function cookieUser(request,env){const token=cookieToken(request);if(!token)return null;return env.DB.prepare('SELECT u.* FROM users u JOIN flydesk_auth_sessions s ON s.user_id=u.id WHERE s.token_hash=? AND s.expires_at>?').bind(await hash(token),Date.now()).first();}
 export function allowedOrigin(request,env){const origin=request.headers.get('origin');if(!origin)return true;const own=new URL(request.url).origin,configured=String(env.ALLOWED_ORIGIN||'').split(',').map(x=>x.trim()).filter(x=>x&&x!=='*');return origin===own||configured.includes(origin)||(env.APP_ENV!=='production'&&/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin));}
-export async function handleAccount(request,env,existingUser) {
+export async function verifyRegistration(request,env,token,fetchImpl=fetch){
+ if(!env.TURNSTILE_SECRET_KEY)return false;
+ if(typeof token!=='string'||!token||token.length>2048)return false;
+ try{
+   const result=await fetchImpl('https://challenges.cloudflare.com/turnstile/v0/siteverify',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({secret:env.TURNSTILE_SECRET_KEY,response:token,remoteip:request.headers.get('cf-connecting-ip')||undefined}),signal:AbortSignal.timeout(8000)});
+   if(!result.ok)return false;
+   const verification=await result.json(),hosts=String(env.ALLOWED_ORIGIN||'').split(',').map(x=>{try{return new URL(x.trim()).hostname;}catch{return '';}});
+   return verification.success===true&&verification.action==='register'&&hosts.includes(verification.hostname);
+ }catch{return false;}
+}
+export async function handleAccount(request,env,existingUser,{fetchImpl=fetch}={}) {
  const op=new URL(request.url).pathname.split('/').at(-1),db=env.DB;
  const json=(v,status=200,cookie)=>new Response(JSON.stringify(v),{status,headers:{'content-type':'application/json','cache-control':'no-store',...(cookie?{'set-cookie':cookie}:{})}});
+ if(op==='config'&&request.method==='GET')return json({sitekey:env.TURNSTILE_SITE_KEY||null});
+ if(op==='profile'){
+   if(!existingUser)return json({error:'UNAUTHORIZED'},401);
+   const current=async()=>{const account=await db.prepare('SELECT username FROM flydesk_credentials WHERE user_id=?').bind(existingUser.id).first();const profile=await db.prepare('SELECT display_name,avatar FROM account_profiles WHERE user_id=?').bind(existingUser.id).first();return {registered:Boolean(account),username:account?.username||null,display_name:profile?.display_name||existingUser.nickname||'FlyPilot',avatar:profile?.avatar||'orbit'};};
+   if(request.method==='GET')return json(await current());
+   if(request.method!=='POST')return json({error:'METHOD_NOT_ALLOWED'},405);
+   if(!allowedOrigin(request,env))return json({error:'ORIGIN_DENIED'},403);
+   const text=await request.text();if(text.length>1024)return json({error:'REQUEST_TOO_LARGE'},413);
+   let body;try{body=JSON.parse(text);}catch{return json({error:'INVALID_PROFILE'},422);}
+   if(typeof body?.display_name!=='string'||!body.display_name.trim()||body.display_name.trim().length>40||!['orbit','leaf','spark','moon','wave','pixel'].includes(body.avatar))return json({error:'INVALID_PROFILE'},422);
+   await db.prepare('INSERT INTO account_profiles VALUES (?,?,?) ON CONFLICT(user_id) DO UPDATE SET display_name=excluded.display_name,avatar=excluded.avatar').bind(existingUser.id,body.display_name.trim(),body.avatar).run();return json(await current());
+ }
  if(request.method!=='POST')return json({error:'METHOD_NOT_ALLOWED'},405);
  if(!allowedOrigin(request,env))return json({error:'ORIGIN_DENIED'},403);
  const secure=new URL(request.url).protocol==='https:',suffix=`Path=/; HttpOnly; SameSite=${secure?'None':'Lax'}${secure?'; Secure':''}`;
  if(op==='logout'){const token=cookieToken(request);if(token)await db.prepare('DELETE FROM flydesk_auth_sessions WHERE token_hash=?').bind(await hash(token)).run();return json({logged_out:true},200,`flydesk_session=; Max-Age=0; ${suffix}`);}
- let b;try{b=await request.json();}catch{return json({error:'INVALID_JSON'},400);}
+ const text=await request.text();if(text.length>4096)return json({error:'REQUEST_TOO_LARGE'},413);
+ let b;try{b=JSON.parse(text);}catch{return json({error:'INVALID_JSON'},400);}
  const username=String(b?.username||'').trim().toLowerCase(),password=b?.password;
  if(!/^[a-z0-9_.-]{3,40}$/.test(username)||typeof password!=='string'||password.length<12||password.length>256)return json({error:'USERNAME_OR_PASSWORD_INVALID',message:'Username must be 3–40 letters, numbers, or _.-; password must be 12–256 characters'},422);
  const bucket=await hash({ip:request.headers.get('cf-connecting-ip')||'local',window:Math.floor(Date.now()/600000)});
@@ -25,6 +48,7 @@ export async function handleAccount(request,env,existingUser) {
  let uid;
  if(op==='register'){
    if(!existingUser)return json({error:'GUEST_SESSION_REQUIRED'},401);
+   if(!await verifyRegistration(request,env,b.turnstile_token,fetchImpl))return json({error:'BOT_VERIFICATION_FAILED',message:'Complete the security check before registering.'},403);
    const salt=hex(crypto.getRandomValues(new Uint8Array(16))),digest=await derive(password,salt);
    try{await db.prepare('INSERT INTO flydesk_credentials VALUES (?,?,?,?,?,?)').bind(username,existingUser.id,salt,digest,ITERATIONS,Date.now()).run();}catch{return json({error:'ACCOUNT_ALREADY_EXISTS'},409);}uid=existingUser.id;
  } else if(op==='login'){

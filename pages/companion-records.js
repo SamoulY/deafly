@@ -1,4 +1,4 @@
-import {locale} from './i18n.js?v=1';
+import {locale} from './i18n.js?v=2';
 const escape = value => String(value ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const date = seconds => new Date(seconds*1000).toLocaleString(locale(),{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
 const actions={BUY:'Buy Bitcoin',SELL:'Open a short',HOLD:'Wait',CLOSE:'Close the position'};
@@ -18,6 +18,7 @@ export function lessonScene(lesson) {
   if(!first||!last||!(first.close>0)||!Number.isFinite(last.close))return 'The market snapshot is unavailable.';
   const change=(last.close/first.close-1)*100,minutes=Math.round((last.time-first.time)/60);
   const movement=Math.abs(change)<.005?'was nearly flat':`had ${change>0?'risen':'fallen'} ${Math.abs(change).toFixed(2)}%`;
+  if(lesson.context?.kind==='historical')return `Historical scene · ${date(last.time)} · Bitcoin ${movement} over ${minutes} minutes.`;
   return `At ${date(last.time)}, Bitcoin ${movement} over ${minutes} minutes. ${side==='LONG'?'Your fly held Bitcoin':side==='SHORT'?'Your fly held a short position':'Your fly had no open position'} when you taught it.`;
 }
 const link = row => `<button class="record-link" data-open-record="${escape(row.id)}"><span>${escape(row.title)}</span><time>${escape(date(row.created_at))} ›</time></button>`;
@@ -34,6 +35,6 @@ export function recordBody(row, rows) {
   return `<div class="record-detail"><p>${escape(row.detail)}</p><h3>${escape(effectLabels[effect]||effectLabels.unavailable)}</h3><p>${escape(explanation)}</p>${compare?`<div class="choice-comparison"><div><small>Without your examples</small><strong>${escape(actions[evidence.without_teaching])}</strong></div><span aria-hidden="true">→</span><div><small>With your examples</small><strong>${escape(actions[evidence.with_teaching])}</strong></div></div><p class="record-note">A replay of the same scene, with the same holdings and brain signal. Only the final choice became a paper decision.</p><h3>Examples it had learned</h3>${examples.length?examples.map(link).join(''):'<p>Those examples are outside the latest 100 shown here.</p>'}<p class="record-note">${evidence.examples_learned} example${evidence.examples_learned===1?'':'s'} learned by this point. This comparison shows their combined effect.</p>`:''}</div>`;
 }
 export function renderRecord(row, rows, open=false) {
-  const badge=row.kind==='decision'?effectLabels[row.teaching_evidence?.effect]||effectLabels.unavailable:row.kind==='teaching'?row.training_applied?'Learned':'Learning pending':'';
+  const badge=row.kind==='decision'?effectLabels[row.teaching_evidence?.effect]||effectLabels.unavailable:row.kind==='teaching'?(row.context?.kind==='historical'?'Historical practice · ':'')+(row.training_applied?'Learned':'Learning pending'):'';
   return `<details class="record" data-record-id="${escape(row.id)}" ${open?'open':''}><summary><span><small>${row.kind==='decision'?'Fly decision':row.kind==='teaching'?'Your teaching':row.kind==='beginning'?'Starting balance':'Together'}</small><strong>${escape(row.title)}</strong>${badge?`<span class="record-badge ${row.teaching_evidence?.effect==='changed'?'changed':''}">${escape(badge)}</span>`:''}</span><time>${escape(date(row.created_at))}</time></summary>${recordBody(row,rows)}</details>`;
 }

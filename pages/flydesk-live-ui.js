@@ -1,4 +1,4 @@
-import {locale} from './i18n.js?v=1';
+import {locale} from './i18n.js?v=2';
 export function initLiveDesk({root,api,onObservation,onSelect=()=>{},isVisible=()=>true,getAnalysis=()=>({})}) {
  const section=document.createElement('details');section.className='live-desk';section.innerHTML='<summary>Live paper desk · Expand</summary><p>Coinbase BTC-USD · live public quotes, simulated fills · one decision every five minutes, 30-second response window</p><button data-live="start">Start live round</button><button data-live="abort">End live round</button><div><button data-live="BUY">Buy one lot</button><button data-live="SELL">Sell one lot</button><button data-live="HOLD">Hold</button><button data-live="SKIP">Skip</button></div><p role="status">Not started · live beta does not award points or enter training yet</p><button data-export>Export live record</button>';root.prepend(section);
  const status=section.querySelector('[role=status]');let state=null,busy=false,pending=null;

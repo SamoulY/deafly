@@ -25,6 +25,7 @@
 #companion .companion-header { gap:12px; }
 #companion .language-control { display:flex;align-items:center;gap:6px;margin-left:auto;font-size:12px; }
 #companion .language-control select { min-height:40px;max-width:120px;border:0;padding:5px;background:transparent; }
+#companion select,#companion select option,#companion select optgroup { background-color:var(--bg);color:var(--ink); }
 #companion .language-icon { color:var(--muted);font-size:19px; }
 #companion .overview { padding:9px 22px 10px; }
 #companion .overview>.muted { font-size:13px; }
@@ -238,3 +239,62 @@
 @media(min-width:1280px) { #companion { padding:0 40px 48px; }#companion [data-page=home] { grid-template-columns:minmax(0,1fr) 356px;gap:0 48px; }#companion .home-sidebar { padding-left:32px; }#companion #teachChart { height:340px; }#companion .scene-wrap { height:280px; } }
 @media(max-width:359px) { #companion .home-body,#companion .overview { padding-left:16px;padding-right:16px; }#companion .big-number { font-size:34px; }#companion .fly-heading { font-size:11px; }#companion #flyDecision { font-size:10px; }#companion [data-page]:not([data-page=home]) { padding-left:16px;padding-right:16px; } }
 @media(prefers-reduced-motion:reduce) { #companion * { scroll-behavior:auto;transition:none!important; } }
+
+/* Account, room and training share the quiet trading palette. */
+#companion #headerAccount { display:flex;align-items:center;gap:8px;flex-shrink:0;font-size:12px;padding:4px 8px; }
+#companion .header-account-name { max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+#companion .user-avatar { display:inline-grid;place-items:center;width:32px;height:32px;border-radius:50%;background:var(--hover);color:var(--acid);font-size:22px; }
+#companion .avatar-moon { background:#383d61;color:#e8dcaa; }#companion .avatar-spark { background:#734946;color:#ffe4b3; }#companion .avatar-wave { background:#254f67;color:#b3e9ed; }#companion .avatar-pixel { background:#533c65;color:#e7c6ee; }
+#companion .account-login { display:block;border:0;padding:0;background:transparent; }
+#companion .account-login form { display:grid;gap:18px;max-width:480px;margin:20px 0; }
+#companion .account-login label { display:grid;gap:8px;color:var(--ink); }
+#companion .account-login input { width:100%;min-height:44px;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px; }
+#companion .account-actions { display:flex;flex-wrap:wrap;gap:8px; }
+#companion #registrationCheck { display:grid;gap:12px; }
+#companion .avatar-picker { display:flex;flex-wrap:wrap;gap:14px;border:0;padding:0; }
+#companion .avatar-picker legend { padding:0 0 12px; }
+#companion .avatar-picker input { position:absolute;opacity:0;width:1px;min-height:0; }
+#companion .avatar-picker .user-avatar { width:44px;height:44px;cursor:pointer; }
+#companion .avatar-picker input:checked+span { outline:2px solid var(--acid);outline-offset:3px; }
+#companion .avatar-picker input:focus-visible+span { outline:2px solid var(--ink);outline-offset:5px; }
+#companion #chartPoint,#companion #chartPoint:focus-visible { position:static;width:auto;height:auto;clip-path:none;overflow:visible;border:1px solid var(--line);font-size:12px;padding:7px 12px;margin-top:14px;min-height:40px; }
+#companion #chartPoint:disabled { opacity:.42; }
+#companion .teaching-entry { margin:8px 0 12px; }
+#companion .teaching-entry button { padding-left:0;font-size:12px;color:var(--acid); }
+#companion .room-tabs { display:flex;gap:6px;border-bottom:1px solid var(--line);padding:0 12px 8px;margin-bottom:10px; }
+#companion .room-tabs button { font-size:12px; }
+#companion .room-tabs [aria-current=page] { background:var(--hover);color:var(--acid); }
+#companion .shop-layout { display:grid;gap:28px;align-items:start; }
+#companion #shopScene { border-radius:12px;overflow:hidden; }
+#companion #shopScene .scene-wrap { height:280px; }
+#companion .shop-cash { font-size:26px;font-variant-numeric:tabular-nums; }
+#companion .shop-filters { display:flex;gap:4px; }
+#companion .shop-filters button { font-size:12px;padding:8px; }
+#companion .shop-grid { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px; }
+#companion .shop-item { display:flex;flex-direction:column;gap:8px;border:1px solid var(--line);border-radius:12px;padding:12px; }
+#companion .item-illustration { height:90px;display:grid;place-items:center;border-radius:8px;background:var(--panel);color:var(--acid);font-size:42px; }
+#companion .item-illustration svg { width:64px;height:64px; }
+#companion .shop-category { display:flex;justify-content:space-between;align-items:center;margin:20px 0;font-size:12px; }
+#companion .shop-category select { padding:8px 12px;min-height:44px; }
+#companion .item-background-mint { background:#244e43;color:#cee9da; }#companion .item-background-rose { background:#60434b;color:#f3d1d5; }#companion .item-background-graphite { background:#303b4a;color:#cedde6; }
+#companion .item-sticker-star,#companion .item-sticker-bitcoin,#companion .item-sticker-moon { color:#927636; }
+#companion .item-actions { display:grid;gap:6px;margin-top:auto; }
+#companion .item-actions button { font-size:12px; }
+#companion .shop-confirmation { border:1px solid var(--acid);border-radius:12px;padding:16px;background:var(--panel);margin-top:20px; }
+#companion .shop-history-row { display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);font-size:12px; }
+#companion .shop-history-row small { display:block;color:var(--muted); }
+#companion .shop-history-row b { font-weight:500;white-space:nowrap; }
+#companion .training-intro { max-width:720px;margin-bottom:28px; }
+#companion .training-layout { display:grid;gap:28px;align-items:start; }
+#companion #trainingChart { height:300px;margin:18px 0 10px; }
+#companion .training-choice { background:var(--panel);border-radius:12px;padding:20px; }
+#companion .training-choice h2 { margin-top:0; }
+#companion #trainingIndicators { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 20px; }
+#companion #trainingIndicators>div { display:block;border:0;padding:0;font-size:12px; }
+#companion #trainingIndicators dd { margin:4px 0 0;font-size:15px; }
+#companion #trainingHoldings { font-size:12px; }
+#companion #saveTraining { margin-top:18px; }
+#companion #trainingChart .moving-average { stroke:var(--blue); }
+#companion #practiceSlot #wardrobeToggle,#companion #practiceSlot #wardrobePanel,#companion #practiceSlot #profilePoints { display:none; }
+@media(min-width:1000px) { #companion .room-tabs { padding-left:0;padding-right:0; }#companion .shop-layout { grid-template-columns:minmax(260px,.9fr) minmax(0,1.7fr);gap:36px; }#companion .shop-layout>aside { position:sticky;top:24px; }#companion .shop-grid { grid-template-columns:repeat(3,minmax(0,1fr)); }#companion .training-layout { grid-template-columns:minmax(0,1fr) 310px;gap:40px; } }
+@media(max-width:599px) { #companion .paper-badge { display:none; }#companion .companion-header { gap:8px; }#companion .language-icon { display:none; }#companion .language-control select { max-width:96px; }#companion .header-account-name { max-width:48px; }#companion .shop-grid { gap:10px; } }

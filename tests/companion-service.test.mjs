@@ -26,10 +26,10 @@ test('examples freeze server context, isolate owners, train once on retries and 
   const before=(await call('')).data.portfolio;
   const context=await call('/contexts',{});assert.equal(context.status,201);
   market.candles.push({time:160,close:900});
-  const selected=await call('/contexts',{candle_time:100,price:9999});
-  assert.equal(selected.status,201);assert.equal(selected.data.market.candles.length,2);
-  assert.equal(selected.data.market.candles.at(-1).close,200,'server owns the price and excludes future bars');
-  assert.notEqual(selected.data.market.snapshot_hash,market.snapshot_hash);
+  assert.equal((await call('/contexts',{candle_time:100,price:9999})).data.error,'LATEST_POINT_ONLY');
+  const selected=await call('/contexts',{candle_time:160,price:9999});
+  assert.equal(selected.status,201);assert.equal(selected.data.market.candles.length,3);
+  assert.equal(selected.data.market.candles.at(-1).close,900,'server owns the latest price');
   assert.equal((await call('/contexts',{candle_time:40})).status,409);
   assert.equal((await call('/contexts',{candle_time:999})).status,409);
   assert.equal((await call('/contexts',{candle_time:'100'})).status,422);

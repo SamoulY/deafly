@@ -6,19 +6,25 @@ import {pathToFileURL} from 'node:url';
 import {build} from 'esbuild';
 export async function startDev({fixture=false,port=8876,apiPort=8787,persist=false,outboundService}={}) {
  const start=(Math.floor(Date.now()/60000)-200)*60;
- const bindings={PAPER_ONLY:'true',APP_ENV:'dev',ADMIN_USER_IDS:process.env.FLYDESK_ADMIN_USER_IDS||'',ALLOWED_ORIGIN:`http://127.0.0.1:${port},http://localhost:${port}`,...(fixture?{FLYDESK_TEST_MODE:'local-only',FLYDESK_TEST_HISTORY:Array.from({length:120},(_,i)=>({time:start+i*60,open:100+i,high:102+i,low:99+i,close:101+i,volume:10+i}))}:{})};
+ const bindings={PAPER_ONLY:'true',APP_ENV:'dev',ADMIN_USER_IDS:process.env.FLYDESK_ADMIN_USER_IDS||'',ALLOWED_ORIGIN:`http://127.0.0.1:${port},http://localhost:${port}`,...(fixture?{TURNSTILE_SITE_KEY:'1x00000000000000000000AA',TURNSTILE_SECRET_KEY:'isolated-fixture-secret',FLYDESK_TEST_MODE:'local-only',FLYDESK_TEST_HISTORY:Array.from({length:120},(_,i)=>({time:start+i*60,open:100+i,high:102+i,low:99+i,close:101+i,volume:10+i}))}:{})};
  const bundle=await build({entryPoints:['worker/src/index.mjs'],bundle:true,format:'esm',platform:'browser',write:false});
  const modules=[{type:'ESModule',path:resolve('worker/bundle.mjs'),contents:bundle.outputFiles[0].text}];
  // Fixture quotes live in the local harness, never in the deployed Worker.
  const fixtureMarket=async request=>{
-   if(new URL(request.url).hostname!=='api.kraken.com')return new Response('Fixture has no external service',{status:503});
-   const end=Math.floor(Date.now()/60000)*60;
-   return Response.json({error:[],result:{XBTUSD:Array.from({length:40},(_,i)=>[end-(40-i)*60,String(100+i),String(102+i),String(99+i),String(101+i),'0','10',1]),last:end}});
+   const url=new URL(request.url);
+   if(url.hostname==='challenges.cloudflare.com'){const body=await request.json();return Response.json({success:body.response==='test-pass',hostname:'127.0.0.1',action:'register'});}
+   if(url.hostname==='api-pub.bitfinex.com'){
+     const monthly=url.pathname.includes('1M:'),end=Number(url.searchParams.get('end')||Date.now()),d=new Date(end);
+     return Response.json(Array.from({length:45},(_,i)=>[monthly?Date.UTC(d.getUTCFullYear(),d.getUTCMonth()-(45-i),1):end-(45-i)*60000,100+i,101+i,102+i,99+i,10+i]));
+   }
+   if(url.hostname!=='api.kraken.com')return new Response('Fixture has no external service',{status:503});
+   const interval=Number(url.searchParams.get('interval')||1)*60,end=Math.floor(Date.now()/1000/interval)*interval;
+   return Response.json({error:[],result:{XBTUSD:Array.from({length:40},(_,i)=>[end-(40-i)*interval,String(100+i),String(102+i),String(99+i),String(101+i),'0','10',1]),last:end}});
  };
  const mf=new Miniflare(convertV4MiniflareOptions({modules,port:apiPort,host:'127.0.0.1',compatibilityDate:'2026-08-18',bindings,d1Databases:['DB'],d1Persist:persist?'.wrangler/flydesk-d1':false,durableObjectsPersist:persist?'.wrangler/flydesk-live':false,durableObjects:{FLYDESK_LIVE:{className:'FlydeskLive',useSQLite:true}},...((outboundService||fixture)?{outboundService:outboundService||fixtureMarket}:{})}));
  const db=await mf.getD1Database('DB');
  await db.exec('CREATE TABLE IF NOT EXISTS local_schema_migrations (name TEXT PRIMARY KEY);');
- for(const file of ['worker/schema.sql',...['0004_raising.sql','0005_raising_training.sql','0006_browser_autonomy.sql','0007_market_source.sql','0008_federation.sql','0009_colony_tasks.sql','0010_colony_auto.sql','0009_flydesk.sql','0010_flydesk_auth.sql','0011_flydesk_datasets.sql','0012_companion_teaching.sql','0013_companion_learning.sql'].map(f=>'worker/migrations/'+f)]){
+ for(const file of ['worker/schema.sql',...['0004_raising.sql','0005_raising_training.sql','0006_browser_autonomy.sql','0007_market_source.sql','0008_federation.sql','0009_colony_tasks.sql','0010_colony_auto.sql','0009_flydesk.sql','0010_flydesk_auth.sql','0011_flydesk_datasets.sql','0012_companion_teaching.sql','0013_companion_learning.sql','0014_room_and_profile.sql'].map(f=>'worker/migrations/'+f)]){
    if(await db.prepare('SELECT name FROM local_schema_migrations WHERE name=?').bind(file).first())continue;
    const sql=(await readFile(file,'utf8')).replace(/^\s*--.*$/gm,'').replace(/\r?\n/g,' ');await db.exec(sql);await db.prepare('INSERT INTO local_schema_migrations VALUES (?)').bind(file).run();
  }

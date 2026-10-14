@@ -1,18 +1,19 @@
-import {locale,translate} from './i18n.js?v=1';
-import { startScene, startVisionScene, startBrainScene } from "./scene.js?v=4";
-import { createSessionClient, resolveApiOrigin } from "./session-client.js";
-import { init as initRaising } from "./raising-ui.js?v=2";
+import {locale,translate} from './i18n.js?v=2';
+import { startScene, startVisionScene, startBrainScene } from "./scene.js?v=5";
+import { createSessionClient, resolveApiOrigin } from "./session-client.js?v=2";
+import { init as initRaising } from "./raising-ui.js?v=3";
 import { UNAVAILABLE, verifyAnatomy } from "./neural-contract.js";
 import { createBrowserBrainClient, encodeMarketObservation } from "./browser-brain-client.js";
 import { routerRegistry, addRouter } from './router-registry.js';
-import {createDeskChart} from './flydesk-chart.js?v=3';
-import {initLiveDesk} from './flydesk-live-ui.js?v=2';
+import {createDeskChart} from './flydesk-chart.js?v=4';
+import {initLiveDesk} from './flydesk-live-ui.js?v=3';
 import {mountDeskAdmin} from './flydesk-admin.js';
 import { initializePersonalFly, checkpointLabel } from './personal-fly.js';
 import { checkpointStore } from './full-brain/checkpoint.mjs';
 import {createColonyClient} from './colony-client.js';
 import {mountColonyUI} from './colony-ui.js';
-import {mountCompanion} from './companion.js?v=4';
+import {mountCompanion} from './companion.js?v=5';
+import {mountAccount} from './account-ui.js?v=1';
 let companion = null;
 let colonyBusy = false, colonyAutomatic = false, colonyUI = null;
 let personalFly = null;
@@ -43,19 +44,17 @@ $('#checkpointSave').onclick = async () => {
 };
 
 const API = resolveApiOrigin($("meta[name='defly-api-origin']")?.content, location.hostname);
-const sessionClient = createSessionClient({origin: API, storage: localStorage,cookieMode:true});
+const transportOrigin=['defly.99x.meme','flydesk-v2-trial.pages.dev'].includes(location.hostname)?location.origin:API;
+const sessionClient = createSessionClient({origin: API,transportOrigin,storage:localStorage,cookieMode:true});
 const api = sessionClient.api;
 mountDeskAdmin(api);
-const accountBox=document.createElement('details');accountBox.className='account-login';accountBox.innerHTML='<summary>Account login / Save current fly</summary><form><label>Username <input name="username" autocomplete="username" required minlength="3" maxlength="40"></label><label>Password <input name="password" type="password" autocomplete="current-password" required minlength="12" maxlength="256"></label><button name="login" type="submit">Log in</button><button name="register" type="submit">Register and save current fly</button><button name="logout" type="button">Log out</button><p role="status"></p></form>';
-document.querySelector('main').prepend(accountBox);
-accountBox.querySelector('form').onsubmit=async e=>{e.preventDefault();const f=e.currentTarget,status=f.querySelector('[role=status]');try{status.textContent='Processing';await sessionClient.account(e.submitter.name,{username:f.username.value,password:f.password.value});f.password.value='';location.reload();}catch(error){status.textContent=error.message;}};
-accountBox.querySelector('[name=logout]').onclick=async()=>{await sessionClient.account('logout');location.reload();};
+const accountUI=mountAccount(sessionClient);
 const deskApi=(path,options)=>api(path.replace('/api/raising/','/api/flydesk/'),options);
 let deskSession=null;
 const deskChart=createDeskChart(document.querySelector('#chart'),{save:analysis=>deskSession&&deskSession.status==='ACTIVE'&&deskSession.market_mode!=='LIVE'?deskApi('/api/raising/sessions/'+deskSession.id+'/analysis',{method:'POST',body:analysis}):Promise.resolve()});
 function renderRouters(){if(!document.querySelector('#routerPeers'))return;const el=$("#routerPeers"),items=routers.list();if(el)el.innerHTML=items.length?items.map(p=>`<div>${p.peer_id||p.base_url} · ${p.protocol}</div>`).join(''):'NO PEER ROUTERS';const s=$("#routerStatus");if(s)s.textContent=items.length?`${items.length} PEER ROUTER${items.length>1?'S':''}`:'LOCAL ROUTER';}
 const routers = routerRegistry(localStorage);
-let series = [], mode = "raising", raising = null, outfit = {}, booted = false;
+let series = [], mode = "raising", raising = null, outfit = {}, roomOutfit = null, booted = false;
 let anatomy = null, neuralSnapshot = null, neuralPayload = null, observationGeneration = 0;
 function renderBackend(state){const el=$("#activeBackend");if(!el)return;el.textContent=({ready:'FULL BROWSER WASM',loading:'FULL BROWSER WASM · LOADING',error:'FULL BROWSER WASM · ERROR',cancelled:'FULL BROWSER WASM · STOPPED'})[state] || 'BROWSER ACTIVITY UNAVAILABLE';}
 function initRouterControls(){if(!document.querySelector('#routerPeers'))return;renderRouters();$("#routerConnect")?.addEventListener('click',async()=>{const input=$("#routerUrl"),status=$("#routerStatus");try{status.textContent='CONNECTING...';await addRouter({base_url:input.value},routers);input.value='';renderRouters();status.textContent='CONNECTED';}catch(e){status.textContent=`FAILED · ${e.message}`;}});}
@@ -144,6 +143,7 @@ function changeView(v) {
           : v === "vision"
             ? startVisionScene($("#visionScene"), series)
             : startBrainScene($("#brainScene"), anatomy);
+      if(v!=='brain')scenes[v]?.setOutfit?.(outfit);
     } catch (e) {
       $("#sceneFallback").hidden = false;
       $("#sceneFallback").textContent = "3D ERROR · " + e.message;
@@ -157,6 +157,7 @@ async function boot(reset = false) {
   colonyUI?.dispose();
   colonyUI = null;
   personalFly = null;
+  roomOutfit=null;outfit={};
   browserBrain.cancel();
   const saved = reset ? await sessionClient.reset() : await sessionClient.restore();
   state = saved.portfolio;
@@ -176,7 +177,7 @@ async function boot(reset = false) {
   if (anatomy) startPersonalBrain(anatomy.nodes.map(n => n.id), 'observation');
   $("#sessionRecovery").hidden = true;
   raising = await initRaising({api:deskApi,flydesk:true,beforeAction:()=>deskChart.flush(),
-    onOutfit: loadout => { outfit = loadout; scenes.fly?.setOutfit?.(loadout); },
+    onOutfit: loadout => { outfit = roomOutfit || loadout; scenes.fly?.setOutfit?.(outfit); scenes.vision?.setOutfit?.(outfit); },
     onMode: exitLab,
     onObservation: applyRaisingObservation,
     onAction: (action, eventId) => scenes.fly?.playAction?.(action, eventId),
@@ -784,6 +785,8 @@ $("#historicalMode").onclick = () => switchMode("raising");
 $("#autonomousMode").onclick = () => switchMode("lab");
 companion = mountCompanion({
   api,origin:API,
+  onAccount:()=>accountUI.refresh(),
+  onRoom:loadout=>{roomOutfit=loadout;outfit=loadout;scenes.fly?.setOutfit?.(loadout);scenes.vision?.setOutfit?.(loadout);},
   onPage:async next => {
     if (!raising) return;
     const nextMode = next === 'practice' ? 'raising' : 'lab';

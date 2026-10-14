@@ -1,16 +1,17 @@
-import {locale,translate} from './i18n.js?v=1';
+import {locale,translate} from './i18n.js?v=2';
 
 const escape=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const defaultChartSettings=()=>({style:'line',timeframe:60,average:false,volume:false,markers:true});
 export function normalizeChartSettings(value={}){
   const defaults=defaultChartSettings();
-  return {...defaults,style:['line','candles'].includes(value?.style)?value.style:defaults.style,timeframe:[60,300].includes(value?.timeframe)?value.timeframe:60,...Object.fromEntries(['average','volume','markers'].map(key=>[key,typeof value?.[key]==='boolean'?value[key]:defaults[key]]))};
+  return {...defaults,style:['line','candles'].includes(value?.style)?value.style:defaults.style,timeframe:[60,300,900,1800,3600,14400,86400,604800,2592000].includes(value?.timeframe)?value.timeframe:60,...Object.fromEntries(['average','volume','markers'].map(key=>[key,typeof value?.[key]==='boolean'?value[key]:defaults[key]]))};
 }
 // Each displayed group retains its final *source* minute. Teaching always sends
 // that timestamp to the server, never a bucket start or a fabricated five-minute bar.
 export function groupCandles(bars,timeframe=60){
   const groups=[];
   bars.forEach((bar,index)=>{
+    if(bar.interval===timeframe){groups.push({...bar,bucket:bar.time,sourceIndex:index,count:timeframe/60,startTime:bar.time});return;}
     const bucket=Math.floor(bar.time/timeframe)*timeframe,last=groups.at(-1);
     if(last?.bucket===bucket){last.high=Math.max(last.high,bar.high);last.low=Math.min(last.low,bar.low);last.close=bar.close;last.volume+=bar.volume||0;last.time=bar.time;last.sourceIndex=index;last.count++;}
     else groups.push({...bar,bucket,volume:bar.volume||0,sourceIndex:index,count:1,startTime:bar.time});
@@ -30,7 +31,7 @@ export function marketChart(bars,settings,{width=360,height=160,selectedTime=nul
   const min=Math.min(...prices),max=Math.max(...prices),pad=(max-min||Math.max(1,max*.01))*.12,low=min-pad,high=max+pad;
   const x=i=>left+i/Math.max(1,groups.length-1)*(right-left),y=value=>bottom-(value-low)/(high-low)*(bottom-top);
   const number=value=>new Intl.NumberFormat(locale(),{maximumFractionDigits:2}).format(value);
-  const time=value=>new Date(value*1000).toLocaleTimeString(locale(),{hour:'2-digit',minute:'2-digit',hour12:false});
+  const time=value=>settings.timeframe>=86400?new Date(value*1000).toLocaleDateString(locale(),{year:'2-digit',month:'short',day:'numeric',timeZone:'UTC'}):new Date(value*1000).toLocaleString(locale(),{...(settings.timeframe>=3600?{month:'short',day:'numeric'}:{}),hour:'2-digit',minute:'2-digit',hour12:false});
   const candleWidth=Math.max(2,Math.min(18,(right-left)/groups.length*.55));
   const chart=[];
   for(let tick=0;tick<4;tick++){const price=high-(high-low)*tick/3,at=y(price);chart.push(`<path class="chart-grid" d="M${left} ${at}H${right}"/>`);if(desktop)chart.push(`<text class="chart-axis" x="${right+10}" y="${at+4}">${escape(number(price))}</text>`);}
@@ -45,5 +46,5 @@ export function marketChart(bars,settings,{width=360,height=160,selectedTime=nul
   if(settings.markers)for(const lesson of lessons){const at=lesson.context?.market?.candles?.at(-1)?.time,index=groups.findIndex(bar=>bar.startTime<=at&&bar.time>=at);if(index<0)continue;chart.push(`<circle class="lesson-marker marker-${escape(lesson.action)}" cx="${x(index)}" cy="${y(groups[index].close)}" r="4"><title>${escape(translate(({BUY:'Buy',SELL:'Sell',HOLD:'Wait'})[lesson.action]||'Wait'))} · ${escape(time(at))}</title></circle>`);}
   const selected=groups.findIndex(bar=>bar.startTime<=selectedTime&&bar.time>=selectedTime);
   if(selected>=0)chart.push(`<path class="chart-cursor" d="M${x(selected)} ${top}V${bottom}"/><circle class="selected-point" cx="${x(selected)}" cy="${y(groups[selected].close)}" r="5"/>`);
-  return `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Bitcoin closed prices. Select a point to teach your fly.">${chart.join('')}</svg>`;
+  return `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Bitcoin closed prices. Teaching uses the latest point.">${chart.join('')}</svg>`;
 }

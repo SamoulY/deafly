@@ -18,7 +18,7 @@ test('mobile observer separates teaching from execution, restores retries, and r
   await page.route('**/api/observation',route=>route.fulfill(quoteUnavailable?{status:503,json:{error:'MARKET_UNAVAILABLE'}}:{json:market}));
   await page.route('**/api/companion/contexts',async route=>{
     const portfolio=await dev.db.prepare('SELECT * FROM portfolios LIMIT 1').first();
-    const at=route.request().postDataJSON().candle_time;
+    const at=market.candles.at(-1).time;
     const context={id:crypto.randomUUID(),symbol:'BTCUSD',market:{...market,candles:market.candles.filter(c=>c.time<=at)},portfolio,created_at:now,expires_at:now+600};
     await dev.db.prepare('INSERT INTO companion_contexts VALUES (?,?,?,?,?)').bind(context.id,portfolio.user_id,JSON.stringify(context),now,now+600).run();
     await route.fulfill({status:201,json:context});
@@ -27,10 +27,10 @@ test('mobile observer separates teaching from execution, restores retries, and r
   await page.waitForFunction(()=>!document.querySelector('#chartPoint')?.disabled||document.querySelector('#notice').textContent.includes('RESTORE FAILED'));
   assert.equal(await page.locator('#chartPoint').isDisabled(),false,await page.locator('#notice').textContent());
   const initial=await dev.db.prepare('SELECT * FROM portfolios LIMIT 1').first();
-  const initialValue=new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(accountValue(initial,140));
+  const initialValue='USD '+new Intl.NumberFormat('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}).format(accountValue(initial,140));
   assert.ok(initial.position_qty>0);
   assert.equal(await page.locator('[data-demonstrate="BUY"]').isVisible(),false);
-  const choose=async action=>{await page.locator('#teachChart').click({position:{x:160,y:70}});await page.waitForFunction(()=>!document.querySelector('[data-demonstrate="BUY"]').disabled);await page.locator(`[data-demonstrate="${action}"]`).click();};
+  const choose=async action=>{const bounds=await page.locator('#teachChart').boundingBox();await page.locator('#teachChart').click({position:{x:bounds.width-12,y:70}});await page.waitForFunction(()=>!document.querySelector('[data-demonstrate="BUY"]').disabled);await page.locator(`[data-demonstrate="${action}"]`).click();};
   assert.equal(await page.locator('#homeEquity').textContent(),initialValue);
   assert.equal(await page.locator('#flyScene').isVisible(),true);
   assert.equal(await page.locator('#raisingRoot').isVisible(),false);
@@ -85,8 +85,8 @@ test('mobile observer separates teaching from execution, restores retries, and r
   await dev.db.prepare("UPDATE portfolios SET cash=9500,quantity=5,avg_cost=100,position_side='LONG',position_qty=5,entry_price=100 WHERE user_id=?").bind(before.user_id).run();
   const position=await dev.db.prepare('SELECT * FROM portfolios WHERE user_id=?').bind(before.user_id).first();
   for(const [action,price,at] of [['BUY',100,now-120],['HOLD',130,now-60]])await dev.db.prepare('INSERT INTO decisions VALUES (?,?,?,?,?,?,?,?,?,?,?)').bind(crypto.randomUUID(),before.user_id,'TRADE',action,'BTCUSD',null,price,0,JSON.stringify({...position,source:'BROWSER_NEURAL',provenance:{teaching:{comparison:{schema:'companion-comparison-v1',effect:action==='BUY'?'changed':'same_choice',without_teaching:'HOLD',with_teaching:action,examples_learned:1}}}}),crypto.randomUUID(),at).run();
-  await page.reload();await page.waitForFunction(()=>document.querySelector('#homeEquity').textContent==='$10,200.00');
-  assert.equal(await page.locator('#homeHolding').textContent(),'$700.00');
+  await page.reload();await page.waitForFunction(()=>document.querySelector('#homeEquity').textContent==='USD 10,200.00');
+  assert.equal(await page.locator('#homeHolding').textContent(),'USD 700.00');
   assert.equal(await page.locator('#flyDecision').textContent(),'Waiting');
   assert.equal(await page.locator('#equityLine polyline').count(),1);
   await page.screenshot({path:'runtime/reports/companion-mobile-funded.png',fullPage:true});
@@ -95,7 +95,7 @@ test('mobile observer separates teaching from execution, restores retries, and r
   assert.equal(await page.locator('#homeEquity').textContent(),'—');
   assert.equal(await page.locator('#homeHolding').textContent(),'—');
   assert.match(await page.locator('#companionStatus').textContent(),/Live price unavailable/);
-  quoteUnavailable=false;await page.reload();await page.waitForFunction(()=>document.querySelector('#homeEquity').textContent==='$10,200.00');
+  quoteUnavailable=false;await page.reload();await page.waitForFunction(()=>document.querySelector('#homeEquity').textContent==='USD 10,200.00');
   for(const width of [320,390,768,1024,1440,1920]){
     await page.setViewportSize({width,height:844});
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,`no home overflow at ${width}`);
@@ -134,7 +134,7 @@ test('mobile observer separates teaching from execution, restores retries, and r
   await page.emulateMedia({colorScheme:'light'});
   await page.waitForFunction(()=>document.documentElement.dataset.theme==='light');
   await page.locator('.bottom-nav [data-go="home"]').click();
-  await page.locator('#chartPoint').focus();await page.keyboard.press('ArrowLeft');
+  await page.locator('#chartPoint').focus();await page.keyboard.press('Enter');
   await page.waitForFunction(()=>!document.querySelector('[data-demonstrate="BUY"]').disabled);
   assert.equal(await page.locator('#saveLesson').isDisabled(),true);
   await page.locator('[data-demonstrate="HOLD"]').click();
