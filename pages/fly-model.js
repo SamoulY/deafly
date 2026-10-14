@@ -1,4 +1,6 @@
 import * as THREE from './vendor-three.js';
+import {memeItems} from './meme-items.js?v=1';
+import {buildMemeAccessory} from './meme-accessories.js?v=1';
 
 const surface = (color, extra = {}) => new THREE.MeshStandardMaterial({ color, roughness: 1, metalness: 0, flatShading: true, ...extra });
 const palette=['#344747','#485b4d','#3d4c63','#553f4e','#4b5140','#3b5360'];
@@ -86,6 +88,7 @@ export function createFlyModel(identityOrFlyId = null) {
   }
   const cosmetics = new THREE.Group(); cosmetics.name = 'cosmetic-mount'; cosmetics.userData.cosmetic = true; fly.add(cosmetics);
   const allowed = { head: ['head-cap', 'head-crown', 'head-beanie'], face: ['face-glasses', 'face-monocle', 'face-visor'], body: ['body-tie', 'body-bowtie', 'body-vest'], background: ['background-mint', 'background-rose', 'background-graphite'] };
+  for(const item of Object.values(memeItems))if(allowed[item.slot])allowed[item.slot].push(item.id);
   let current = { head: null, face: null, body: null, background: null };
   function setOutfit(loadout = null) {
     const next = Object.fromEntries(Object.entries(allowed).map(([slot, ids]) => [slot, ids.includes(loadout?.[slot]) ? loadout[slot] : null]));
@@ -107,6 +110,7 @@ export function createFlyModel(identityOrFlyId = null) {
 }
 
 function buildAccessory(group, id) {
+  if(buildMemeAccessory(group,id))return;
   const cloth = surface('#36a8a5', { roughness: .82, metalness: 0 });
   const gold = surface('#d1b876', { roughness: .38, metalness: .65 });
   const ink = surface('#18232a');

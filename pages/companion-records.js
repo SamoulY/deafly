@@ -1,4 +1,4 @@
-import {locale} from './i18n.js?v=3';
+import {locale} from './i18n.js?v=4';
 const escape = value => String(value ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const date = seconds => new Date(seconds*1000).toLocaleString(locale(),{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
 const actions={BUY:'Buy Bitcoin',SELL:'Open a short',HOLD:'Wait',CLOSE:'Close the position'};

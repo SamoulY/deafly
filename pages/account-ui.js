@@ -1,4 +1,4 @@
-import {getLanguage,translate} from './i18n.js?v=3';
+import {getLanguage,translate} from './i18n.js?v=4';
 export const avatars={orbit:'◉',leaf:'❧',spark:'✦',moon:'☾',wave:'≋',pixel:'▦'};
 const escape=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let turnstileScript;

@@ -11,7 +11,7 @@ async function setup(t){
  const mf=new Miniflare(convertV4MiniflareOptions({modules:true,script:'export default {fetch(){return new Response("ok")}}',compatibilityDate:'2026-08-18',d1Databases:['DB']}));t.after(()=>mf.dispose());const DB=await mf.getD1Database('DB');
  for(const name of ['schema.sql','migrations/0004_raising.sql','migrations/0010_flydesk_auth.sql','migrations/0012_companion_teaching.sql','migrations/0013_companion_learning.sql','migrations/0014_room_and_profile.sql'])await DB.exec((await readFile('worker/'+name,'utf8')).replace(/^\s*--.*$/gm,'').replace(/\r?\n/g,' '));
  for(const id of ['alice','bob']){await DB.prepare('INSERT INTO users VALUES (?,?,?,?,?)').bind(id,id,id,1,1).run();await DB.prepare('INSERT INTO portfolios(user_id,cash) VALUES (?,0)').bind(id).run();}
- const call=async(path,body,owner='alice')=>{const r=await handleRoom(new Request('https://test/api/companion/room'+path,{method:body?'POST':'GET',...(body?{body:JSON.stringify(body)}:{})}),{DB},{id:owner});return {status:r.status,data:await r.json()};};return {DB,call};
+ const call=async(path,body,owner='alice')=>{if(path==='/trade'&&body.expected_price===undefined){const item=await DB.prepare('SELECT * FROM room_catalog WHERE id=?').bind(body.item_id).first();body={...body,expected_price:body.operation==='BUY'?item.price:item.resale};}const r=await handleRoom(new Request('https://test/api/companion/room'+path,{method:body?'POST':'GET',...(body?{body:JSON.stringify(body)}:{})}),{DB},{id:owner});return {status:r.status,data:await r.json()};};return {DB,call};
 }
 test('room ledger spends only cash, sells equipped items, migrates once and handles retry/concurrent purchases atomically',async t=>{
  const {DB,call}=await setup(t);
