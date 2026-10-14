@@ -298,3 +298,15 @@
 #companion #practiceSlot #wardrobeToggle,#companion #practiceSlot #wardrobePanel,#companion #practiceSlot #profilePoints { display:none; }
 @media(min-width:1000px) { #companion .room-tabs { padding-left:0;padding-right:0; }#companion .shop-layout { grid-template-columns:minmax(260px,.9fr) minmax(0,1.7fr);gap:36px; }#companion .shop-layout>aside { position:sticky;top:24px; }#companion .shop-grid { grid-template-columns:repeat(3,minmax(0,1fr)); }#companion .training-layout { grid-template-columns:minmax(0,1fr) 310px;gap:40px; } }
 @media(max-width:599px) { #companion .paper-badge { display:none; }#companion .companion-header { gap:8px; }#companion .language-icon { display:none; }#companion .language-control select { max-width:96px; }#companion .header-account-name { max-width:48px; }#companion .shop-grid { gap:10px; } }
+
+/* A larger catalog stays browsable without making the first screen longer. */
+#companion .shop-discovery {display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) minmax(0,1fr);gap:12px;margin-top:22px;}
+#companion .shop-discovery label {display:grid;gap:7px;min-width:0;font-size:12px;}
+#companion .shop-discovery input,#companion .shop-discovery select {width:100%;min-width:0;min-height:44px;padding:8px 10px;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:8px;}
+#companion .shop-description {margin:0;line-height:1.5;}
+#companion .shop-theme {color:var(--acid);}
+#companion .shop-item h3 {font-size:15px;line-height:1.4;overflow-wrap:anywhere;}
+#companion .shop-item .item-actions button {white-space:normal;overflow-wrap:anywhere;min-width:0;}
+#companion .shop-more {display:block;margin:24px auto;}
+#companion .shop-more[hidden] {display:none;}
+@media(max-width:599px){#companion .shop-discovery {grid-template-columns:repeat(2,minmax(0,1fr));}#companion .shop-search {grid-column:1/-1;}#companion .shop-item {padding:10px;min-width:0;}#companion .shop-item .small {font-size:11px;}#companion .shop-history-row {flex-wrap:wrap;}}

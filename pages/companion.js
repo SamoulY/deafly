@@ -1,8 +1,8 @@
-import {renderRecord} from './companion-records.js?v=4';
-import {locale,mountLanguage,sourceText} from './i18n.js?v=3';
-import {defaultChartSettings,normalizeChartSettings,groupCandles,marketChart} from './companion-market.js?v=3';
-import {mountTraining} from './companion-training.js?v=2';
-import {mountShop} from './companion-shop.js?v=2';
+import {renderRecord} from './companion-records.js?v=5';
+import {locale,mountLanguage,sourceText} from './i18n.js?v=4';
+import {defaultChartSettings,normalizeChartSettings,groupCandles,marketChart} from './companion-market.js?v=4';
+import {mountTraining} from './companion-training.js?v=3';
+import {mountShop} from './companion-shop.js?v=3';
 const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const money = value => Number.isFinite(value) ? 'USD '+new Intl.NumberFormat(locale(),{minimumFractionDigits:2,maximumFractionDigits:2}).format(value) : '—';
 const date = seconds => new Date(seconds*1000).toLocaleString(locale(),{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});

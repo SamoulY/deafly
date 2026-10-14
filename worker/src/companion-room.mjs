@@ -45,10 +45,14 @@ export async function handleRoom(request,env,user){
   const previous=()=>db.prepare('SELECT * FROM room_transactions WHERE user_id=? AND idempotency_key=?').bind(user.id,body.idempotency_key).first();
   const receipt=async row=>row.item_id!==item.id||row.operation!==body.operation?reply({error:'IDEMPOTENCY_CONFLICT'},409):reply({...await state(),receipt:row});
   const saved=await previous();if(saved)return receipt(saved);
+  // A stale tab must explicitly confirm a changed quote before spending cash.
+  if(body.expected_price!==(body.operation==='BUY'?item.price:item.resale))return reply({error:'PRICE_CHANGED'},409);
   try{
     await db.prepare('INSERT INTO room_transactions(id,user_id,item_id,operation,amount,idempotency_key,created_at) VALUES (?,?,?,?,?,?,?)').bind(crypto.randomUUID(),user.id,item.id,body.operation,body.operation==='BUY'?-item.price:item.resale,body.idempotency_key,Math.floor(Date.now()/1000)).run();
   }catch(error){
     const saved=await previous();if(saved)return receipt(saved);
+    const current=await db.prepare('SELECT price,resale FROM room_catalog WHERE id=?').bind(item.id).first();
+    if(current&&body.expected_price!==(body.operation==='BUY'?current.price:current.resale))return reply({error:'PRICE_CHANGED'},409);
     const code=['INSUFFICIENT_CASH','ALREADY_OWNED','ITEM_NOT_OWNED'].find(c=>error.message.includes(c));
     if(code)return reply({error:code},409);throw error;
   }

@@ -1,5 +1,9 @@
 // English UI messages are stable keys. Product names, symbols and raw model data stay intact.
 export const messages = {
+  'Prices have changed. Review the new price and confirm again.':'价格已更新，请查看新价格后重新确认。',
+
+  'Search items':'搜索商品','Theme':'主题','All themes':'全部主题','Trading memes':'交易梗','Internet energy':'网络抽象','Slow life':'松弛动物','Desk life':'打工日常','Classics':'经典款','Sort':'排序','Price: low to high':'价格从低到高','New arrivals':'新款优先','Name':'名称','Show more items':'展示更多商品',
+
   'Language':'语言','English':'English','简体中文':'简体中文','Paper':'模拟资金','DeFly home':'DeFly 首页',
   'Home':'首页','Records':'记录','More':'更多','Back':'返回','Main navigation':'主导航',
   'Total value':'总资产','Bitcoin':'比特币','Fly holdings':'果蝇持仓','Available cash':'可用资金',

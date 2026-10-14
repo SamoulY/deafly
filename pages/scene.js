@@ -1,7 +1,7 @@
 import * as THREE from './vendor-three.js';
-import { createFlyModel } from './fly-model.js';
+import { createFlyModel } from './fly-model.js?v=2';
 import { createMotion, ACTION_KEYS } from './fly-motion.js?v=2';
-import {buildRoomDecor,drawVisionRoom,clearDecor} from './room-decor.js?v=1';
+import {buildRoomDecor,drawVisionRoom,clearDecor,wallColors} from './room-decor.js?v=2';
 
 const FPS=12;const FRAME_MS=1000/FPS;
 const material = (color, options = {}) => new THREE.MeshStandardMaterial({
@@ -170,7 +170,7 @@ export function startScene(canvas, series = [], flyId = 'default') {
       const normalized = setOutfit(loadout);
       const nextKey=JSON.stringify(loadout||{});if(nextKey!==roomKey){roomKey=nextKey;buildRoomDecor(decorations,loadout);canvas.dataset.room=nextKey;}
       const backgrounds = { 'background-mint': '#10201e', 'background-rose': '#23171e', 'background-graphite': '#181c24' };
-      scene.background.set(backgrounds[normalized.background] || '#060709');
+      scene.background.set(backgrounds[normalized.background] || wallColors[normalized.background] || '#060709');
       return normalized;
     },
     setAppearance(next) { return setAppearance(next); },

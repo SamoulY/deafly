@@ -1,4 +1,6 @@
+import {memeArt} from './meme-art.js?v=1';
 export function itemArt(id){
+  const meme=memeArt(id);if(meme)return meme;
   const ink='#557d71',cloth='#779faa',gold='#d9b66d',paper='#f0e8cc';let drawing='';
   if(id.startsWith('head-'))drawing=id==='head-crown'?`<path fill="${gold}" d="M13 22l12 10 7-18 9 18 11-10-4 28H17z"/><path d="M18 43h29"/>`:id==='head-beanie'?`<path fill="${cloth}" d="M16 42V32a16 16 0 0132 0v10z"/><rect fill="${ink}" x="12" y="39" width="40" height="10" rx="4"/><circle fill="${paper}" cx="32" cy="14" r="5"/>`:`<path fill="${cloth}" d="M12 40v-6c0-23 34-23 34 0v6z"/><path fill="${ink}" d="M13 39h34l11 7H17z"/>`;
   else if(id.startsWith('face-'))drawing=id==='face-visor'?`<path fill="${cloth}" d="M8 24h48v17c-11 11-37 11-48 0z"/><path d="M9 26h46M18 33l10-3"/>`:id==='face-monocle'?`<circle fill="none" stroke="${gold}" stroke-width="4" cx="27" cy="29" r="15"/><path d="M38 40v13h12"/>`:`<g fill="none" stroke-width="3"><circle cx="18" cy="34" r="11"/><circle cx="46" cy="34" r="11"/><path d="M29 32h6M7 32l-3-10M57 32l3-10"/></g>`;

@@ -1,4 +1,4 @@
-import {translate} from './i18n.js?v=3';
+import {translate} from './i18n.js?v=4';
 // Server supplies every candle and indicator. This module only maps data to pixels.
 export function createDeskChart(canvas,{save=async()=>{}}={}) {
   const toolbar=document.createElement('div');toolbar.className='desk-chart-toolbar';

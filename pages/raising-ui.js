@@ -1,4 +1,4 @@
-import {locale} from './i18n.js?v=3';
+import {locale} from './i18n.js?v=4';
 const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const money = value => Number.isFinite(Number(value)) ? '$' + Number(value).toFixed(2) : '--';
 const percent = value => value != null && Number.isFinite(Number(value)) ? (Number(value)*100).toFixed(1)+'%' : '--';
