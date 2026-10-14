@@ -14,7 +14,7 @@ import {createColonyClient} from './colony-client.js?v=2';
 import {createUniverseClient} from './universe-client.js?v=1';
 import {mountUniverseUI} from './universe-ui.js?v=1';
 import {mountColonyUI} from './colony-ui.js';
-import {mountCompanion} from './companion.js?v=8';
+import {mountCompanion} from './companion.js?v=9';
 import {createFlySync} from './fly-sync.js?v=1';
 import {mountAccount} from './account-ui.js?v=3';
 let companion = null;

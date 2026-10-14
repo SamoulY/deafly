@@ -112,7 +112,7 @@
 #companion #lessonResult:empty,#companionStatus:empty,#flyRunMessage:empty { display:none; }
 #companion .recent-link { display:flex;justify-content:space-between;gap:8px;width:100%;padding:8px 0;text-align:left;font-size:12px; }
 #companion time { color:var(--muted);font-size:10px;font-weight:400;white-space:nowrap; }
-#companion .bottom-nav { position:fixed;z-index:10;bottom:0;left:50%;transform:translateX(-50%);display:grid;grid-template-columns:repeat(3,1fr);width:min(100%,440px);background:var(--bg);border-top:1px solid var(--line);padding:5px 12px calc(7px + env(safe-area-inset-bottom)); }
+#companion .bottom-nav { position:fixed;z-index:10;bottom:0;left:50%;transform:translateX(-50%);display:grid;grid-template-columns:repeat(4,1fr);width:min(100%,440px);background:var(--bg);border-top:1px solid var(--line);padding:5px 12px calc(7px + env(safe-area-inset-bottom)); }
 #companion .bottom-nav button { display:grid;justify-items:center;gap:1px;color:var(--muted);font-size:10px; }
 #companion .bottom-nav button>span { font-size:23px;line-height:24px; }
 #companion .bottom-nav [aria-current=page] { color:var(--acid); }
@@ -236,7 +236,7 @@
 @media(min-width:1000px) {
   #companion { position:relative;width:calc(100% - 48px);max-width:1440px;padding:0 32px 40px;margin:24px auto;min-height:calc(100dvh - 48px);border:1px solid var(--line);border-radius:18px; }
   #companion .companion-header { padding:22px 0;margin-bottom:32px;justify-content:flex-start;gap:16px;border-bottom:1px solid var(--line); }
-  #companion .bottom-nav { position:absolute;inset:22px auto auto 50%;transform:translateX(-50%);width:320px;border:0;padding:0;background:transparent; }
+  #companion .bottom-nav { position:static;transform:none;grid-template-columns:repeat(4,auto);width:auto;margin-left:auto;border:0;padding:0;background:transparent; }
   #companion .bottom-nav button { display:flex;justify-content:center;align-items:center;gap:8px;font-size:13px; }
   #companion .bottom-nav [aria-current=page] { background:var(--hover); }
   #companion [data-page=home] { display:grid;grid-template-columns:minmax(0,1fr) 300px;grid-template-rows:auto auto 1fr;grid-template-areas:'recovery recovery' 'value sidebar' 'market sidebar';gap:0 36px;align-items:start; }

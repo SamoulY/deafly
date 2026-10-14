@@ -55,10 +55,11 @@ export function mountCompanion({api,origin,onPage,onRun,onGreet,onRename,onView,
     <section data-page="technical" hidden>${pageHead('Brain & model details')}<div id="technicalSlot"></div></section>
     <section data-page="experiments" hidden>${pageHead('Experiments & routers')}<div id="experimentsSlot"></div></section>
     <p id="companionStatus" class="small" role="status"></p>
-    <nav class="bottom-nav" aria-label="Main navigation"><button data-go="home" aria-current="page"><span aria-hidden="true">⌂</span>Home</button><button data-go="records"><span aria-hidden="true">≡</span>Records</button><button data-go="more"><span aria-hidden="true">⋯</span>More</button></nav>`;
+    <nav class="bottom-nav" aria-label="Main navigation"><button data-go="home" aria-current="page"><span aria-hidden="true">⌂</span>Home</button><button data-go="records"><span aria-hidden="true">≡</span>Records</button><button data-go="colony"><span aria-hidden="true"><svg width="22" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V10h6m0 11V3h6v18m0-8h6v8M2 21h20"/></svg></span>Leaderboard</button><button data-go="more"><span aria-hidden="true">⋯</span>More</button></nav>`;
   legacy.before(root);
   document.body.classList.add('observer-app');
   const $ = selector => root.querySelector(selector);
+  $('.paper-badge').after($('.bottom-nav'));
   $('.companion-header').insertAdjacentHTML('beforeend','<button id="headerAccount" data-go="account" aria-label="Log in"><span aria-hidden="true">◉</span><span>Log in</span></button>');
   $('[data-page="account"]').insertAdjacentHTML('beforebegin',`<section data-page="training" hidden>${pageHead('Reinforcement practice','home')}<div id="trainingSlot"></div></section><section data-page="shop" hidden>${pageHead('Fly shop','home')}<div class="shop-layout"><aside><div class="room-tabs"><button data-go="home">Room</button><button aria-current="page">Shop</button><button data-go="vision" aria-label="Fly vision">◉</button></div><div id="shopScene"></div><p class="small muted">Your room, seen through your fly's eyes too.</p></aside><div id="shopSlot"></div></div></section>`);
   // A single accessible latest-point control replaces the historical scrubber.
@@ -206,7 +207,7 @@ export function mountCompanion({api,origin,onPage,onRun,onGreet,onRename,onView,
     page=next;
     root.dataset.activePage=page;
     root.querySelectorAll('[data-page]').forEach(el=>el.hidden=el.dataset.page!==page);
-    root.querySelectorAll('.bottom-nav button').forEach(b=>{if(b.dataset.go===(['home','records'].includes(page)?page:'more'))b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});
+    root.querySelectorAll('.bottom-nav button').forEach(b=>{if(b.dataset.go===(['home','records','colony'].includes(page)?page:'more'))b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});
     if(['home','vision','technical','shop'].includes(page)) {
       (page==='home'?$('#homeScene'):page==='shop'?$('#shopScene'):page==='vision'?$('#visionSlot'):$('#technicalSlot')).prepend(scene);
       onView(page==='vision'?'vision':page==='technical'?'brain':'fly');

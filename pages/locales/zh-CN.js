@@ -166,7 +166,7 @@ export const messages = {
   'Search items':'搜索商品','Theme':'主题','All themes':'全部主题','Trading memes':'交易梗','Internet energy':'网络抽象','Slow life':'松弛动物','Desk life':'打工日常','Classics':'经典款','Sort':'排序','Price: low to high':'价格从低到高','New arrivals':'新款优先','Name':'名称','Show more items':'展示更多商品',
 
   'Language':'语言','English':'English','简体中文':'简体中文','Paper':'模拟资金','DeFly home':'DeFly 首页',
-  'Home':'首页','Records':'记录','More':'更多','Back':'返回','Main navigation':'主导航',
+  'Home':'首页','Records':'记录','Leaderboard':'排行榜','More':'更多','Back':'返回','Main navigation':'主导航',
   'Total value':'总资产','Bitcoin':'比特币','Fly holdings':'果蝇持仓','Available cash':'可用资金',
   'Money the fly has not committed to a position.':'果蝇尚未用于持仓的模拟资金。','No position':'暂无持仓','Short':'做空','Holding':'持有','None':'无',
   'Latest moment':'最近的共同经历','View all ›':'查看全部 ›','Your first shared moment will appear here.':'你们的第一次共同经历会出现在这里。',
