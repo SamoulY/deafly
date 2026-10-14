@@ -1,0 +1,90 @@
+{
+  "release": "meme-shop-10000x",
+  "date_local": "2026-10-13",
+  "recorded_at": "2026-10-14T03:16:45.3373155Z",
+  "pull_request": "https://github.com/SamoulY/deafly/pull/10",
+  "feature_commit": "b015ed6bf0a7e0390d3e918aa0d294368f8c3750",
+  "merge_commit": "a5a9eb6a88fa96239c711cebe53d334f38c4f27a",
+  "pages": {
+    "id": "5b7832c7-f856-40d6-b0f2-5d9d073af80b",
+    "url": "https://5b7832c7.flydesk-v2-trial.pages.dev",
+    "status": "success",
+    "created_on": "2026-10-14T03:14:11.734702Z",
+    "commit": "a5a9eb6a88fa96239c711cebe53d334f38c4f27a",
+    "trigger": "ad_hoc"
+  },
+  "worker": {
+    "id": "bd4c9b70-e91f-478b-9ea7-ed792233af5b",
+    "source": "wrangler",
+    "created_on": "2026-10-14T03:13:49.287453Z",
+    "versions": [
+      {
+        "version_id": "7c3556d3-4bc5-46f8-9567-e059fb01e207",
+        "percentage": 100
+      }
+    ]
+  },
+  "database_migration": "0015_meme_shop.sql",
+  "backup": {
+    "bytes": 17458348,
+    "location": "Private local DeFly backups directory",
+    "created_at": "2026-10-14T03:07:20.0082045Z",
+    "sha256": "8340B1AC667737F47841F22DAA17D7106D6E92185FAE4AB16B609B9C2D60D6CE"
+  },
+  "catalog": {
+    "price_multiplier": 10000,
+    "resale_fraction": 0.5,
+    "items": 66,
+    "new_items": 48,
+    "slots": 6
+  },
+  "validation": {
+    "production": {
+      "time": "2026-10-14T03:15:11.634Z",
+      "commit": "a5a9eb6a88fa96239c711cebe53d334f38c4f27a",
+      "assets": 44,
+      "all_assets_match": true,
+      "catalog_items": 66,
+      "new_items": 48,
+      "multiplier": 10000,
+      "checks": [
+        "all 66 purchase/resale prices",
+        "missing and stale quote rejection",
+        "sale and exactly-once receipt retry",
+        "purchase, equip and resale at new prices",
+        "unchanged BTC holdings; no fly orders"
+      ],
+      "qa_scope": "One new anonymous QA identity; no existing account, holdings or brain modified."
+    },
+    "browser": [
+      "Live shop shows 12 of 66 items",
+      "Tie purchase USD 100000 / resale USD 50000",
+      "Existing account cash remains USD 10000",
+      "Existing owned and equipped items preserved"
+    ],
+    "syntax_modules": 62,
+    "worker_build": true,
+    "full_regression": {
+      "tests": 323,
+      "duration_ms": 490982.0614,
+      "resolved_failure": "Chinese UI strings moved into the central locale catalog",
+      "failed": 1,
+      "passed": 322
+    },
+    "after_fix": {
+      "tests": 11,
+      "duration_ms": 49384.5965,
+      "failed": 0,
+      "scope": "Localization, bilingual desktop/mobile, shop, all new cosmetics, room rendering and local fly sync",
+      "passed": 11
+    },
+    "worker_dry_run": true
+  },
+  "notes": [
+    "Fixed catalog prices; replay does not compound.",
+    "Historical receipts and existing cash are not repriced.",
+    "Existing idempotent receipts are returned before validating the current quote.",
+    "New or stale clients must submit the displayed current price before any cash mutation.",
+    "Cosmetics appear in the room and fly-eye overlay, but do not change model inputs or place BTC orders."
+  ]
+}
