@@ -1,0 +1,60 @@
+{
+  "release": "local-fly-reconciliation",
+  "date_local": "2026-10-13",
+  "recorded_at": "2026-10-14T02:25:14.5349092Z",
+  "pull_request": "https://github.com/SamoulY/deafly/pull/9",
+  "feature_commit": "ea7ea314d180d95c1a6dff889b54c7bbdb7c0423",
+  "merge_commit": "ee0e57886c58dc1f953d5576fb8553557aba260a",
+  "pages": {
+    "trigger": "ad_hoc",
+    "created_on": "2026-10-14T02:24:59.157769Z",
+    "status": "success",
+    "id": "66206d2c-348b-4242-948d-ab0cd58c08e2",
+    "url": "https://66206d2c.flydesk-v2-trial.pages.dev",
+    "commit": "ee0e57886c58dc1f953d5576fb8553557aba260a"
+  },
+  "worker": {
+    "id": "8781ee35-b44b-42b1-94ef-18ef0beb9c8b",
+    "source": "wrangler",
+    "created_on": "2026-10-14T02:24:51.205245Z",
+    "versions": [
+      {
+        "version_id": "de609eb4-72a1-43e7-9615-f9599beac782",
+        "percentage": 100
+      }
+    ]
+  },
+  "database_migration": false,
+  "validation": {
+    "full_tests": 320,
+    "passed": 320,
+    "failed": 0,
+    "duration_ms": 471789.3254,
+    "syntax_modules": 58,
+    "worker_build": true,
+    "worker_dry_run": true,
+    "production": {
+      "time": "2026-10-14T02:25:24.882Z",
+      "assets": 30,
+      "all_assets_match": true,
+      "checks": [
+        "website session kind",
+        "expected-owner fly rejection",
+        "expected-owner account rejection",
+        "owned-only atomic loadout",
+        "restored QA room",
+        "unchanged portfolio and fly name"
+      ]
+    },
+    "browser": [
+      "new Chinese button and accessible label",
+      "original account value remained USD 10,000.00",
+      "sync explanation and confirmed status in account details only",
+      "home has no additional sync status"
+    ]
+  },
+  "limits": [
+    "Full-brain checkpoints and cryptographic fly identities stay on the device; no cross-device transfer.",
+    "Profile, holdings, ownership and teaching history remain website-backed."
+  ]
+}
