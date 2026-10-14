@@ -24,7 +24,7 @@ export async function encodeMarketObservation(source, historical = false) {
   return {rgb, width, height, encoder_version:'market-close-rgb-v1', snapshot_hash: historical ? source.observation_hash : source.snapshot_hash || await digest(bars), frame_hash:await pixelHash(rgb), source_frame_hash:source.frame_hash, observed_at:Date.now(), historical, source_observed_at:source.observed_at};
 }
 
-export function createBrowserBrainClient({workerFactory = () => new Worker('/full-brain/worker.mjs', {type:'module'}), onStatus = () => {}, onActivity = () => {}, isHidden = () => document.hidden, timeoutMs = 60000} = {}) {
+export function createBrowserBrainClient({workerFactory = () => new Worker('/full-brain/worker.mjs?v=2', {type:'module'}), onStatus = () => {}, onActivity = () => {}, isHidden = () => document.hidden, timeoutMs = 60000} = {}) {
   let worker, ready = false, busy = false, latest = null, pending = null, sampleIds = [], serial = 0, scope = 'observation', readiness = [], checkpointKey = null, checkpointPersistence = 'normal';
   const trusted = new WeakSet();
   const commandQueue = [];
@@ -65,14 +65,14 @@ export function createBrowserBrainClient({workerFactory = () => new Worker('/ful
           pump();
         }
       };
-      worker.postMessage({type:'INIT', sample_ids:sampleIds, scope, checkpoint_key:checkpointKey, checkpoint_persistence:checkpointPersistence});
+      worker.postMessage({type:'INIT', sample_ids:sampleIds, scope, checkpoint_key:options.checkpointKey||checkpointKey, checkpoint_persistence:checkpointPersistence,...(options.frozen?{freeze_weights:true,checkpoint_required:true}:{})});
     } catch (error) { cancel(); status('error', {message:error.message}); }
   }
   function request(frame, type, reward) { return new Promise((resolve,reject) => {
     if (!ready || !worker || (busy && pending) || isHidden() || scope !== 'autonomy') return reject(Error('Full brain unavailable, busy, or paused'));
     commandQueue.push({reject,run:()=>send(frame,resolve,reject,type,reward)});pump();
   }); }
-  return {start,cancel,saveCheckpoint:()=>control('SAVE_CHECKPOINT'),checkpointStatus:()=>control('CHECKPOINT_STATUS'),exportCheckpoint:()=>control('EXPORT_CHECKPOINT'),flush:()=>control('SAVE_CHECKPOINT'),async shutdown(){await control('SAVE_CHECKPOINT');cancel();},setCheckpointKey(key){if(worker&&key!==checkpointKey)throw Error('Stop runtime before changing checkpoint owner');if(key!==null&&(typeof key!=='string'||!key.trim()))throw Error('Checkpoint owner required');checkpointKey=key;},resume:pump,get ready(){return ready;},get scope(){return scope;},
+  return {start,cancel,captureCheckpoint:()=>control('CAPTURE_CHECKPOINT'),saveCheckpoint:()=>control('SAVE_CHECKPOINT'),checkpointStatus:()=>control('CHECKPOINT_STATUS'),exportCheckpoint:()=>control('EXPORT_CHECKPOINT'),flush:()=>control('SAVE_CHECKPOINT'),async shutdown(){await control('SAVE_CHECKPOINT');cancel();},setCheckpointKey(key){if(worker&&key!==checkpointKey)throw Error('Stop runtime before changing checkpoint owner');if(key!==null&&(typeof key!=='string'||!key.trim()))throw Error('Checkpoint owner required');checkpointKey=key;},resume:pump,get ready(){return ready;},get scope(){return scope;},
     waitReady() { if (ready) return Promise.resolve(); if (!worker) return Promise.reject(Error('Full brain unavailable')); return new Promise((resolve,reject) => {const r={resolve,reject}; r.timer=setTimeout(()=>{readiness=readiness.filter(x=>x!==r); reject(Error('Brain readiness timeout'));},timeoutMs); readiness.push(r);}); },
     infer:frame=>request(frame,'OBSERVE'), reinforce:(frame,reward)=>request(frame,'REINFORCE',reward),
     observe(frame) { if(scope !== 'observation') return; latest = frame; pump(); },

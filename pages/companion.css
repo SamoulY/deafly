@@ -1,4 +1,33 @@
 /* The compact observer is the default; specialist workspaces retain their tools. */
+.universe-intro {display:flex;gap:20px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.universe-intro p {max-width:470px;font-size:18px}
+.universe-intro label {display:grid;gap:6px;color:var(--muted);font-size:12px}
+.universe-intro select {max-width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink)}
+.universe-layout {display:grid;grid-template-columns:1fr;gap:24px;margin:24px 0}
+.universe-official,.universe-board,.universe-participate {padding:22px;border:1px solid var(--line);border-radius:16px;background:var(--bg)}
+.universe-official {background:var(--panel)}
+.universe-pill {font-size:11px;color:var(--muted);text-align:right}
+.universe-symbol {height:84px;margin:12px auto;display:flex;align-items:center;justify-content:center;color:var(--acid);font-size:48px;gap:6px}
+.universe-symbol span {font-size:25px}
+.universe-benchmark {display:flex;justify-content:space-between;gap:12px;padding:14px 0;border-bottom:1px solid var(--line)}
+.universe-benchmark strong {font-size:22px;font-variant-numeric:tabular-nums}
+.universe-empty {padding:36px 0;text-align:center;color:var(--muted)}
+.universe-empty p {font-size:13px}
+.universe-mine {display:grid;grid-template-columns:1fr auto;gap:6px;padding:16px;background:var(--hover);border-radius:12px;margin:16px 0}
+.universe-mine small {grid-column:1/-1;color:var(--muted)}
+#companion .universe-table {width:100%;table-layout:fixed;border-collapse:collapse;font-size:12px}
+#companion .universe-table th,#companion .universe-table td {padding:14px 5px;text-align:right;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums;vertical-align:top}
+#companion .universe-table th:first-child,#companion .universe-table td:first-child {width:26px;text-align:left}
+#companion .universe-table th:nth-child(2) {width:36%;text-align:left;overflow-wrap:anywhere}
+.universe-table small {display:block;margin-top:5px;font-weight:normal;font-size:10px;color:var(--muted)}
+.universe-table .is-mine {background:var(--hover)}
+.universe-consent {display:flex;align-items:flex-start;gap:12px;font-size:13px;margin:20px 0}
+.universe-consent input {margin-top:4px;flex-shrink:0}
+.universe-actions {display:flex;gap:10px;flex-wrap:wrap}
+.universe-rules,.universe-legacy {margin-top:24px;padding:18px 0;border-top:1px solid var(--line);color:var(--muted);font-size:13px}
+.universe-official details {font-size:12px;margin-top:18px;color:var(--muted)}
+@media(min-width:960px){.universe-layout{grid-template-columns:minmax(260px,.8fr) minmax(400px,1.4fr);align-items:start}.universe-participate{max-width:900px}.universe-intro{flex-wrap:nowrap}}
+@media(max-width:480px){.universe-official,.universe-board,.universe-participate{padding:16px}.universe-intro{gap:0}.universe-intro label{width:100%}#companion .universe-table{font-size:11px}.universe-benchmark strong{font-size:20px}}
 :root { color-scheme:light;--bg:#fff;--panel:#f5f8f6;--line:#dce5df;--muted:#5f7066;--ink:#18271f;--acid:#137c4e;--red:#b43d3e;--blue:#356897;--hover:#eaf4ee;--primary-ink:#fff;--outer:#f0f4f1; }
 :root[data-theme=dark] { color-scheme:dark;--bg:#101a16;--panel:#18251e;--line:#31453a;--muted:#a4b9ac;--ink:#ebf4ed;--acid:#6ce1a5;--red:#ff9291;--blue:#8db8eb;--hover:#233a2d;--primary-ink:#0c2418;--outer:#0b120e; }
 .observer-app { background:var(--outer);color:var(--ink);font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei","Noto Sans SC",sans-serif; }

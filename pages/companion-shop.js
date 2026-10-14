@@ -1,4 +1,4 @@
-import {locale,translate} from './i18n.js?v=4';
+import {locale,translate} from './i18n.js?v=5';
 import {itemArt} from './shop-art.js?v=2';
 import {memeItems,collections} from './meme-items.js?v=1';
 const money=v=>'USD '+new Intl.NumberFormat(locale(),{minimumFractionDigits:2,maximumFractionDigits:2}).format(v);

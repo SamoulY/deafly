@@ -1,5 +1,6 @@
 import {cookieUser,handleAccount,allowedOrigin} from './flydesk-auth.mjs';
 import {handleCompanion} from './companion.mjs';
+import {handleUniverse,tickUniverse} from './universe.mjs';
 import {initialBitcoin} from './initial-bitcoin.mjs';
 export {FlydeskLive} from './flydesk-live.mjs';
 import { BROWSER_BACKEND, PINNED_MANIFEST, browserRun, prepareBrowser, stepBrowser } from "./browser-autonomy.mjs";
@@ -613,6 +614,7 @@ async function runScheduledAutonomy(e) {
 }
 const application = {
   async scheduled(controller, e, ctx) {
+    ctx.waitUntil(tickUniverse(e));
     ctx.waitUntil(runScheduledAutonomy(e));
     ctx.waitUntil(runTrainingJobs(e));
     ctx.waitUntil(runFlydeskTrainingJobs(e));
@@ -699,6 +701,7 @@ const application = {
       const user = signedInUser || await auth(r, e);
       if (!user) return json({ error: "UNAUTHORIZED" }, 401);
       if(r.headers.get('x-expected-owner')&&r.headers.get('x-expected-owner')!==user.id)return json({error:'SESSION_OWNER_CHANGED',message:'Your account changed. Reload to load its fly.'},409);
+      if (u.pathname === '/api/universe' || u.pathname.startsWith('/api/universe/')) return handleUniverse(r,e,user);
       if (u.pathname === '/api/companion' || u.pathname.startsWith('/api/companion/')) {
         const response = await handleCompanion(r,e,user,{observation});
         const headers = new Headers(response.headers);

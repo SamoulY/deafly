@@ -24,5 +24,12 @@ for(const [name,engine] of Object.entries({chromium,webkit}))test(`${name}: Inde
   assert.equal(await save(b,'other-owner','isolated',null),'saved');assert.deepEqual(await load(a),latest);
   await b.reload();assert.deepEqual(await load(b),latest);
   assert.equal(await save(b,'owner','resumed',latest.hash,300),'saved');assert.equal((await load(a)).hash,'resumed');
+  const pruning=await a.evaluate(async()=>{
+    const {checkpointStore}=await import('/checkpoint.mjs'),store=checkpointStore(),owner='a'.repeat(64),other='b'.repeat(64),old=`universe:${owner}:old`,current=`universe:${owner}:current`,foreign=`universe:${other}:old`;
+    for(const key of [owner,old,current,foreign])await store.save(key,{hash:key},null);
+    await store.pruneEvaluationCopies(owner,[current]);
+    return {personal:!!await store.load(owner),old:!!await store.load(old),current:!!await store.load(current),foreign:!!await store.load(foreign)};
+  });
+  assert.deepEqual(pruning,{personal:true,old:false,current:true,foreign:true});
  }finally{await browser?.close();await new Promise(r=>server.close(r));}
 });

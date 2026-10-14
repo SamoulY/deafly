@@ -27,11 +27,12 @@ test('app scopes all full-brain starts behind identity and wires cosmetic identi
  const app=await readFile(new URL('../pages/app.js',import.meta.url),'utf8'),html=await readFile(new URL('../pages/index.html',import.meta.url),'utf8');
  assert.ok(!app.includes('FRESH SESSION WEIGHTS'));assert.ok(!app.includes('RESET TO ORIGINAL WEIGHTS'));
  assert.match(app,/await initializePersonalFly/);assert.match(app,/setAppearance\?\.\(personalFly.identity.fly_id\)/);
- assert.equal((app.match(/browserBrain.start\(/g)||[]).length,2,'personal and exclusive colony wrappers only');
+ assert.equal((app.match(/browserBrain.start\(/g)||[]).length,3,'personal start plus the legacy and frozen evaluation branches inside the exclusive wrapper');
  assert.match(app,/if \(colonyBusy \|\| colonyAutomatic \|\| !personalFly\) return/);
  const colony=app.slice(app.indexOf('async function withColonyBrain'),app.indexOf('async function runAutonomy'));
  assert.match(colony,/if \(colonyBusy \|\| modeBusy \|\| !personalFly\) throw/);
  assert.ok(colony.indexOf('colonyBusy = true')<colony.indexOf('browserBrain.start('));
+ assert.match(colony,/checkpointKey:options.checkpointKey,frozen:true/);
  for(const id of ['checkpointSave','checkpointRefresh','checkpointStatus'])assert.ok(html.includes(`id="${id}"`));
  assert.match(html,/LOCAL ONLY/);assert.match(app,/browserBrain.saveCheckpoint\(\)/);
 });
