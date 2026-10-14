@@ -102,3 +102,12 @@ PR #7 (`f506adf72b78b755d82916474826d9ab9af11b50`) was merged as `afdd971c5f250c
 The full run passed 302 of 304 tests; two old Blob-based view fixtures were repaired to load the new locale dependency through real module URLs. The final targeted rerun passed all 9 tests, including those two cases. All 304 cases have passed across these runs; 49 application modules, the Worker build and Wrangler dry run also passed.
 
 All 22 asset checks across the custom and fallback domains match the deployed files; API health, authentication and credentialed CORS checks pass. Worker version `258194a8-127a-4bb0-be31-61fa4d315966` remains unchanged, with no schema migration or portfolio reset. Release metadata and verification scope are recorded in `cloudflare-desktop-release-2026-10-13.json`.
+
+
+## Room, teaching and account release — 2026-10-13
+
+PR #8 was merged as `6983715282de2a6abe86f23bb05889a584ddd258` and deployed to both existing website domains. Pages deployment `aa7788af-5150-44a3-bad8-33fc1d9ce25a` now includes a first-party API proxy, using the `DEFLY_API` service binding configured in the root `wrangler.toml`. Backend commands continue to use `--config worker/wrangler.toml`. The Worker runs version `3a8bad06-266e-49eb-8551-27e6fafb7a2c` at 100%.
+
+Only the additive `0014_room_and_profile.sql` migration was applied after a verified private SQL backup. The five new account/room tables exist; no portfolios were reset and the historical migration ledger was not replayed. Turnstile uses a dedicated managed widget on the two production hostnames. Its secret is a Worker secret binding, with the local recovery copy protected by DPAPI outside this repository.
+
+The full regression passed 310/310, final focused checks 8/8 and final service-binding checks 3/3. Production verification matched 38 frontend assets and exercised latest-point rejection, real 40-bar charts, historical learning, bot rejection, the actual password-derivation error path, and idempotent shop cash/inventory operations using one new anonymous QA identity. Production browser checks confirmed the original user balance, desktop shop, mobile night colors and header login. See `cloudflare-room-release-2026-10-13.json` for exact scope and limitations.

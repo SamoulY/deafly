@@ -1,0 +1,83 @@
+{
+  "release": "room-teaching-account",
+  "date_local": "2026-10-13",
+  "recorded_at": "2026-10-14T02:00:02.093Z",
+  "pull_request": "https://github.com/SamoulY/deafly/pull/8",
+  "feature_commit": "7261aee50b79ddf9bbcd165dfab9ba282f208198",
+  "merge_commit": "6983715282de2a6abe86f23bb05889a584ddd258",
+  "pages": {
+    "id": "aa7788af-5150-44a3-bad8-33fc1d9ce25a",
+    "created_on": "2026-10-14T01:54:16.505528Z",
+    "status": "success",
+    "url": "https://aa7788af.flydesk-v2-trial.pages.dev",
+    "commit": "6983715282de2a6abe86f23bb05889a584ddd258",
+    "trigger": "ad_hoc"
+  },
+  "worker": {
+    "id": "dad8a699-1c01-47a7-bb14-7e191dc6f617",
+    "source": "wrangler",
+    "created_on": "2026-10-14T01:54:03.846287Z",
+    "versions": [
+      {
+        "version_id": "3a8bad06-266e-49eb-8551-27e6fafb7a2c",
+        "percentage": 100
+      }
+    ]
+  },
+  "schema": {
+    "applied": [
+      "0014_room_and_profile.sql"
+    ],
+    "existing_portfolios_reset": false,
+    "backup_bytes": 17439200,
+    "backup_sha256": "7CA156D395C8D7306766F7EF5C44846A4899D526D13D78AE18FC30A77347560D"
+  },
+  "security": {
+    "turnstile_server_verification": true,
+    "secret_in_worker_binding": true,
+    "secret_in_repository": false,
+    "pages_service_binding": "DEFLY_API -> flydesk-v2-trial-worker",
+    "first_party_cookies": true
+  },
+  "validation": {
+    "full": {
+      "passed": 310,
+      "failed": 0,
+      "duration_ms": 446748.58
+    },
+    "final_focused": {
+      "passed": 8,
+      "failed": 0
+    },
+    "final_service_binding": {
+      "passed": 3,
+      "failed": 0
+    },
+    "application_modules": 57,
+    "worker_build": true,
+    "worker_dry_run": true,
+    "pages_worker_compile": true,
+    "asset_checks": 38,
+    "production_checks": [
+      "first-party service binding and Turnstile sitekey",
+      "real login derivation completes; invalid credentials rejected",
+      "isolated QA identity starts with 10000 USD BTC budget",
+      "registration cannot bypass bot verification",
+      "older live point rejected; real five-minute and monthly charts each have 40 bars",
+      "real blind history learns exactly once without changing actual holdings",
+      "sale/refund, receipt replay, purchase/equip work; BTC untouched and no fly orders"
+    ],
+    "qa_scope": "One new anonymous release QA identity only. Existing user sessions, holdings and models were not modified. No registered account was created.",
+    "browser": "Production desktop shop, mobile night home, header login and language option colors inspected in the in-app browser. Existing 10000 USD cash / zero BTC account remained unchanged. No teaching example, order or purchase was submitted from that user session. Temporary viewport and theme override restored.",
+    "screenshots": [
+      "runtime/reports/room-live-shop-desktop.jpg",
+      "runtime/reports/room-live-mobile-night.jpg"
+    ]
+  },
+  "limitations": [
+    "Account avatars are six presets, not image uploads.",
+    "Historical practice uses the existing supervised demonstration head; no new reward-optimization algorithm is claimed.",
+    "Production bot verification was checked for missing-token rejection; a real human CAPTCHA completion and real-account signup were not submitted. Valid registration was covered with a stubbed challenge only in the isolated local test harness.",
+    "Existing cookie-only accounts may need to log in again on the first-party endpoint. Browser-local WASM checkpoints are still local; server account/profile, holdings and teaching head persist."
+  ]
+}
