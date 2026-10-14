@@ -1,0 +1,7 @@
+name = "flydesk-v2-trial"
+pages_build_output_dir = "./pages"
+compatibility_date = "2026-09-15"
+
+[[services]]
+binding = "DEFLY_API"
+service = "flydesk-v2-trial-worker"

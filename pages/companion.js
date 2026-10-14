@@ -1,8 +1,10 @@
-import {renderRecord} from './companion-records.js?v=2';
-import {locale,mountLanguage,sourceText} from './i18n.js?v=1';
-import {defaultChartSettings,normalizeChartSettings,groupCandles,chartSelection,marketChart} from './companion-market.js?v=1';
+import {renderRecord} from './companion-records.js?v=3';
+import {locale,mountLanguage,sourceText} from './i18n.js?v=2';
+import {defaultChartSettings,normalizeChartSettings,groupCandles,marketChart} from './companion-market.js?v=2';
+import {mountTraining} from './companion-training.js?v=1';
+import {mountShop} from './companion-shop.js?v=1';
 const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const money = value => Number.isFinite(value) ? new Intl.NumberFormat(locale(),{style:'currency',currency:'USD'}).format(value) : '—';
+const money = value => Number.isFinite(value) ? 'USD '+new Intl.NumberFormat(locale(),{minimumFractionDigits:2,maximumFractionDigits:2}).format(value) : '—';
 const date = seconds => new Date(seconds*1000).toLocaleString(locale(),{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
 const labels = {BUY:'Buy',SELL:'Sell',HOLD:'Wait'};
 export function accountValue(portfolio, mark) {
@@ -25,7 +27,7 @@ function lineChart(points, label) {
   return `<svg viewBox="0 0 360 125" preserveAspectRatio="none" role="img" aria-label="${escape(label)}"><path d="M10 110H350" class="chart-baseline"/><polyline points="${coordinates}"/><circle cx="${coordinates.split(' ').at(-1).split(',')[0]}" cy="${coordinates.split(' ').at(-1).split(',')[1]}" r="3"/></svg>`;
 }
 const pageHead = (title,back='more') => `<div class="page-heading"><button data-go="${back}" aria-label="Back">‹</button><h1 tabindex="-1">${title}</h1></div>`;
-export function mountCompanion({api,origin,onPage,onRun,onGreet,onRename,onView,getName}) {
+export function mountCompanion({api,origin,onPage,onRun,onGreet,onRename,onView,getName,onAccount=()=>{},onRoom=()=>{}}) {
   const legacy = document.querySelector('main');
   legacy.id = 'legacyWorkspace';
   const root = document.createElement('main');
@@ -57,14 +59,21 @@ export function mountCompanion({api,origin,onPage,onRun,onGreet,onRename,onView,
   legacy.before(root);
   document.body.classList.add('observer-app');
   const $ = selector => root.querySelector(selector);
+  $('.companion-header').insertAdjacentHTML('beforeend','<button id="headerAccount" data-go="account" aria-label="Log in"><span aria-hidden="true">◉</span><span>Log in</span></button>');
+  $('[data-page="account"]').insertAdjacentHTML('beforebegin',`<section data-page="training" hidden>${pageHead('Reinforcement practice','home')}<div id="trainingSlot"></div></section><section data-page="shop" hidden>${pageHead('Fly shop','home')}<div class="shop-layout"><aside><div class="room-tabs"><button data-go="home">Room</button><button aria-current="page">Shop</button><button data-go="vision" aria-label="Fly vision">◉</button></div><div id="shopScene"></div><p class="small muted">Your room, seen through your fly's eyes too.</p></aside><div id="shopSlot"></div></div></section>`);
+  // A single accessible latest-point control replaces the historical scrubber.
+  $('#chartPoint').outerHTML='<button id="chartPoint" class="latest-teaching" disabled>Teach at the latest point</button>';
+  $('#teachChart').setAttribute('tabindex','0');$('#teachChart').setAttribute('role','button');$('#teachChart').setAttribute('aria-label','Teach at the latest point');
+  $('.chart-caption').insertAdjacentHTML('afterend','<div class="teaching-entry"><button data-go="training">Reinforcement practice <span aria-hidden="true">↗</span></button></div>');
   $('.market-teaching>.section-row').append(Object.assign(document.createElement('button'),{id:'mobileChartToggle',className:'mobile-chart-toggle',textContent:'⋯'}));
   $('#mobileChartToggle').setAttribute('aria-label','Chart settings');$('#mobileChartToggle').setAttribute('aria-expanded','false');
   $('#mobileChartToggle').onclick=()=>{const open=$('.market-teaching').classList.toggle('show-chart-tools');$('#mobileChartToggle').setAttribute('aria-expanded',String(open));};
-  $('#teachChart').before(Object.assign(document.createElement('div'),{className:'market-toolbar',innerHTML:`<div class="chart-style" role="group" aria-label="Chart style"><button data-chart-style="line" aria-pressed="true">Line</button><button data-chart-style="candles" aria-pressed="false">Candles</button></div><select id="marketTimeframe" aria-label="Chart timeframe"><option value="60">1 minute</option><option value="300">5 minutes</option></select><button id="chartSettingsToggle" aria-expanded="false" aria-controls="marketSettings">Chart settings</button>`}));
+  $('#teachChart').before(Object.assign(document.createElement('div'),{className:'market-toolbar',innerHTML:`<div class="chart-style" role="group" aria-label="Chart style"><button data-chart-style="line" aria-pressed="true">Line</button><button data-chart-style="candles" aria-pressed="false">Candles</button></div><select id="marketTimeframe" aria-label="Chart timeframe">${[[60,'1 minute'],[300,'5 minutes'],[900,'15 minutes'],[1800,'30 minutes'],[3600,'1 hour'],[14400,'4 hours'],[86400,'1 day'],[604800,'1 week'],[2592000,'1 month']].map(([value,label])=>`<option value="${value}">${label}</option>`).join('')}</select><button id="chartSettingsToggle" aria-expanded="false" aria-controls="marketSettings">Chart settings</button>`}));
   $('#teachChart').before(Object.assign(document.createElement('div'),{id:'marketSettings',hidden:true,innerHTML:`<label><input type="checkbox" data-chart-setting="average"> Moving average (20)</label><label><input type="checkbox" data-chart-setting="volume"> Volume</label><label><input type="checkbox" data-chart-setting="markers" checked> Teaching markers</label><button id="resetChart">Reset chart</button>`}));
   $('#teachChart').before(Object.assign(document.createElement('div'),{id:'marketOHLC',className:'market-ohlc'}));
   $('.chart-caption').after(Object.assign(document.createElement('p'),{id:'averageNotice',className:'small muted',hidden:true}));
   $('.market-teaching').append(Object.assign(document.createElement('div'),{className:'market-foot',innerHTML:`<span class="small muted">Recent 40 minutes</span><button data-go="practice">Explore historical charts <span aria-hidden="true">↗</span></button><details><summary>Chart guide</summary><p>Each candle shows the open, high, low and close. Green rises; red falls.</p><p>The average follows the last 20 displayed bars. Volume shows how much Bitcoin traded.</p><p>Choose a point to teach. Chart settings only change the view.</p></details>`}));
+  $('.market-foot>span').textContent='40 closed candles';$('.market-foot details p:last-child').textContent='Teach only at the latest point. Historical scenarios are in Reinforcement practice.';
   let chartSettings=defaultChartSettings();
   try{chartSettings=normalizeChartSettings(JSON.parse(localStorage.getItem('defly.chart')||'{}'));}catch{/* Invalid optional preferences fall back to a line. */}
   // Mobile stays a simple line until its user chooses a different view on mobile.
@@ -73,10 +82,12 @@ export function mountCompanion({api,origin,onPage,onRun,onGreet,onRename,onView,
   try{mobileChartSettings=normalizeChartSettings(JSON.parse(localStorage.getItem('defly.chart.mobile')||'{}'));}catch{/* Optional preferences. */}
   const currentChartSettings=()=>compactChart.matches?mobileChartSettings:chartSettings;
   function updateChartSettings(update){
+    const previousInterval=currentChartSettings().timeframe;
     const next=normalizeChartSettings({...currentChartSettings(),...update});
     if(compactChart.matches)mobileChartSettings=next;else chartSettings=next;
     try{localStorage.setItem(compactChart.matches?'defly.chart.mobile':'defly.chart',JSON.stringify(next));}catch{/* The current view still works without storage. */}
     renderMarket();
+    if(owner&&!pending&&(previousInterval!==next.timeframe||!displayMarket))loadChart();
   }
   root.querySelectorAll('[data-chart-style]').forEach(button=>button.onclick=()=>updateChartSettings({style:button.dataset.chartStyle}));
   $('#marketTimeframe').onchange=event=>updateChartSettings({timeframe:Number(event.target.value)});
@@ -109,8 +120,20 @@ export function mountCompanion({api,origin,onPage,onRun,onGreet,onRename,onView,
   const scene=document.querySelector('.scene-wrap');
   const flyCompanion=document.createElement('div');flyCompanion.className='fly-companion';$('.fly-card').before(flyCompanion);
   for(const selector of ['.fly-card','.fly-actions','#flyTools'])flyCompanion.append($(selector));
+  flyCompanion.insertAdjacentHTML('afterbegin','<div class="room-tabs"><button aria-current="page">Room</button><button data-go="shop">Shop</button></div>');
+  $('#flyTools [data-wardrobe]').dataset.go='shop';$('#flyTools [data-wardrobe]').removeAttribute('data-wardrobe');
   const sidebar=document.createElement('aside');sidebar.className='home-sidebar';flyCompanion.before(sidebar);sidebar.append(flyCompanion,$('.home-body'));
-  let page='home',owner=null,data={portfolio:null,decisions:[],lessons:[]},market=null,range=1,filter='all',greetings=[],pending=null,lastLessonId=null,busy=false,ready=false,epoch=0,refreshing=null,navigation=Promise.resolve(),scrubIndex=null;
+  let page='home',owner=null,data={portfolio:null,decisions:[],lessons:[]},market=null,range=1,filter='all',greetings=[],pending=null,lastLessonId=null,busy=false,ready=false,epoch=0,refreshing=null,navigation=Promise.resolve();
+  let displayMarket=null,chartRequest=0,chartLoading=false;
+  const training=mountTraining($('#trainingSlot'),{api,onSaved:()=>refresh(true),ownerKey:()=>owner?`${origin}:${owner}`:null});
+  const shop=mountShop($('#shopSlot'),{api,onRoom,onCash:()=>{if(owner)refresh(true);},ownerKey:()=>owner?`${origin}:${owner}`:null});
+  async function loadChart(){
+    const interval=currentChartSettings().timeframe,request=++chartRequest,generation=epoch;
+    chartLoading=true;displayMarket=null;renderMarket();
+    try{const next=interval===60?market:await api(`/api/companion/chart?interval=${interval}`);if(request===chartRequest&&generation===epoch)displayMarket=next;}
+    catch{if(request===chartRequest)$('#lessonResult').textContent='Chart unavailable for this timeframe. Please try again.';}
+    finally{if(request===chartRequest&&generation===epoch){chartLoading=false;renderMarket();}}
+  }
   const storageKey = kind => `defly.companion:${origin}:${owner}:${kind}`;
   const say = message => { $('#companionStatus').textContent=message; };
   const mark = () => market?.candles?.at(-1)?.close || null;
@@ -165,6 +188,7 @@ export function mountCompanion({api,origin,onPage,onRun,onGreet,onRename,onView,
       if(quote.status==='fulfilled') market=quote.value; else market=null;
       say(account.status==='rejected'?'Account refresh failed. Displaying the last loaded account.':quote.status==='rejected'?'Live price unavailable. Try again shortly.':'');
       render();
+      if(!pending)await loadChart();
     })().finally(()=>{if(generation===epoch) refreshing=null;});
     return refreshing;
   }
@@ -183,12 +207,15 @@ export function mountCompanion({api,origin,onPage,onRun,onGreet,onRename,onView,
     root.dataset.activePage=page;
     root.querySelectorAll('[data-page]').forEach(el=>el.hidden=el.dataset.page!==page);
     root.querySelectorAll('.bottom-nav button').forEach(b=>{if(b.dataset.go===(['home','records'].includes(page)?page:'more'))b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});
-    if(['home','vision','technical'].includes(page)) {
-      (page==='home'?$('#homeScene'):page==='vision'?$('#visionSlot'):$('#technicalSlot')).prepend(scene);
+    if(['home','vision','technical','shop'].includes(page)) {
+      (page==='home'?$('#homeScene'):page==='shop'?$('#shopScene'):page==='vision'?$('#visionSlot'):$('#technicalSlot')).prepend(scene);
       onView(page==='vision'?'vision':page==='technical'?'brain':'fly');
     }
     if(page==='analysis') $('#experimentalLab').hidden=false;
     if(page==='home' || page==='records') await refresh();
+    if(page==='account')await onAccount();
+    if(page==='shop')await shop.refresh();
+    if(page==='training'&&owner)await training.open();
     if(location.hash!==`#${page}`) history.pushState(null,'',`#${page}`);
     if(focus) { window.scrollTo(0,0); $(`[data-page="${page}"] h1`)?.focus({preventScroll:true}); }
   }
@@ -200,7 +227,7 @@ export function mountCompanion({api,origin,onPage,onRun,onGreet,onRename,onView,
     $('#chartPoint').disabled=!ready||busy||Boolean(pending?.submitted)||!market?.candles?.length;
   }
   function renderMarket(){
-    const bars=pending?.bars||market?.candles||[],selected=scrubIndex??(pending?bars.findIndex(c=>c.time===pending.candle_time):-1);
+    const bars=pending?.bars||displayMarket?.candles||[],selected=bars.length-1;
     const settings={...currentChartSettings(),timeframe:pending?.timeframe||currentChartSettings().timeframe},bounds=$('#teachChart').getBoundingClientRect();
     $('#teachChart').innerHTML=marketChart(bars,settings,{width:Math.max(250,bounds.width),height:Math.max(150,bounds.height),selectedTime:bars[selected]?.time,lessons:data.lessons});
     root.querySelectorAll('[data-chart-style]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.chartStyle===settings.style)));
@@ -209,18 +236,14 @@ export function mountCompanion({api,origin,onPage,onRun,onGreet,onRename,onView,
     $('#marketTimeframe').disabled=Boolean(pending)||busy;
     const groups=groupCandles(bars,settings.timeframe),group=selected>=0?groups.find(bar=>bar.startTime<=bars[selected].time&&bar.time>=bars[selected].time):groups.at(-1);
     $('#marketOHLC').hidden=settings.style!=='candles'||!group;
-    $('#marketOHLC').innerHTML=group?['Open','High','Low','Close'].map(key=>`<span>${key} <b>${money(group[key.toLowerCase()])}</b></span>`).join('')+(group.count<settings.timeframe/60?`<span class="partial-note">Partial group · ${group.count}/5 closed minutes</span>`:''):'';
+    $('#marketOHLC').innerHTML=group?['Open','High','Low','Close'].map(key=>`<span>${key} <b>${money(group[key.toLowerCase()])}</b></span>`).join(''):'';
     $('#averageNotice').hidden=!settings.average||groups.length>=20;
     $('#averageNotice').textContent='Not enough bars for MA20 at this timeframe.';
     const chosen=bars[selected>=0?selected:bars.length-1];
-    $('#marketPrice').textContent=money(chosen?.close);
-    $('#chartTime').textContent=chosen?`${selected>=0?'Selected · ':''}${date(chosen.time)}`:'Price unavailable';
-    const groupIndex=groups.indexOf(group);
-    $('#chartPoint').min=groups[0]?.sourceIndex>=1?0:1;
-    $('#chartPoint').max=Math.max(1,groups.length-1);
-    $('#chartPoint').value=groupIndex>=0?groupIndex:Math.max(1,groups.length-1);
-    $('.chart-caption>span:last-child').textContent=compactChart.matches?'Tap the chart to teach':'Click the chart to teach';
-    $('#chartPoint').setAttribute('aria-valuetext',chosen?`${date(chosen.time)}, ${money(chosen.close)}`:'Price unavailable');
+    $('#marketPrice').textContent=money(pending?chosen?.close:mark());
+    const chartDate=chosen&&(settings.timeframe>=86400?new Date(chosen.time*1000).toLocaleDateString(locale(),{year:'numeric',month:'short',day:'numeric',timeZone:'UTC'})+' UTC':date(chosen.time));
+    $('#chartTime').textContent=chosen?`${chartDate} · ${pending?'Latest teaching snapshot':displayMarket?.source||market?.source||''}`:chartLoading?'Loading prices…':'Price unavailable';
+    $('.chart-caption>span:last-child').textContent='Latest point only';
     lessonControls();
   }
   function renderLesson() {
@@ -228,19 +251,19 @@ export function mountCompanion({api,origin,onPage,onRun,onGreet,onRename,onView,
     if(pending){
       $('#lessonTitle').textContent=pending.action?`You would ${labels[pending.action].toLowerCase()} here`:'What would you do here?';
       const context=pending.context;
-      $('#lessonContext').textContent=context?'Your fly learns from prices up to this point and its current holdings. It decides its own trades.':'Loading this chart point…';
+      $('#lessonContext').textContent=context?'This example uses the latest 40 one-minute prices and your fly’s current holdings. Your fly decides its own trades.':'Loading this chart point…';
     }
     renderMarket();
   }
   async function choosePoint(index) {
     if(busy||pending?.submitted||!ready)return;
-    const bars=pending?.bars||market?.candles||[];
-    index=Math.max(1,Math.min(bars.length-1,index));if(!bars[index])return;
+    const bars=market?.candles||[];
+    index=bars.length-1;if(!bars[index])return;
     const generation=epoch;
-    busy=true; pending={candle_time:bars[index].time,bars,timeframe:pending?.timeframe||currentChartSettings().timeframe,idempotency_key:crypto.randomUUID()}; renderLesson();
+    busy=true; pending={candle_time:bars[index].time,bars,timeframe:60,idempotency_key:crypto.randomUUID()}; renderLesson();
     lastLessonId=null;
     $('#lessonResult').textContent='';
-    try { const context=await api('/api/companion/contexts',{method:'POST',body:{candle_time:pending.candle_time}}); if(generation===epoch){pending.context=context;pending.bars=bars.map(bar=>context.market.candles.find(c=>c.time===bar.time)||bar);} }
+    try { const context=await api('/api/companion/contexts',{method:'POST',body:{}}); if(generation===epoch){pending.context=context;pending.bars=context.market.candles;pending.candle_time=context.market.candles.at(-1).time;} }
     catch(error){ if(generation===epoch){pending=null;$('#lessonResult').textContent=error.code==='CHART_POINT_UNAVAILABLE'?'That point has left the chart. Pick a newer point.':'Could not load this point. Please try again.';if(error.code==='CHART_POINT_UNAVAILABLE')await refresh(true);} }
     finally {if(generation===epoch){busy=false;renderLesson();}}
   }
@@ -272,12 +295,9 @@ export function mountCompanion({api,origin,onPage,onRun,onGreet,onRename,onView,
     if(button.dataset.demonstrate&&pending&&!pending.submitted){pending.action=button.dataset.demonstrate;renderLesson();}
     if(button.hasAttribute('data-cancel-lesson')&&!busy&&!pending?.submitted){pending=null;renderLesson();$('#chartPoint').focus();}
   });
-  const pointAt=event=>chartSelection(event.clientX,$('#teachChart').getBoundingClientRect(),pending?.bars||market?.candles||[],pending?.timeframe||currentChartSettings().timeframe);
-  $('#teachChart').onpointerdown=event=>{if(!ready||busy||pending?.submitted||!market?.candles?.length)return;$('#teachChart').setPointerCapture(event.pointerId);scrubIndex=pointAt(event);renderMarket();};
-  $('#teachChart').onpointermove=event=>{if(scrubIndex!==null){scrubIndex=pointAt(event);renderMarket();}};
-  $('#teachChart').onpointerup=()=>{if(scrubIndex===null)return;const index=scrubIndex;scrubIndex=null;choosePoint(index);};
-  $('#teachChart').onpointercancel=()=>{scrubIndex=null;renderMarket();};
-  $('#chartPoint').onchange=event=>{const groups=groupCandles(pending?.bars||market?.candles||[],pending?.timeframe||currentChartSettings().timeframe);choosePoint(groups[Number(event.target.value)]?.sourceIndex??1);};
+  $('#teachChart').onclick=event=>{const bounds=$('#teachChart').getBoundingClientRect(),latestX=bounds.width-(bounds.width>=500?70:8);if(Math.abs(event.clientX-bounds.left-latestX)<=36)choosePoint();else $('#lessonResult').textContent='Only the latest point can be taught. Use Reinforcement practice for historical scenes.';};
+  $('#teachChart').onkeydown=event=>{if(['Enter',' '].includes(event.key)){event.preventDefault();choosePoint();}};
+  $('#chartPoint').onclick=()=>choosePoint();
   $('#saveLesson').onclick=saveLesson;
   $('#flyToolsToggle').onclick=()=>{const open=$('#flyTools').hidden;$('#flyTools').hidden=!open;$('#flyToolsToggle').setAttribute('aria-expanded',String(open));};
   $('#greetFly').onclick=()=>{
@@ -294,16 +314,17 @@ export function mountCompanion({api,origin,onPage,onRun,onGreet,onRename,onView,
   root.querySelector('.companion-header a').onclick=e=>{e.preventDefault();navigate('home');};
   setInterval(()=>{if(['home','holding','records'].includes(page))refresh();},30000);
   new ResizeObserver(()=>{if(page==='home')renderMarket();}).observe($('#teachChart'));
-  compactChart.addEventListener('change',()=>renderMarket());
+  compactChart.addEventListener('change',()=>{renderMarket();if(owner&&!pending)loadChart();});
   document.addEventListener('defly-language-change',()=>{render();renderLesson();updateRun();});
   render();
   mountLanguage(root);
   return {
     async ready(userId){
-      epoch++;refreshing=null;owner=userId;ready=false;busy=false;data={portfolio:null,decisions:[],lessons:[]};market=null;pending=null;lastLessonId=null;greetings=[];
+      epoch++;refreshing=null;owner=userId;ready=false;busy=false;data={portfolio:null,decisions:[],lessons:[]};market=null;displayMarket=null;chartRequest++;pending=null;lastLessonId=null;greetings=[];
       try {greetings=JSON.parse(localStorage.getItem(storageKey('greetings'))||'[]');pending=JSON.parse(sessionStorage.getItem(storageKey('pending'))||'null');}catch{/* Ignore damaged optional local history. */}
       renderLesson();render();
       await navigate(location.hash.slice(1)||'home',{focus:false});
+      await Promise.allSettled([onAccount(),shop.refresh()]);
       ready=true;$('#runFly').disabled=false;lessonControls();
     },
     refresh,

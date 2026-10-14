@@ -1,6 +1,7 @@
 import {syncTeaching, TEACHING_BACKEND} from './companion-learning.mjs';
 import {recordedTeachingEvidence} from './companion-evidence.mjs';
-import {hash} from './raising-core.mjs';
+import {handleRoom} from './companion-room.mjs';
+import {chartMarket,historicalMarket,CHART_INTERVALS} from './companion-charts.mjs';
 // Saving trains a private decision head; only autonomous steps can execute it.
 const reply = (body, status = 200) => Response.json(body, {status, headers:{'cache-control':'no-store'}});
 const seconds = () => Math.floor(Date.now() / 1000);
@@ -13,9 +14,25 @@ async function learn(db, userId) {
     return {backend:TEACHING_BACKEND,pending:true,error:'TRAINING_RETRY_PENDING'};
   }
 }
-export async function handleCompanion(request, env, user, {observation}) {
+export async function handleCompanion(request, env, user, {observation,history=historicalMarket,charts=chartMarket}) {
   const path = new URL(request.url).pathname;
   const db = env.DB;
+  if(path==='/api/companion/room'||path.startsWith('/api/companion/room/'))return handleRoom(request,env,user);
+  if(request.method==='GET' && path==='/api/companion/chart') {
+    const interval=Number(new URL(request.url).searchParams.get('interval')||60);
+    if(!CHART_INTERVALS.has(interval))return reply({error:'INVALID_CHART_INTERVAL'},422);
+    try{return reply(await charts(interval));}catch{return reply({error:'CHART_UNAVAILABLE'},503);}
+  }
+  if(request.method==='POST' && path==='/api/companion/training') {
+    const recent=await db.prepare("SELECT COUNT(*) n FROM companion_contexts WHERE user_id=? AND created_at>?").bind(user.id,seconds()-60).first();
+    if(recent.n>=12)return reply({error:'RATE_LIMITED'},429);
+    let market;try{market=await history();}catch{return reply({error:'HISTORICAL_DATA_UNAVAILABLE'},503);}
+    const price=market.candles.at(-1).close,holding=crypto.getRandomValues(new Uint8Array(1))[0]%2===0;
+    const portfolio={cash:holding?5000:10000,position_side:holding?'LONG':'FLAT',position_qty:holding?5000/price:0,entry_price:holding?market.candles[0].close:0};
+    const context={id:crypto.randomUUID(),kind:'historical',symbol:'BTCUSD',market,portfolio,created_at:seconds(),expires_at:seconds()+600};
+    await db.prepare('INSERT INTO companion_contexts VALUES (?,?,?,?,?)').bind(context.id,user.id,JSON.stringify(context),context.created_at,context.expires_at).run();
+    return reply(context,201);
+  }
   if (request.method === 'GET' && path === '/api/companion') {
     const learning = await learn(db, user.id);
     // Read one consistent account/decision view even while the fly commits a step.
@@ -37,15 +54,12 @@ export async function handleCompanion(request, env, user, {observation}) {
     if(text.length>1024)return reply({error:'REQUEST_TOO_LARGE'},413);
     let body;try{body=JSON.parse(text||'{}');}catch{return reply({error:'INVALID_CHART_POINT'},422);}
     if(!body||typeof body!=='object'||Array.isArray(body)||(body.candle_time!==undefined&&!Number.isSafeInteger(body.candle_time)))return reply({error:'INVALID_CHART_POINT'},422);
-    let market = await observation(env);
+    const market = await observation(env);
     if(body.candle_time!==undefined){
-      const index=market.candles.findIndex(c=>c.time===body.candle_time);
-      if(index<1)return reply({error:'CHART_POINT_UNAVAILABLE'},409);
-      const candles=market.candles.slice(0,index+1),snapshot_hash=await hash(candles);
-      market={...market,candles,parent_snapshot_hash:market.snapshot_hash,snapshot_hash,frame_hash:await hash('vision-v2:'+snapshot_hash)};
+      if(body.candle_time!==market.candles.at(-1)?.time)return reply({error:'LATEST_POINT_ONLY'},409);
     }
     const portfolio = await db.prepare('SELECT * FROM portfolios WHERE user_id=?').bind(user.id).first();
-    const context = {id:crypto.randomUUID(),symbol:'BTCUSD',market,portfolio,created_at:seconds(),expires_at:seconds()+600};
+    const context = {id:crypto.randomUUID(),kind:'live',symbol:'BTCUSD',market,portfolio,created_at:seconds(),expires_at:seconds()+120};
     await db.prepare('INSERT INTO companion_contexts VALUES (?,?,?,?,?)').bind(context.id,user.id,JSON.stringify(context),context.created_at,context.expires_at).run();
     return reply(context,201);
   }

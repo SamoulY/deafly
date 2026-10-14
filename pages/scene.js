@@ -1,6 +1,7 @@
 import * as THREE from './vendor-three.js';
 import { createFlyModel } from './fly-model.js';
-import { createMotion, ACTION_KEYS } from './fly-motion.js';
+import { createMotion, ACTION_KEYS } from './fly-motion.js?v=2';
+import {buildRoomDecor,drawVisionRoom,clearDecor} from './room-decor.js?v=1';
 
 const FPS=12;const FRAME_MS=1000/FPS;
 const material = (color, options = {}) => new THREE.MeshStandardMaterial({
@@ -147,9 +148,10 @@ export function startScene(canvas, series = [], flyId = 'default') {
   const fill = new THREE.DirectionalLight('#ffddd6', .7); fill.position.set(3, 2, 5); scene.add(fill);
   const keys=buildDesk(root);canvas.dataset.keyCount=String(keys.length); const monitor = buildTerminal(root, series); const { fly, setOutfit, setAppearance } = buildFly(root, flyId); const move = orbit(canvas, root);
   const motion=createMotion(fly,keys,canvas);
+  const decorations=new THREE.Group();decorations.name='room-decor';root.add(decorations);let roomKey='';
   let paused = false, greetingUntil = 0;
   const loop = t => {
-    if (!paused) {
+    if (!paused && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
       move();
       motion.update(t);
       if (t < greetingUntil) {
@@ -166,6 +168,7 @@ export function startScene(canvas, series = [], flyId = 'default') {
     setPaused: v => { paused = v; }, isPaused: () => paused, setVisible: run.setVisible,
     setOutfit(loadout) {
       const normalized = setOutfit(loadout);
+      const nextKey=JSON.stringify(loadout||{});if(nextKey!==roomKey){roomKey=nextKey;buildRoomDecor(decorations,loadout);canvas.dataset.room=nextKey;}
       const backgrounds = { 'background-mint': '#10201e', 'background-rose': '#23171e', 'background-graphite': '#181c24' };
       scene.background.set(backgrounds[normalized.background] || '#060709');
       return normalized;
@@ -178,18 +181,21 @@ export function startScene(canvas, series = [], flyId = 'default') {
 export function startVisionScene(canvas, series = []) {
   const { renderer, scene, camera } = makeRenderer(canvas, '#030506'); camera.position.set(0, 0, 6);
   const root = new THREE.Group(); scene.add(root);
+  let room=null,prices=series;
   const rebuild = values => {
-    root.clear();
+    prices=values;clearDecor(root);
     for (const side of [-1, 1]) {
-      const tex = visionTexture(values, side === -1 ? 'LEFT' : 'RIGHT');
+      const surface=document.createElement('canvas');
+      if(room)drawVisionRoom(surface,room,c=>drawMarketCanvas(values,side===-1?'LEFT EYE':'RIGHT EYE',c));else drawMarketCanvas(values,side===-1?'LEFT EYE':'RIGHT EYE',surface);
+      const tex = new THREE.CanvasTexture(surface);
       const lens = new THREE.Mesh(new THREE.SphereGeometry(1.65, 18, 12, 0, Math.PI * 2, 0, Math.PI * 0.58), new THREE.MeshBasicMaterial({ map: tex, side: THREE.DoubleSide, transparent: true, opacity: 0.9 }));
       lens.scale.set(1, 0.72, 0.22); lens.position.x = side * 1.22; lens.rotation.y = side * 0.24; root.add(lens);
     }
   };
   rebuild(series);
-  const loop = t => { root.rotation.y = Math.sin(t * 0.0005) * 0.04; canvas.setAttribute('data-lit-frame', String(t)); renderer.render(scene, camera); };
+  const loop = t => { if(!matchMedia('(prefers-reduced-motion: reduce)').matches)root.rotation.y = Math.sin(t * 0.0005) * 0.04; canvas.setAttribute('data-lit-frame', String(t)); renderer.render(scene, camera); };
   const run = scheduler(canvas, loop);
-  return { update() {}, updateMarket: rebuild, setVisible: run.setVisible };
+  return { update() {}, updateMarket: rebuild, setVisible: run.setVisible,setOutfit:loadout=>{if(JSON.stringify(room)!==JSON.stringify(loadout||{})){room={...loadout};canvas.dataset.room=JSON.stringify(room);rebuild(prices);}} };
 }
 
 export function startBrainScene(canvas, anatomy = null) {

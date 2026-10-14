@@ -13,6 +13,7 @@ crons = ["*/1 * * * *"]
 [vars]
 APP_ENV = "trial"
 PAPER_ONLY = "true"
+TURNSTILE_SITE_KEY = "0x4AAAAAAFWJTsGlmDkRItzr"
 ALLOWED_ORIGIN = "https://defly.99x.meme,https://flydesk-v2-trial.pages.dev"
 
 [[durable_objects.bindings]]

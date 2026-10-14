@@ -12,7 +12,14 @@ export function createMotion(fly,keys,canvas){
  restore();antenna.forEach((a,i)=>a.rotation.z=Math.sin(t*.002+i)*.07);wings.forEach((w,i)=>w.rotation.x=Math.PI/2+Math.sin(t*.0017+i*.4)*.024);
  const thorax=fly.children.find(o=>o.name==='thorax');thorax.scale.y=.57*(1+Math.sin(t*.002)*.018);
  if(!active&&queue.length){active={...queue.shift(),start:t};canvas.dataset.action=active.action;canvas.dataset.actionEvent=active.id;}
- if(!active)return;
+ if(!active){
+   // Quiet grooming and a short wing stretch, away from every trading key.
+   const idle=(t%14000)/14000,groom=idle>.7&&idle<.83?Math.sin((idle-.7)/.13*Math.PI):0;
+   legs.forEach(l=>{l.rotation.z=l.name.endsWith('-0')?Math.sin(t*.025)*.07*groom:0;});
+   wings.forEach((w,i)=>w.rotation.x+=idle>.91?Math.sin(t*.035+i)*.09*Math.sin((idle-.91)/.09*Math.PI):0);
+   canvas.dataset.motionPhase=groom?'groom':'idle';return;
+ }
+ legs.forEach(l=>l.rotation.z=0);
  const u=(t-active.start)/950;if(u>=1){active=null;canvas.dataset.motionPhase='idle';return;}
  const key=keys[ACTION_KEYS.indexOf(active.action)];const reach=u<.35?u/.35:u<.65?1:(1-u)/.35;
  key.position.y=key.userData.restY-(u>.35&&u<.65?.055:0);key.material.emissive.setHex(0x303030);
